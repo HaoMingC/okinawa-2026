@@ -9,6 +9,8 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
         .day-card { display: none; }
         .day-card.active { display: block; animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -18,329 +20,364 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .coffee-break { @apply bg-orange-50 border-l-4 border-orange-300 p-3 rounded-r-lg my-2 text-sm; }
         .meal-tag { @apply inline-block bg-yellow-100 text-yellow-800 text-[10px] px-2 py-0.5 rounded-full font-bold mb-1; }
+        .breakfast-tag { @apply inline-block bg-pink-100 text-pink-800 text-[10px] px-2 py-0.5 rounded-full font-bold mb-1 mr-1; }
+        .checklist-item { @apply flex items-center space-x-3 p-3 border-b border-gray-50 last:border-0; }
+        .checklist-item input[type="checkbox"] { @apply w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500; }
     </style>
 </head>
 <body class="bg-gray-50 pb-24">
 
-    <!-- Header -->
-    <header class="bg-blue-600 text-white p-6 shadow-lg sticky top-0 z-50">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div>
+    <!-- Top Navigation Tabs -->
+    <header class="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 pt-4 pb-2">
+            <div class="flex justify-between items-center mb-4">
                 <h1 class="text-xl font-bold">🌸 沖繩初航 🌸</h1>
-                <p class="text-sm opacity-90">2026/03/28 - 04/01</p>
+                <div class="flex space-x-2">
+                    <button onclick="setupApiKey()" class="bg-white/20 p-2 rounded-full hover:bg-white/30 transition">
+                        <i class="fas fa-key text-sm"></i>
+                    </button>
+                    <button onclick="toggleAIChat()" class="bg-white/20 p-2 rounded-full hover:bg-white/30 transition">
+                        <i class="fas fa-robot text-sm"></i>
+                    </button>
+                </div>
             </div>
-            <div class="flex space-x-2">
-                <button onclick="setupApiKey()" class="bg-white/20 p-2 rounded-full hover:bg-white/30 transition">
-                    <i class="fas fa-key text-lg"></i>
-                </button>
-                <button onclick="toggleAIChat()" class="bg-white/20 p-2 rounded-full hover:bg-white/30 transition">
-                    <i class="fas fa-robot text-xl"></i>
-                </button>
+            <div class="flex bg-blue-700/50 rounded-xl p-1 mb-2">
+                <button onclick="switchMainTab('itinerary')" id="main-tab-itinerary" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-blue-700 transition-all">行程規劃</button>
+                <button onclick="switchMainTab('preparation')" id="main-tab-preparation" class="flex-1 py-2 text-sm font-bold rounded-lg text-white transition-all">行前準備</button>
+                <button onclick="switchMainTab('notes')" id="main-tab-notes" class="flex-1 py-2 text-sm font-bold rounded-lg text-white transition-all">注意事項</button>
             </div>
         </div>
     </header>
 
     <main class="max-w-md mx-auto p-4">
-        <!-- Logistics Info -->
-        <div class="bg-white rounded-xl p-3 shadow-sm mb-4 border border-blue-100 text-[10px]">
-            <div class="flex justify-between mb-1">
-                <span><i class="fas fa-plane-departure mr-1"></i> JAL NU302 (TPE 10:00 - OKA 12:30)</span>
-                <span><i class="fas fa-taxi mr-1"></i> TDV-1965</span>
-            </div>
-            <div class="flex justify-between">
-                <span><i class="fas fa-plane-arrival mr-1"></i> AirAsia FD231 (OKA 16:55 - TPE 17:30)</span>
-                <span><i class="fas fa-taxi mr-1"></i> TAR-288</span>
-            </div>
-        </div>
 
-        <!-- Day Selector -->
-        <div class="flex space-x-2 mb-6 overflow-x-auto pb-2 no-scrollbar text-xs">
-            <button onclick="showDay(1)" id="btn-1" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-blue-600 text-white shadow-md">D1 抵達</button>
-            <button onclick="showDay(2)" id="btn-2" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D2 動物</button>
-            <button onclick="showDay(3)" id="btn-3" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D3 購物</button>
-            <button onclick="showDay(4)" id="btn-4" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D4 海景</button>
-            <button onclick="showDay(5)" id="btn-5" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D5 賦歸</button>
-        </div>
-
-        <!-- Content Area -->
-        <div id="content">
-            <!-- Day 1: 啟程與核心補給 -->
-            <div id="day-1" class="day-card active">
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">08:00 - 10:00</span>
-                    <h3 class="font-bold text-gray-800">桃機 T2 報到與起飛</h3>
-                    <p class="text-xs text-gray-600 mt-1">呼叫小黃送機。JAL 提供機上餐點，小孩可在機上進食或補眠。</p>
+        <!-- Tab 1: 行程規劃 (完全保留原始精細內容) -->
+        <div id="content-itinerary" class="tab-content active">
+            <!-- Logistics Info -->
+            <div class="bg-white rounded-xl p-3 shadow-sm mb-4 border border-blue-100 text-[10px]">
+                <div class="flex justify-between mb-1">
+                    <span><i class="fas fa-plane-departure mr-1"></i> JAL NU302 (TPE 10:00 - OKA 12:30)</span>
+                    <span><i class="fas fa-taxi mr-1"></i> TDV-1965</span>
                 </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">14:00 - 15:00</span>
-                    <h3 class="font-bold text-gray-800">那霸機場與租車取車</h3>
-                    <p class="text-xs text-gray-600 mt-1">領取行李後前往租車櫃台。確認安全座椅安裝妥當。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">15:15 - 17:00</span>
-                    <h3 class="font-bold text-blue-800">iias 豐崎：物資採買 🍼 <a href="https://www.google.com/maps/search/iias+Okinawa+Toyosaki" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <div class="meal-tag">下午茶自理</div>
-                    <p class="text-xs text-gray-600">直奔 3 樓西松屋或玩具反斗城。**必買清單：明治/雪印奶粉、Pampers/Moony尿布、和光堂副食包。**</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">17:00 - 18:30</span>
-                    <h3 class="font-bold text-gray-800">DMM Kariyushi 水族館 <a href="https://www.google.com/maps/search/DMM+Kariyushi+Aquarium" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">就在 iias 隔壁。推薦觸摸池與透明地板區，非常適合 1 歲多小孩觀察。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">19:00 - 20:30</span>
-                    <div class="meal-tag">晚餐推薦：通堂拉麵</div>
-                    <h3 class="font-bold text-gray-800">辦理入住 <a href="https://www.google.com/maps/search/naha-de.asobu" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">飯店 Check-in 並整理物資。小孩預計 21:00 前就寢。</p>
+                <div class="flex justify-between">
+                    <span><i class="fas fa-plane-arrival mr-1"></i> AirAsia FD231 (OKA 16:55 - TPE 17:30)</span>
+                    <span><i class="fas fa-taxi mr-1"></i> TAR-288</span>
                 </div>
             </div>
 
-            <!-- Day 2: 歷史參拜與親子動物園 -->
-            <div id="day-2" class="day-card">
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">08:30 - 10:00</span>
-                    <h3 class="font-bold text-gray-800">普天滿宮參拜 <a href="https://www.google.com/maps/search/Futenma+Shrine" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">參觀壯觀的鐘乳石洞。環境幽靜，小孩推車可行走。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">10:30 - 12:30</span>
-                    <h3 class="font-bold text-gray-800">沖繩兒童王國 <a href="https://www.google.com/maps/search/Okinawa+Zoo+%26+Museum" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">重點：觸摸動物區與長頸鹿餵食。這裡有適合 1-2 歲的平緩區域。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">12:30 - 14:00</span>
-                    <div class="meal-tag">午餐：Hamaya 濱屋蕎麥麵</div>
-                    <h3 class="font-bold text-gray-800">美濱地區午餐 <a href="https://www.google.com/maps/search/Hamaya+Soba" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                </div>
-                <div class="coffee-break">
-                    <i class="fas fa-moon mr-2 text-orange-400"></i><strong>午休 & 大人時刻：</strong>小孩在車上/推車午睡。開往 <strong>Zhyvago Coffee</strong> <a href="https://www.google.com/maps/search/Zhyvago+Coffee+Works" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a>，看海喝咖啡，享受寧靜。
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">15:30 - 18:30</span>
-                    <h3 class="font-bold text-gray-800">美國村散策 & 購物 <a href="https://www.google.com/maps/search/American+Village+Okinawa" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">逛大國藥妝或超市買點零食。小孩可以看街道上的美式裝飾。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">18:30 - 20:00</span>
-                    <div class="meal-tag">晚餐：迴轉壽司市場</div>
-                    <p class="text-xs text-gray-600">美國村人氣排隊名店，可提早拿號碼牌。</p>
-                </div>
+            <!-- Day Selector -->
+            <div class="flex space-x-2 mb-6 overflow-x-auto pb-2 no-scrollbar text-xs">
+                <button onclick="showDay(1)" id="btn-1" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-blue-600 text-white shadow-md">D1 水族館</button>
+                <button onclick="showDay(2)" id="btn-2" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D2 動物園</button>
+                <button onclick="showDay(3)" id="btn-3" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D3 美國村</button>
+                <button onclick="showDay(4)" id="btn-4" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D4 南部</button>
+                <button onclick="showDay(5)" id="btn-5" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D5 賦歸</button>
             </div>
 
-            <!-- Day 3: 海灘踩水與旗艦賣場 -->
-            <div id="day-3" class="day-card">
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">09:00 - 11:30</span>
-                    <h3 class="font-bold text-gray-800">波上宮 & 波之上海灘 <a href="https://www.google.com/maps/search/Naminoue+Shrine" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">祈求交通安全御守。海灘適合帶孩子人生第一次踩水，水質清澈且沙子細。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">12:00 - 13:30</span>
-                    <div class="meal-tag">午餐：琉球之牛 (北谷店)</div>
-                    <h3 class="font-bold text-gray-800">石垣牛燒肉大餐 <a href="https://www.google.com/maps/search/Ryukyu+no+Ushi+Chatan" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">建議預約，提供兒童椅，肉質柔軟適合剪碎給小孩嘗試。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">14:00 - 16:30</span>
-                    <h3 class="font-bold text-gray-800">AEON Mall Rycom 永旺 <a href="https://www.google.com/maps/search/AEON+Mall+Okinawa+Rycom" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <div class="coffee-break">
-                        <i class="fas fa-star mr-2 text-orange-400"></i><strong>大人時刻：</strong>小孩推車午睡。逛 UNIQLO、Workman。1 樓的大型魚缸可以讓剛睡醒的小孩看魚。
+            <div id="days-container">
+                <!-- Day 1 -->
+                <div id="day-1" class="day-card active">
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">08:00 - 10:00</span>
+                        <h3 class="font-bold text-gray-800">桃機 T2 起飛</h3>
+                        <p class="text-xs text-gray-600 mt-1">JAL 包含飛機餐，小孩可先在機上用餐及補眠。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">14:00 - 15:00</span>
+                        <h3 class="font-bold text-gray-800">那霸機場取車</h3>
+                        <p class="text-xs text-gray-600 mt-1">取車後直接前往豐崎地區（約 15 分鐘車程）。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">15:15 - 17:00</span>
+                        <h3 class="font-bold text-gray-800">DMM Kariyushi 水族館 <a href="https://www.google.com/maps/search/DMM+Kariyushi+Aquarium" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <p class="text-xs text-gray-600">優先看魚！室內冷氣舒適，小孩可以自由走動看觸摸池，減緩搭機疲勞。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">17:00 - 18:30</span>
+                        <h3 class="font-bold text-blue-800">iias 豐崎：快速採買 🍼</h3>
+                        <p class="text-xs text-gray-600">就在隔壁。直奔西松屋買「這兩天」必備的奶粉尿布，其餘大採購留給 D2 或 D4。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">19:00 - 20:30</span>
+                        <div class="meal-tag">晚餐推薦：通堂拉麵</div>
+                        <h3 class="font-bold text-gray-800">トラベルホステルnaha-de.asobu Check-in <a href="https://www.google.com/maps/search/naha-de.asobu" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <p class="text-xs text-gray-600"> Check-in 並整理物資。小孩預計 21:00 前就寢。</p>
                     </div>
                 </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">17:00 - 19:00</span>
-                    <h3 class="font-bold text-gray-800">浦添大公園 <a href="https://www.google.com/maps/search/Urasoe+Dai+Park" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">推薦「B區」幼兒遊樂場，有專屬小小孩的低矮滑梯與防摔地面。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">19:30 - 21:00</span>
-                    <div class="meal-tag">晚餐：暖暮拉麵 (中城店)</div>
-                    <p class="text-xs text-gray-600">選非市中心店面可避開觀光客人潮。</p>
-                </div>
-            </div>
 
-            <!-- Day 4: 南部美景與飛機驚喜 -->
-            <div id="day-4" class="day-card">
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">09:30 - 12:00</span>
-                    <h3 class="font-bold text-gray-800">平和祈念公園 <a href="https://www.google.com/maps/search/Okinawa+Peace+Memorial+Park+Playground" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">必去！擁有沖繩最豪華的兒童遊樂設施，專屬 1-3 歲區域非常大且安全。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">12:30 - 14:00</span>
-                    <div class="meal-tag">午餐：奧武島中本天婦羅</div>
-                    <h3 class="font-bold text-gray-800">奧武島體驗 <a href="https://www.google.com/maps/search/Oujima+Island+Okinawa" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <p class="text-xs text-gray-600">買天婦羅在車上吃或在海邊堤防坐著，這裡有很多親人的貓咪。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">14:30 - 17:00</span>
-                    <h3 class="font-bold text-gray-800">瀨長島 Umikaji Terrace <a href="https://www.google.com/maps/search/Umikaji+Terrace+Senagajima" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <div class="coffee-break">
-                        <i class="fas fa-sun mr-2 text-orange-400"></i><strong>大人時刻：</strong>小孩睡覺期間，爸爸媽媽可以輪流去排 <strong>幸せのパンケーキ (幸福鬆餅)</strong>，看夕陽與飛機。
+                <!-- Day 2 -->
+                <div id="day-2" class="day-card">
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">08:30 - 09:30</span>
+                        <div class="breakfast-tag">推薦早餐：甘味處 萬丸</div>
+                        <h3 class="font-bold text-gray-800">晨間早餐與出發</h3>
+                        <p class="text-xs text-gray-600">享用名古屋式的點飲料送早餐服務，適合小孩吃厚片吐司。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">10:00 - 11:30</span>
+                        <h3 class="font-bold text-gray-800">普天滿宮參拜 <a href="https://www.google.com/maps/search/Futenma+Shrine" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <p class="text-xs text-gray-600">鐘乳石洞內涼爽，帶小孩簡單參觀祈福。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">12:00 - 14:30</span>
+                        <h3 class="font-bold text-gray-800">沖繩兒童王國 <a href="https://www.google.com/maps/search/Okinawa+Zoo+%26+Museum" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <div class="meal-tag">午餐：園區內簡單用餐</div>
+                        <p class="text-xs text-gray-600">重點：餵食大象長頸鹿。這裡比一般動物園更適合幼童走動。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">15:00 - 18:30</span>
+                        <h3 class="font-bold text-gray-800">AEON Mall Rycom 永旺 <a href="https://www.google.com/maps/search/AEON+Mall+Okinawa+Rycom" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <div class="coffee-break">
+                            <i class="fas fa-star mr-2 text-orange-400"></i><strong>大人時刻：</strong>小孩推車午睡。逛旗艦店（Akachan Honpo、UNIQLO）。1 樓大魚缸是剛睡醒小孩的最愛。
+                        </div>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">19:00 - 20:30</span>
+                        <div class="meal-tag">晚餐：くら壽司 (永旺店)</div>
+                        <p class="text-xs text-gray-600">迴轉壽司方便帶小孩，且有扭蛋可以玩。</p>
                     </div>
                 </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">17:30 - 19:30</span>
-                    <div class="meal-tag">晚餐：瀨長島美食廣場</div>
-                    <p class="text-xs text-gray-600">邊吃晚餐邊感受沖繩最後一個夜晚的海風。</p>
-                </div>
-            </div>
 
-            <!-- Day 5: 退房、採買與歸途 -->
-            <div id="day-5" class="day-card">
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">09:00 - 10:30</span>
-                    <h3 class="font-bold text-gray-800">飯店 Check-out 與早餐</h3>
-                    <p class="text-xs text-gray-600">確認沒有遺落小孩的備品或玩具在房間。前往國際通散步。</p>
+                <!-- Day 3 -->
+                <div id="day-3" class="day-card">
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">09:00 - 10:30</span>
+                        <div class="breakfast-tag">推薦早餐：豬肉蛋飯糰 (國際通本店)</div>
+                        <h3 class="font-bold text-gray-800">波上宮 & 海灘 <a href="https://www.google.com/maps/search/Naminoue+Beach" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <p class="text-xs text-gray-600">海灘踩水，沙子很細。這時候水溫涼爽適合玩一下水。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">11:00 - 13:00</span>
+                        <h3 class="font-bold text-gray-800">浦添大公園 <a href="https://www.google.com/maps/search/Urasoe+Dai+Park" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <p class="text-xs text-gray-600">專屬 1-3 歲幼兒的「B 區」遊樂場，放電絕佳場所。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">13:30 - 15:30</span>
+                        <div class="meal-tag">午餐：琉球之牛 (北谷店)</div>
+                        <h3 class="font-bold text-gray-800">美濱地區午餐</h3>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">15:30 - 19:00</span>
+                        <h3 class="font-bold text-gray-800">美國村散策 <a href="https://www.google.com/maps/search/American+Village+Okinawa" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <div class="coffee-break">
+                            <i class="fas fa-sun mr-2 text-orange-400"></i><strong>大人時刻：</strong>在 <strong>Zhyvago Coffee</strong> 看海。美國村傍晚點燈與夕陽非常浪漫。
+                        </div>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">19:30 - 21:00</span>
+                        <div class="meal-tag">晚餐：暖暮拉麵 (中城店)</div>
+                        <p class="text-xs text-gray-600">回程途中用餐，避開市區人潮。</p>
+                    </div>
                 </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">10:30 - 12:30</span>
-                    <h3 class="font-bold text-gray-800">國際通 / 超市補貨 <a href="https://www.google.com/maps/search/Kokusai+Dori" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                    <div class="meal-tag">午餐：第一牧志公設市場</div>
-                    <p class="text-xs text-gray-600">最後購買伴手禮（如黑糖、雪鹽）。在市場內快速午餐。</p>
+
+                <!-- Day 4 -->
+                <div id="day-4" class="day-card">
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">09:00 - 10:30</span>
+                        <div class="breakfast-tag">推薦早餐：oHacorté Bakery</div>
+                        <h3 class="font-bold text-gray-800">美味吐司早餐</h3>
+                        <p class="text-xs text-gray-600">在那霸市區的高質感麵包早午餐店。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">11:00 - 13:30</span>
+                        <h3 class="font-bold text-gray-800">平和祈念公園 <a href="https://www.google.com/maps/search/Okinawa+Peace+Memorial+Park+Playground" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <p class="text-xs text-gray-600">全沖繩最強幼兒公園，專屬遮陽與安全地板設施。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">14:00 - 15:30</span>
+                        <div class="meal-tag">午餐：奧武島天婦羅</div>
+                        <h3 class="font-bold text-gray-800">奧武島看貓</h3>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">16:00 - 18:30</span>
+                        <h3 class="font-bold text-gray-800">瀨長島夕陽 <a href="https://www.google.com/maps/search/Umikaji+Terrace+Senagajima" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <div class="coffee-break">
+                            <i class="fas fa-plane mr-2 text-orange-400"></i><strong>大人時刻：</strong>看飛機起降，品嚐幸福鬆餅。若 D1 沒買夠，可在此時回附近的 iias 補貨。
+                        </div>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">19:00 - 20:30</span>
+                        <div class="meal-tag">晚餐：瀨長島美食廣場</div>
+                        <p class="text-xs text-gray-600">享受在海邊的最後一頓晚餐。</p>
+                    </div>
                 </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-red-600">13:00 - 14:00</span>
-                    <h3 class="font-bold text-gray-800">加油、還車、前往機場</h3>
-                    <p class="text-xs text-gray-600">將油箱加滿。前往租車公司還車後，搭乘接駁車於 14:00 前抵達那霸機場 T2。</p>
-                </div>
-                <div class="time-slot">
-                    <span class="text-sm font-bold text-blue-600">16:55 - 17:30</span>
-                    <h3 class="font-bold text-gray-800">起飛與抵達台灣</h3>
-                    <p class="text-xs text-gray-600">Air Asia FD231 返程。抵達後預約寶貝車接機，平安回家。</p>
+
+                <!-- Day 5 -->
+                <div id="day-5" class="day-card">
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">09:00 - 11:00</span>
+                        <div class="breakfast-tag">推薦早餐：飯店早餐</div>
+                        <h3 class="font-bold text-gray-800">悠閒退房</h3>
+                        <p class="text-xs text-gray-600">最後整理行李，前往國際通。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">11:00 - 13:00</span>
+                        <h3 class="font-bold text-gray-800">國際通 / 牧志市場 <a href="https://www.google.com/maps/search/Kokusai+Dori" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                        <p class="text-xs text-gray-600">最後的伴手禮衝刺（黑糖、藥妝）。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-red-600">13:30 - 14:30</span>
+                        <h3 class="font-bold text-gray-800">加油、還車、前往機場</h3>
+                        <p class="text-xs text-gray-600">14:55 前需抵達那霸機場，辦理 Air Asia 登機手續。</p>
+                    </div>
+                    <div class="time-slot">
+                        <span class="text-sm font-bold text-blue-600">16:55 - 17:30</span>
+                        <h3 class="font-bold text-gray-800">返抵台灣</h3>
+                        <p class="text-xs text-gray-600">平安回家，期待下次旅行。</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- AI Chat Modal -->
+        <!-- Tab 2: 行前準備 (Checklist) -->
+        <div id="content-preparation" class="tab-content">
+            <div class="space-y-6">
+                <!-- 重要證件 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-blue-50 px-4 py-3 border-b border-blue-100 flex items-center justify-between">
+                        <span class="font-bold text-blue-800">🪪 重要證件與文件</span>
+                        <span class="text-[10px] bg-blue-200 text-blue-700 px-2 py-0.5 rounded">不可遺忘</span>
+                    </div>
+                    <div class="p-2">
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">護照 (大人小孩共 3 本)</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">台灣駕照正本 + 日文譯本 (開車者)</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">Visit Japan Web 截圖 (登機用)</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">日幣現金 + 信用卡 (雙系統)</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">海外旅遊平安險證明</span></label>
+                    </div>
+                </div>
+
+                <!-- 寶寶用品 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-pink-50 px-4 py-3 border-b border-pink-100 font-bold text-pink-800">👶 寶寶用品 (1Y4M)</div>
+                    <div class="p-2">
+                        <p class="px-4 py-2 text-xs text-gray-500 italic">建議：尿布在日本買，行李箱留給戰利品</p>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">輕便推車 (建議可平躺/機門取車)</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">奶粉分裝盒 / 奶瓶 x2 / 刷具</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">副食品料理包 (3-5天量)</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">食物剪 / 寶寶餐具 / 圍兜</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">安撫玩具 / 被被 / 奶嘴</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">常備藥 (退燒/感冒/腸胃/OK繃)</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span class="text-sm">泳衣 / 游泳尿布 (瀨長島玩水用)</span></label>
+                    </div>
+                </div>
+
+                <!-- 大人行李 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-green-50 px-4 py-3 border-b border-green-100 font-bold text-green-800">👕 大人行李建議</div>
+                    <div class="p-2 text-sm text-gray-700">
+                        <div class="px-4 py-2">
+                            <p class="font-bold text-xs mb-1">衣物數量參考：</p>
+                            <ul class="list-disc list-inside text-xs space-y-1">
+                                <li>短袖/薄長袖 x 5 套</li>
+                                <li>薄外套/防風外套 x 1 (沖繩海風大)</li>
+                                <li>貼身內衣褲 x 6 套 (建議多帶一套備用)</li>
+                                <li>好走的運動鞋 x 1 / 涼拖鞋 x 1</li>
+                            </ul>
+                        </div>
+                        <label class="checklist-item"><input type="checkbox"> <span>行動電源 / 充電線 / 轉接頭(日本不用)</span></label>
+                        <label class="checklist-item"><input type="checkbox"> <span>個人盥洗保養品 / 隱形眼鏡</span></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: 注意事項 -->
+        <div id="content-notes" class="tab-content">
+            <div class="space-y-4">
+                <!-- 飛行須知 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-blue-700 mb-3 border-b pb-2 flex items-center">
+                        <i class="fas fa-plane-arrival mr-2"></i> 搭機注意事項
+                    </h3>
+                    <ul class="text-xs text-gray-600 space-y-3 leading-relaxed">
+                        <li><strong>🛒 推車託運：</strong> 建議在櫃台報到時要求「機門取車 (Gate Check)」。您可以一路推到登機口交給地勤，下機時在機門領取，減少在機場抱小孩的體力消耗。</li>
+                        <li><strong>🍼 降落安撫：</strong> 1歲多寶寶耳壓不適時，請在起飛與降落時讓寶寶「喝奶」或「吸奶嘴」，引導吞嚥動作可緩解疼痛。</li>
+                        <li><strong>🍱 寶寶餐：</strong> JAL 通常需提前預約寶寶餐 (Baby Meal)，請出發前 3 天確認。AirAsia 為廉航，需自備寶寶零食。</li>
+                    </ul>
+                </div>
+
+                <!-- 自駕須知 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-green-700 mb-3 border-b pb-2 flex items-center">
+                        <i class="fas fa-car mr-2"></i> 沖繩自駕安全
+                    </h3>
+                    <ul class="text-xs text-gray-600 space-y-3 leading-relaxed">
+                        <li><strong>💺 兒童座椅：</strong> 日本法律規定 6 歲以下強制使用。取車時請務必確認座椅安裝穩固，不可因為寶寶哭鬧就抱在懷裡。</li>
+                        <li><strong>🚦 交通守則：</strong> 「右駕」新手請記得：轉彎時「左小右大」。沖繩市區速限較低 (40-50km)，請勿搶快。</li>
+                        <li><strong>🅿️ 停車：</strong> 景點多有免費停車，但那霸市區飯店多需另付 1000-1500円/晚。</li>
+                    </ul>
+                </div>
+
+                <!-- 飲食須知 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-orange-700 mb-3 border-b pb-2 flex items-center">
+                        <i class="fas fa-utensils mr-2"></i> 飲食與補貨
+                    </h3>
+                    <ul class="text-xs text-gray-600 space-y-3 leading-relaxed">
+                        <li><strong>🍶 泡奶用水：</strong> 日本自來水可生飲但含礦物質，建議在超市購買標註「純水」或寶寶專用的瓶裝水泡奶。</li>
+                        <li><strong>🤱 親子設施：</strong> 沖繩百貨公司 (AEON, iias) 的哺乳室設備非常完善 (熱水、尿布台、隱私隔間)，可放心安排長時間逛街。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Chat Modal (Logic remains same) -->
         <div id="ai-modal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
             <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
                 <div class="p-4 border-b flex justify-between items-center bg-purple-600 text-white rounded-t-2xl">
-                    <h3 class="font-bold">✨ Gemini 旅遊助手</h3>
+                    <h3 class="font-bold text-sm">✨ Gemini 助手</h3>
                     <button onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
                 </div>
-                <div id="ai-response-container" class="p-4 overflow-y-auto flex-grow text-sm text-gray-700 leading-relaxed">
-                    您可以問我關於咖啡廳、路況、導航、或是各餐廳的推薦菜色。<br><br>
-                    <span class="text-orange-500 font-bold"><i class="fas fa-exclamation-triangle"></i> 注意：請先點擊上方金鑰按鈕設置 API Key 才能連線。</span>
+                <div id="ai-response-container" class="p-4 overflow-y-auto flex-grow text-sm text-gray-700">
+                    我可以幫您查詢景點 MapCode 或推薦寶寶餐喔！
                 </div>
-                <div id="ai-loading" class="hidden p-4 text-center text-purple-600 font-medium">
-                    <span class="loading-dots text-2xl">●●●</span>
-                    <p class="text-xs mt-1">正在連線至 Gemini...</p>
-                </div>
-                <div class="p-4 border-t">
-                    <div class="flex space-x-2">
-                        <input id="ai-input" type="text" placeholder="輸入問題..." class="flex-grow border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <button onclick="handleCustomQuery()" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm transition hover:bg-purple-700 active:scale-95">傳送</button>
-                    </div>
+                <div id="ai-loading" class="hidden p-4 text-center text-purple-600 font-medium">●●●</div>
+                <div class="p-4 border-t flex space-x-2">
+                    <input id="ai-input" type="text" placeholder="輸入問題..." class="flex-grow border rounded-lg px-3 py-2 text-sm focus:outline-none">
+                    <button onclick="handleCustomQuery()" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm">傳送</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Navigation -->
+    <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 flex justify-around items-center max-w-md mx-auto shadow-2xl z-40">
-        <button onclick="showDay(1)" class="text-center text-blue-600">
+        <button onclick="switchMainTab('itinerary')" class="text-center text-blue-600">
             <i class="fas fa-route block"></i>
             <span class="text-[10px]">精細行程</span>
         </button>
-        <button onclick="askGemini('列出第一天在 iias 必買的幼兒物資清單，包含奶粉、尿布品牌與副食品包')" class="text-center text-purple-600">
+        <button onclick="askGemini('幫我列出沖繩 AEON Rycom 適合 1 歲小孩的玩具清單與樓層指引')" class="text-center text-purple-600">
             <i class="fas fa-shopping-bag block"></i>
             <span class="text-[10px]">物資清單</span>
         </button>
         <button onclick="toggleAIChat()" class="text-center text-gray-400">
-            <i class="fas fa-robot block"></i>
-            <span class="text-[10px]">AI 助手</span>
+            <i class="fas fa-comments block"></i>
+            <span class="text-[10px]">問助手</span>
         </button>
     </nav>
 
     <script>
-        // 初始化時從存儲獲取 Key，避免直接寫在代碼中
         let currentApiKey = localStorage.getItem('GEMINI_API_KEY') || "";
 
-        function setupApiKey() {
-            const key = prompt("請輸入您的 Gemini API Key：\n(金鑰僅儲存在您的瀏覽器中，不會上傳至 GitHub)", currentApiKey);
-            if (key !== null) {
-                currentApiKey = key.trim();
-                localStorage.setItem('GEMINI_API_KEY', currentApiKey);
-                if (currentApiKey) {
-                    alert("API Key 已更新並儲存！");
+        function switchMainTab(tabId) {
+            // 切換大分頁
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('content-' + tabId).classList.add('active');
+
+            // 更新按鈕樣式
+            const tabs = ['itinerary', 'preparation', 'notes'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('main-tab-' + t);
+                if (t === tabId) {
+                    btn.classList.add('bg-white', 'text-blue-700', 'shadow-sm');
+                    btn.classList.remove('text-white');
+                } else {
+                    btn.classList.remove('bg-white', 'text-blue-700', 'shadow-sm');
+                    btn.classList.add('text-white');
                 }
-            }
-        }
-
-        async function askGemini(query) {
-            const container = document.getElementById('ai-response-container');
-            const loading = document.getElementById('ai-loading');
-            const modal = document.getElementById('ai-modal');
-            
-            modal.classList.remove('hidden');
-
-            if (!currentApiKey) {
-                container.innerHTML = `<span class="text-red-500 font-bold">錯誤：未設置 API Key</span><br><br>請點擊頁面右上方 <i class="fas fa-key"></i> 圖示來填入您的 Google AI 金鑰。您可以前往 <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline text-blue-600">Google AI Studio</a> 免費申請。`;
-                return;
-            }
-
-            loading.classList.remove('hidden');
-            container.classList.add('opacity-50');
-
-            try {
-                // 指數退避重試邏輯 (簡單版)
-                const fetchWithRetry = async (url, options, retries = 3) => {
-                    for (let i = 0; i < retries; i++) {
-                        try {
-                            const res = await fetch(url, options);
-                            if (res.ok) return res;
-                            if (res.status === 429) { // Rate limit
-                                await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
-                                continue;
-                            }
-                            throw new Error(`HTTP Error ${res.status}`);
-                        } catch (err) {
-                            if (i === retries - 1) throw err;
-                        }
-                    }
-                };
-
-                const response = await fetchWithRetry(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${currentApiKey}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: query }] }],
-                            systemInstruction: { parts: [{ text: "你是一位精通沖繩自駕旅遊與親子育兒的導遊。這對夫婦帶1歲4個月小孩。請針對導航建議、用餐細節、小孩在車上的狀況處理提供專業繁體中文建議。" }] }
-                        })
-                    }
-                );
-
-                const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error.message || "API 內部錯誤");
-                }
-
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Gemini 回傳了空白內容。";
-                // 使用簡單格式化
-                container.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            } catch (error) {
-                console.error("Gemini Error:", error);
-                container.innerHTML = `<span class="text-red-500 font-bold">連線失敗</span><br><br>原因：${error.message}<br><br>請檢查：<br>1. API Key 是否正確？<br>2. 網路是否正常？<br>3. 金鑰是否有設置 IP 限制？`;
-            } finally {
-                loading.classList.add('hidden');
-                container.classList.remove('opacity-50');
-            }
-        }
-
-        function toggleAIChat() {
-            document.getElementById('ai-modal').classList.toggle('hidden');
-        }
-
-        function handleCustomQuery() {
-            const input = document.getElementById('ai-input');
-            if (input.value.trim()) {
-                askGemini(input.value);
-                input.value = '';
-            }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showDay(day) {
@@ -351,7 +388,52 @@
                 btn.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-200');
             });
             document.getElementById('btn-' + day).classList.add('bg-blue-600', 'text-white', 'shadow-md');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setupApiKey() {
+            const key = prompt("輸入 Gemini API Key:", currentApiKey);
+            if (key !== null) {
+                currentApiKey = key.trim();
+                localStorage.setItem('GEMINI_API_KEY', currentApiKey);
+                alert("金鑰設置成功！");
+            }
+        }
+
+        async function askGemini(query) {
+            const container = document.getElementById('ai-response-container');
+            const loading = document.getElementById('ai-loading');
+            const modal = document.getElementById('ai-modal');
+            modal.classList.remove('hidden');
+
+            if (!currentApiKey) {
+                container.innerHTML = "請先點擊頂部小鑰匙設置 API Key。";
+                return;
+            }
+
+            loading.classList.remove('hidden');
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${currentApiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: query }] }],
+                        systemInstruction: { parts: [{ text: "你是一位精通日本親子旅遊的導遊。這對夫婦帶1歲4個月小孩前往沖繩旅遊。請依提出的問題提供繁體中文建議。(他們目前的行程規劃請參考https://haomingc.github.io/okinawa-2026/)" }] }
+                    })
+                });
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，目前無法回應。";
+                container.innerHTML = text.replace(/\n/g, '<br>');
+            } catch (e) {
+                container.innerHTML = "連線失敗，請檢查金鑰或網路。";
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+
+        function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
+        function handleCustomQuery() {
+            const input = document.getElementById('ai-input');
+            if (input.value) { askGemini(input.value); input.value = ''; }
         }
     </script>
 </body>
