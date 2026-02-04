@@ -29,9 +29,14 @@
                 <h1 class="text-xl font-bold">🌸 沖繩初航 🌸</h1>
                 <p class="text-sm opacity-90">2026/03/28 - 04/01</p>
             </div>
-            <button onclick="toggleAIChat()" class="bg-white/20 p-2 rounded-full">
-                <i class="fas fa-robot text-xl"></i>
-            </button>
+            <div class="flex space-x-2">
+                <button onclick="setupApiKey()" class="bg-white/20 p-2 rounded-full hover:bg-white/30 transition">
+                    <i class="fas fa-key text-lg"></i>
+                </button>
+                <button onclick="toggleAIChat()" class="bg-white/20 p-2 rounded-full hover:bg-white/30 transition">
+                    <i class="fas fa-robot text-xl"></i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -215,15 +220,17 @@
                     <button onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
                 </div>
                 <div id="ai-response-container" class="p-4 overflow-y-auto flex-grow text-sm text-gray-700 leading-relaxed">
-                    您可以問我關於咖啡廳、路況、導航、或是各餐廳的推薦菜色。
+                    您可以問我關於咖啡廳、路況、導航、或是各餐廳的推薦菜色。<br><br>
+                    <span class="text-orange-500 font-bold"><i class="fas fa-exclamation-triangle"></i> 注意：請先點擊上方金鑰按鈕設置 API Key 才能連線。</span>
                 </div>
                 <div id="ai-loading" class="hidden p-4 text-center text-purple-600 font-medium">
-                    <span class="loading-dots">正在連線至地圖資料庫</span>
+                    <span class="loading-dots text-2xl">●●●</span>
+                    <p class="text-xs mt-1">正在連線至 Gemini...</p>
                 </div>
                 <div class="p-4 border-t">
                     <div class="flex space-x-2">
                         <input id="ai-input" type="text" placeholder="輸入問題..." class="flex-grow border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <button onclick="handleCustomQuery()" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm">傳送</button>
+                        <button onclick="handleCustomQuery()" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm transition hover:bg-purple-700 active:scale-95">傳送</button>
                     </div>
                 </div>
             </div>
@@ -247,7 +254,19 @@
     </nav>
 
     <script>
-        const apiKey = ""; 
+        // 初始化時從存儲獲取 Key，避免直接寫在代碼中
+        let currentApiKey = localStorage.getItem('GEMINI_API_KEY') || "";
+
+        function setupApiKey() {
+            const key = prompt("請輸入您的 Gemini API Key：\n(金鑰僅儲存在您的瀏覽器中，不會上傳至 GitHub)", currentApiKey);
+            if (key !== null) {
+                currentApiKey = key.trim();
+                localStorage.setItem('GEMINI_API_KEY', currentApiKey);
+                if (currentApiKey) {
+                    alert("API Key 已更新並儲存！");
+                }
+            }
+        }
 
         async function askGemini(query) {
             const container = document.getElementById('ai-response-container');
@@ -255,26 +274,60 @@
             const modal = document.getElementById('ai-modal');
             
             modal.classList.remove('hidden');
+
+            if (!currentApiKey) {
+                container.innerHTML = `<span class="text-red-500 font-bold">錯誤：未設置 API Key</span><br><br>請點擊頁面右上方 <i class="fas fa-key"></i> 圖示來填入您的 Google AI 金鑰。您可以前往 <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline text-blue-600">Google AI Studio</a> 免費申請。`;
+                return;
+            }
+
             loading.classList.remove('hidden');
-            container.innerHTML = "正在獲取詳細導航建議...";
+            container.classList.add('opacity-50');
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: query }] }],
-                        systemInstruction: { parts: [{ text: "你是一位精通沖繩自駕旅遊與親子育兒的導遊。這對夫婦帶1歲4個月小孩。請針對導航建議、用餐細節、小孩在車上的狀況處理提供專業繁體中文建議。" }] }
-                    })
-                });
+                // 指數退避重試邏輯 (簡單版)
+                const fetchWithRetry = async (url, options, retries = 3) => {
+                    for (let i = 0; i < retries; i++) {
+                        try {
+                            const res = await fetch(url, options);
+                            if (res.ok) return res;
+                            if (res.status === 429) { // Rate limit
+                                await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+                                continue;
+                            }
+                            throw new Error(`HTTP Error ${res.status}`);
+                        } catch (err) {
+                            if (i === retries - 1) throw err;
+                        }
+                    }
+                };
+
+                const response = await fetchWithRetry(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${currentApiKey}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: query }] }],
+                            systemInstruction: { parts: [{ text: "你是一位精通沖繩自駕旅遊與親子育兒的導遊。這對夫婦帶1歲4個月小孩。請針對導航建議、用餐細節、小孩在車上的狀況處理提供專業繁體中文建議。" }] }
+                        })
+                    }
+                );
 
                 const data = await response.json();
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "暫時無法獲得回應。";
-                container.innerHTML = text.replace(/\n/g, '<br>');
+                
+                if (data.error) {
+                    throw new Error(data.error.message || "API 內部錯誤");
+                }
+
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Gemini 回傳了空白內容。";
+                // 使用簡單格式化
+                container.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             } catch (error) {
-                container.innerHTML = "系統繁忙。";
+                console.error("Gemini Error:", error);
+                container.innerHTML = `<span class="text-red-500 font-bold">連線失敗</span><br><br>原因：${error.message}<br><br>請檢查：<br>1. API Key 是否正確？<br>2. 網路是否正常？<br>3. 金鑰是否有設置 IP 限制？`;
             } finally {
                 loading.classList.add('hidden');
+                container.classList.remove('opacity-50');
             }
         }
 
