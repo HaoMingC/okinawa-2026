@@ -15,7 +15,16 @@
         .day-card.active { display: block; animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .nav-btn { @apply text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-md ml-2 inline-flex items-center hover:bg-green-200; }
+        /* 以下為scrollbar的原始寫法，暫時保留
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE/Edge */
+            scrollbar-width: none;      /* Firefox */
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;              /* Chrome/Safari */
+        }
         .coffee-break { @apply bg-orange-50 border-l-4 border-orange-300 p-3 rounded-r-lg my-2 text-sm; }
         .meal-tag { @apply inline-block bg-yellow-100 text-yellow-800 text-[10px] px-2 py-0.5 rounded-full font-bold mb-1; }
         .breakfast-tag { @apply inline-block bg-pink-100 text-pink-800 text-[10px] px-2 py-0.5 rounded-full font-bold mb-1 mr-1; }
@@ -53,8 +62,8 @@
         .timeline-item:last-child { padding-bottom: 0; }
         .timeline-dot {
             position: absolute;
-            left: -69px; /* 調整圓點相對於線條的位置 */
-            margin-left: 32px;
+            left: -37px; /* 調整圓點相對於線條的位置 */
+            /*margin-left: 32px;*/
             top: 6px;
             width: 12px;
             height: 12px;
