@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>沖繩 5 天 4 夜親子遊</title>
+    <title>沖繩 5 天 4 夜親子遊 (2026/3/28起)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -51,7 +51,7 @@
 
     <main class="max-w-md mx-auto p-4">
 
-        <!-- Tab 1: 行程規劃 (完全保留原始精細內容) -->
+        <!-- Tab 1: 行程規劃 -->
         <div id="content-itinerary" class="tab-content active">
             <!-- Logistics Info -->
             <div class="bg-white rounded-xl p-3 shadow-sm mb-4 border border-blue-100 text-[10px]">
@@ -67,20 +67,38 @@
 
             <!-- Day Selector -->
             <div class="flex space-x-2 mb-6 overflow-x-auto pb-2 no-scrollbar text-xs">
-                <button onclick="showDay(1)" id="btn-1" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-blue-600 text-white shadow-md">D1 水族館</button>
-                <button onclick="showDay(2)" id="btn-2" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D2 動物園</button>
-                <button onclick="showDay(3)" id="btn-3" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D3 美國村</button>
-                <button onclick="showDay(4)" id="btn-4" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D4 南部</button>
-                <button onclick="showDay(5)" id="btn-5" class="day-btn flex-shrink-0 w-16 py-2 rounded-lg bg-white text-gray-600 border border-gray-200">D5 賦歸</button>
+                <button onclick="showDay(1)" id="btn-1" class="day-btn flex-shrink-0 w-20 py-2 rounded-lg bg-blue-600 text-white shadow-md text-center">
+                    <div class="font-bold">D1 水族館</div>
+                    <div class="text-[9px] opacity-80">3/28 (六)</div>
+                </button>
+                <button onclick="showDay(2)" id="btn-2" class="day-btn flex-shrink-0 w-20 py-2 rounded-lg bg-white text-gray-600 border border-gray-200 text-center">
+                    <div class="font-bold">D2 動物園</div>
+                    <div class="text-[9px] opacity-80">3/29 (日)</div>
+                </button>
+                <button onclick="showDay(3)" id="btn-3" class="day-btn flex-shrink-0 w-20 py-2 rounded-lg bg-white text-gray-600 border border-gray-200 text-center">
+                    <div class="font-bold">D3 美國村</div>
+                    <div class="text-[9px] opacity-80">3/30 (一)</div>
+                </button>
+                <button onclick="showDay(4)" id="btn-4" class="day-btn flex-shrink-0 w-20 py-2 rounded-lg bg-white text-gray-600 border border-gray-200 text-center">
+                    <div class="font-bold">D4 南部</div>
+                    <div class="text-[9px] opacity-80">3/31 (二)</div>
+                </button>
+                <button onclick="showDay(5)" id="btn-5" class="day-btn flex-shrink-0 w-20 py-2 rounded-lg bg-white text-gray-600 border border-gray-200 text-center">
+                    <div class="font-bold">D5 賦歸</div>
+                    <div class="text-[9px] opacity-80">4/01 (三)</div>
+                </button>
             </div>
 
             <div id="days-container">
                 <!-- Day 1 -->
                 <div id="day-1" class="day-card active">
+                    <div class="mb-4 text-center">
+                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年3月28日 (週六)</span>
+                    </div>
                     <div class="time-slot">
                         <span class="text-sm font-bold text-blue-600">08:00 - 10:00</span>
                         <h3 class="font-bold text-gray-800">桃機 T2 起飛</h3>
-                        <p class="text-xs text-gray-600 mt-1">JAL 包含飛機餐，小孩可先在機上用餐及補眠。</p>
+                        <p class="text-xs text-gray-600 mt-1">JAL 包含飛機餐(無兒童餐)，小孩可先在機上用餐及補眠。</p>
                     </div>
                     <div class="time-slot">
                         <span class="text-sm font-bold text-blue-600">14:00 - 15:00</span>
@@ -101,12 +119,15 @@
                         <span class="text-sm font-bold text-blue-600">19:00 - 20:30</span>
                         <div class="meal-tag">晚餐推薦：通堂拉麵</div>
                         <h3 class="font-bold text-gray-800">トラベルホステルnaha-de.asobu Check-in <a href="https://www.google.com/maps/search/naha-de.asobu" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <p class="text-xs text-gray-600"> Check-in 並整理物資。小孩預計 21:00 前就寢。</p>
+                        <p class="text-xs text-gray-600"> 住宿地點：トラベルホステルnaha-de.asobu (鄰近國際通/美榮橋)。小孩預計 21:00 前就寢。</p>
                     </div>
                 </div>
 
                 <!-- Day 2 -->
                 <div id="day-2" class="day-card">
+                    <div class="mb-4 text-center">
+                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年3月29日 (週日)</span>
+                    </div>
                     <div class="time-slot">
                         <span class="text-sm font-bold text-blue-600">08:30 - 09:30</span>
                         <div class="breakfast-tag">推薦早餐：甘味處 萬丸</div>
@@ -140,6 +161,9 @@
 
                 <!-- Day 3 -->
                 <div id="day-3" class="day-card">
+                    <div class="mb-4 text-center">
+                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年3月30日 (週一)</span>
+                    </div>
                     <div class="time-slot">
                         <span class="text-sm font-bold text-blue-600">09:00 - 10:30</span>
                         <div class="breakfast-tag">推薦早餐：豬肉蛋飯糰 (國際通本店)</div>
@@ -172,6 +196,9 @@
 
                 <!-- Day 4 -->
                 <div id="day-4" class="day-card">
+                    <div class="mb-4 text-center">
+                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年3月31日 (週二)</span>
+                    </div>
                     <div class="time-slot">
                         <span class="text-sm font-bold text-blue-600">09:00 - 10:30</span>
                         <div class="breakfast-tag">推薦早餐：oHacorté Bakery</div>
@@ -204,6 +231,9 @@
 
                 <!-- Day 5 -->
                 <div id="day-5" class="day-card">
+                    <div class="mb-4 text-center">
+                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年4月1日 (週三)</span>
+                    </div>
                     <div class="time-slot">
                         <span class="text-sm font-bold text-blue-600">09:00 - 11:00</span>
                         <div class="breakfast-tag">推薦早餐：飯店早餐</div>
@@ -229,7 +259,7 @@
             </div>
         </div>
 
-        <!-- Tab 2: 行前準備 (Checklist) -->
+        <!-- Tab 2: 行前準備 -->
         <div id="content-preparation" class="tab-content">
             <div class="space-y-6">
                 <!-- 重要證件 -->
@@ -285,7 +315,6 @@
         <!-- Tab 3: 注意事項 -->
         <div id="content-notes" class="tab-content">
             <div class="space-y-4">
-                <!-- 飛行須知 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <h3 class="font-bold text-blue-700 mb-3 border-b pb-2 flex items-center">
                         <i class="fas fa-plane-arrival mr-2"></i> 搭機注意事項
@@ -296,8 +325,6 @@
                         <li><strong>🍱 寶寶餐：</strong> JAL 通常需提前預約寶寶餐 (Baby Meal)，請出發前 3 天確認。AirAsia 為廉航，需自備寶寶零食。</li>
                     </ul>
                 </div>
-
-                <!-- 自駕須知 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <h3 class="font-bold text-green-700 mb-3 border-b pb-2 flex items-center">
                         <i class="fas fa-car mr-2"></i> 沖繩自駕安全
@@ -308,8 +335,6 @@
                         <li><strong>🅿️ 停車：</strong> 景點多有免費停車，但那霸市區飯店多需另付 1000-1500円/晚。</li>
                     </ul>
                 </div>
-
-                <!-- 飲食須知 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <h3 class="font-bold text-orange-700 mb-3 border-b pb-2 flex items-center">
                         <i class="fas fa-utensils mr-2"></i> 飲食與補貨
@@ -322,20 +347,30 @@
             </div>
         </div>
 
-        <!-- AI Chat Modal (Logic remains same) -->
+        <!-- AI Chat Modal -->
         <div id="ai-modal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
             <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
                 <div class="p-4 border-b flex justify-between items-center bg-purple-600 text-white rounded-t-2xl">
-                    <h3 class="font-bold text-sm">✨ Gemini 助手</h3>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-robot"></i>
+                        <h3 class="font-bold text-sm">沖繩旅遊助手</h3>
+                    </div>
                     <button onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
                 </div>
-                <div id="ai-response-container" class="p-4 overflow-y-auto flex-grow text-sm text-gray-700">
-                    我可以幫您查詢景點 MapCode 或推薦寶寶餐喔！
+                <div id="ai-response-container" class="p-4 overflow-y-auto flex-grow text-sm text-gray-700 leading-relaxed">
+                    您好！我已準備好讀取您目前的行程規劃。<br>
+                    您可以問我與 2026/3/28 起的行程相關問題。
                 </div>
-                <div id="ai-loading" class="hidden p-4 text-center text-purple-600 font-medium">●●●</div>
-                <div class="p-4 border-t flex space-x-2">
-                    <input id="ai-input" type="text" placeholder="輸入問題..." class="flex-grow border rounded-lg px-3 py-2 text-sm focus:outline-none">
-                    <button onclick="handleCustomQuery()" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm">傳送</button>
+                <div id="ai-loading" class="hidden p-4 text-center text-purple-600 font-medium">
+                    正在分析目前規劃...
+                </div>
+                <div class="p-4 border-t bg-gray-50 rounded-b-2xl">
+                    <div class="flex space-x-2">
+                        <input id="ai-input" type="text" placeholder="輸入您的問題..." class="flex-grow border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-sm">
+                        <button onclick="handleCustomQuery()" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-purple-700 transition shadow-md">
+                            傳送
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -344,16 +379,12 @@
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 flex justify-around items-center max-w-md mx-auto shadow-2xl z-40">
         <button onclick="switchMainTab('itinerary')" class="text-center text-blue-600">
-            <i class="fas fa-route block"></i>
-            <span class="text-[10px]">精細行程</span>
+            <i class="fas fa-route block text-lg"></i>
+            <span class="text-[10px] font-bold">精細行程</span>
         </button>
-        <button onclick="askGemini('幫我列出沖繩 AEON Rycom 適合 1 歲小孩的玩具清單與樓層指引')" class="text-center text-purple-600">
-            <i class="fas fa-shopping-bag block"></i>
-            <span class="text-[10px]">物資清單</span>
-        </button>
-        <button onclick="toggleAIChat()" class="text-center text-gray-400">
-            <i class="fas fa-comments block"></i>
-            <span class="text-[10px]">問助手</span>
+        <button onclick="toggleAIChat()" class="text-center text-purple-600">
+            <i class="fas fa-comments block text-lg"></i>
+            <span class="text-[10px] font-bold">問助手</span>
         </button>
     </nav>
 
@@ -361,28 +392,21 @@
         let currentApiKey = localStorage.getItem('GEMINI_API_KEY') || "";
 
         function switchMainTab(tabId) {
-            // 切換大分頁
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById('content-' + tabId).classList.add('active');
-
-            // 更新按鈕樣式
-            const tabs = ['itinerary', 'preparation', 'notes'];
-            tabs.forEach(t => {
+            ['itinerary', 'preparation', 'notes'].forEach(t => {
                 const btn = document.getElementById('main-tab-' + t);
-                if (t === tabId) {
-                    btn.classList.add('bg-white', 'text-blue-700', 'shadow-sm');
-                    btn.classList.remove('text-white');
-                } else {
-                    btn.classList.remove('bg-white', 'text-blue-700', 'shadow-sm');
-                    btn.classList.add('text-white');
-                }
+                if (!btn) return;
+                if (t === tabId) { btn.classList.add('bg-white', 'text-blue-700', 'shadow-sm'); btn.classList.remove('text-white'); }
+                else { btn.classList.remove('bg-white', 'text-blue-700', 'shadow-sm'); btn.classList.add('text-white'); }
             });
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showDay(day) {
             document.querySelectorAll('.day-card').forEach(card => card.classList.remove('active'));
-            document.getElementById('day-' + day).classList.add('active');
+            const target = document.getElementById('day-' + day);
+            if (target) target.classList.add('active');
             document.querySelectorAll('.day-btn').forEach(btn => {
                 btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
                 btn.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-200');
@@ -392,11 +416,21 @@
 
         function setupApiKey() {
             const key = prompt("輸入 Gemini API Key:", currentApiKey);
-            if (key !== null) {
-                currentApiKey = key.trim();
-                localStorage.setItem('GEMINI_API_KEY', currentApiKey);
-                alert("金鑰設置成功！");
-            }
+            if (key !== null) { currentApiKey = key.trim(); localStorage.setItem('GEMINI_API_KEY', currentApiKey); alert("金鑰設置成功！"); }
+        }
+
+        // 獲取目前位置
+        function getGeoLocation() {
+            return new Promise((resolve) => {
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => resolve(`緯度: ${pos.coords.latitude}, 經度: ${pos.coords.longitude}`),
+                        () => resolve("位置權限未開啟或無法取得座標")
+                    );
+                } else {
+                    resolve("瀏覽器不支援定位功能");
+                }
+            });
         }
 
         async function askGemini(query) {
@@ -406,25 +440,53 @@
             modal.classList.remove('hidden');
 
             if (!currentApiKey) {
-                container.innerHTML = "請先點擊頂部小鑰匙設置 API Key。";
+                container.innerHTML = "請先點擊上方 <i class='fas fa-key'></i> 設置 API Key。";
                 return;
             }
 
             loading.classList.remove('hidden');
             try {
+                // 1. 抓取目前頁面的文字（最即時、直接）
+                const currentContent = document.body.innerText.substring(0, 10000);
+                // 2. 獲取目前座標
+                const locationStr = await getGeoLocation();
+                const todayDate = new Date().toISOString().split('T')[0];
+
+                const fullPrompt = `
+                    當前系統日期：${todayDate}
+                    行程基礎日期：D1 為 2026-03-28 (以此類推 D2=3/29, D3=3/30...)
+                    使用者目前所在地點座標資訊：${locationStr}
+                    
+                    以下是當前頁面所有的行程與資訊：
+                    """
+                    ${currentContent}
+                    """
+
+                    使用者提問：
+                    ${query}
+
+                    【指令規範】
+                    1. (1) 如果問的是行程細節（如住宿、機票時間、某日幾點出門），請從上方文字內容提取並回答。
+                    2. (2) 如果使用者想調整行程（如改去某處），請根據該景點位置提供交通建議與親子適配性分析。
+                    3. (3) 如果問的是觀光/飲食/購物建議，請優先結合使用者目前的座標位置給出鄰近建議，並考慮到帶著 1Y4M 小孩的需求。
+                    4. 回答請親切、使用繁體中文。
+                `;
+
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${currentApiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: query }] }],
-                        systemInstruction: { parts: [{ text: "你是一位精通日本親子旅遊的導遊。這對夫婦帶1歲4個月小孩前往沖繩旅遊。請依提出的問題提供繁體中文建議。(他們目前的行程規劃請參考https://haomingc.github.io/okinawa-2026/)" }] }
+                        contents: [{ parts: [{ text: fullPrompt }] }],
+                        systemInstruction: { parts: [{ text: "你是一位資深沖繩親子旅遊導遊，協助使用者根據目前網頁呈現的資訊與其當下位置提供旅遊建議" }] }
                     })
                 });
+                
                 const data = await response.json();
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，目前無法回應。";
-                container.innerHTML = text.replace(/\n/g, '<br>');
+                container.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                container.scrollTop = container.scrollHeight;
             } catch (e) {
-                container.innerHTML = "連線失敗，請檢查金鑰或網路。";
+                container.innerHTML = "發生錯誤，請檢查網路或 API Key 是否正確。";
             } finally {
                 loading.classList.add('hidden');
             }
