@@ -14,8 +14,6 @@
         .day-card { display: none; }
         .day-card.active { display: block; animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .time-slot { @apply border-l-2 border-blue-400 pl-4 relative mb-6; }
-        .time-slot::before { content: ''; @apply absolute w-3 h-3 bg-blue-400 rounded-full -left-[7.5px] top-1; }
         .nav-btn { @apply text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-md ml-2 inline-flex items-center hover:bg-green-200; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .coffee-break { @apply bg-orange-50 border-l-4 border-orange-300 p-3 rounded-r-lg my-2 text-sm; }
@@ -23,6 +21,72 @@
         .breakfast-tag { @apply inline-block bg-pink-100 text-pink-800 text-[10px] px-2 py-0.5 rounded-full font-bold mb-1 mr-1; }
         .checklist-item { @apply flex items-center space-x-3 p-3 border-b border-gray-50 last:border-0; }
         .checklist-item input[type="checkbox"] { @apply w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500; }
+
+        /* 新增區塊開始：時間軸樣式調整 */
+        .day-card-enhanced {
+            background: #ffffff;
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #f1f5f9;
+        }
+        .timeline-container {
+            position: relative;
+            padding-left: 32px; /* 增加左側間距以避開時間重疊 */
+            margin-left: 8px;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            bottom: 5px;
+            width: 2px;
+            background: #e2e8f0;
+            border-radius: 1px;
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 28px;
+        }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-dot {
+            position: absolute;
+            left: -69px; /* 調整圓點相對於線條的位置 */
+            margin-left: 32px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            background: #3b82f6;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+        .timeline-time {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 4px;
+            letter-spacing: 0.025em;
+        }
+        .timeline-title {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .timeline-desc {
+            font-size: 0.8rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        /* 新增區塊結束 */
     </style>
 </head>
 <body class="bg-gray-50 pb-24">
@@ -93,167 +157,211 @@
                 <!-- Day 1 -->
                 <div id="day-1" class="day-card active">
                     <div class="mb-4 text-center">
-                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年3月28日 (週六)</span>
+                        <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">2026年3月28日 (週六)</span>
                     </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">08:00 - 10:00</span>
-                        <h3 class="font-bold text-gray-800">桃機 T2 起飛</h3>
-                        <p class="text-xs text-gray-600 mt-1">JAL 包含飛機餐(無兒童餐)，小孩可先在機上用餐及補眠。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">14:00 - 15:00</span>
-                        <h3 class="font-bold text-gray-800">那霸機場取車</h3>
-                        <p class="text-xs text-gray-600 mt-1">取車後直接前往豐崎地區（約 15 分鐘車程）。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">15:15 - 17:00</span>
-                        <h3 class="font-bold text-gray-800">DMM Kariyushi 水族館 <a href="https://www.google.com/maps/search/DMM+Kariyushi+Aquarium" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <p class="text-xs text-gray-600">優先看魚！室內冷氣舒適，小孩可以自由走動看觸摸池，減緩搭機疲勞。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">17:00 - 18:30</span>
-                        <h3 class="font-bold text-blue-800">iias 豐崎：快速採買 🍼</h3>
-                        <p class="text-xs text-gray-600">就在隔壁。直奔西松屋買「這兩天」必備的奶粉尿布，其餘大採購留給 D2 或 D4。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">19:00 - 20:30</span>
-                        <div class="meal-tag">晚餐推薦：通堂拉麵</div>
-                        <h3 class="font-bold text-gray-800">トラベルホステルnaha-de.asobu Check-in <a href="https://www.google.com/maps/search/naha-de.asobu" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <p class="text-xs text-gray-600"> 住宿地點：トラベルホステルnaha-de.asobu (鄰近國際通/美榮橋)。小孩預計 21:00 前就寢。</p>
+                    <div class="day-card-enhanced">
+                        <div class="timeline-container">
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">08:00 - 10:00</span>
+                                <h3 class="timeline-title">桃機 T2 起飛</h3>
+                                <p class="timeline-desc">JAL 包含飛機餐(無兒童餐)，小孩可先在機上用餐及補眠。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">14:00 - 15:00</span>
+                                <h3 class="timeline-title">那霸機場取車</h3>
+                                <p class="timeline-desc">取車後直接前往豐崎地區（約 15 分鐘車程）。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #10b981;"></div>
+                                <span class="timeline-time">15:15 - 17:00</span>
+                                <h3 class="timeline-title">DMM Kariyushi 水族館 <a href="https://www.google.com/maps/search/DMM+Kariyushi+Aquarium" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <p class="timeline-desc">優先看魚！室內冷氣舒適，小孩可以自由走動看觸摸池，減緩搭機疲勞。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">17:00 - 18:30</span>
+                                <h3 class="timeline-title">iias 豐崎：快速採買 🍼</h3>
+                                <p class="timeline-desc">就在隔壁。直奔西松屋買「這兩天」必備的奶粉尿布，其餘大採購留給 D2 或 D4。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #f59e0b;"></div>
+                                <span class="timeline-time">19:00 - 20:30</span>
+                                <div class="meal-tag">晚餐推薦：通堂拉麵</div>
+                                <h3 class="timeline-title">トラベルホステルnaha-de.asobu Check-in <a href="https://www.google.com/maps/search/naha-de.asobu" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <p class="timeline-desc">住宿地點：トラベルホステルnaha-de.asobu。小孩預計 21:00 前就寢。</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Day 2 -->
                 <div id="day-2" class="day-card">
                     <div class="mb-4 text-center">
-                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年3月29日 (週日)</span>
+                        <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">2026年3月29日 (週日)</span>
                     </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">08:30 - 09:30</span>
-                        <div class="breakfast-tag">推薦早餐：甘味處 萬丸</div>
-                        <h3 class="font-bold text-gray-800">晨間早餐與出發</h3>
-                        <p class="text-xs text-gray-600">享用名古屋式的點飲料送早餐服務，適合小孩吃厚片吐司。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">10:00 - 11:30</span>
-                        <h3 class="font-bold text-gray-800">普天滿宮參拜 <a href="https://www.google.com/maps/search/Futenma+Shrine" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <p class="text-xs text-gray-600">鐘乳石洞內涼爽，帶小孩簡單參觀祈福。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">12:00 - 14:30</span>
-                        <h3 class="font-bold text-gray-800">沖繩兒童王國 <a href="https://www.google.com/maps/search/Okinawa+Zoo+%26+Museum" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <div class="meal-tag">午餐：園區內簡單用餐</div>
-                        <p class="text-xs text-gray-600">重點：餵食大象長頸鹿。這裡比一般動物園更適合幼童走動。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">15:00 - 18:30</span>
-                        <h3 class="font-bold text-gray-800">AEON Mall Rycom 永旺 <a href="https://www.google.com/maps/search/AEON+Mall+Okinawa+Rycom" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <div class="coffee-break">
-                            <i class="fas fa-star mr-2 text-orange-400"></i><strong>大人時刻：</strong>小孩推車午睡。逛旗艦店（Akachan Honpo、UNIQLO）。1 樓大魚缸是剛睡醒小孩的最愛。
+                    <div class="day-card-enhanced">
+                        <div class="timeline-container">
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">08:30 - 09:30</span>
+                                <div class="breakfast-tag">推薦早餐：甘味處 萬丸</div>
+                                <h3 class="timeline-title">晨間早餐與出發</h3>
+                                <p class="timeline-desc">享用名古屋式的點飲料送早餐服務，適合小孩吃厚片吐司。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">10:00 - 11:30</span>
+                                <h3 class="timeline-title">普天滿宮參拜 <a href="https://www.google.com/maps/search/Futenma+Shrine" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <p class="timeline-desc">鐘乳石洞內涼爽，帶小孩簡單參觀祈福。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #10b981;"></div>
+                                <span class="timeline-time">12:00 - 14:30</span>
+                                <h3 class="timeline-title">沖繩兒童王國 <a href="https://www.google.com/maps/search/Okinawa+Zoo+%26+Museum" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <div class="meal-tag">午餐：園區內簡單用餐</div>
+                                <p class="timeline-desc">重點：餵食大象長頸鹿。這裡比一般動物園更適合幼童走動。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">15:00 - 18:30</span>
+                                <h3 class="timeline-title">AEON Mall Rycom 永旺 <a href="https://www.google.com/maps/search/AEON+Mall+Okinawa+Rycom" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <div class="coffee-break">
+                                    <i class="fas fa-star mr-2 text-orange-400"></i><strong>大人時刻：</strong>小孩推車午睡。逛旗艦店。1 樓大魚缸是剛睡醒小孩的最愛。
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #f59e0b;"></div>
+                                <span class="timeline-time">19:00 - 20:30</span>
+                                <div class="meal-tag">晚餐：くら壽司 (永旺店)</div>
+                                <p class="timeline-desc">迴轉壽司方便帶小孩，且有扭蛋可以玩。</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">19:00 - 20:30</span>
-                        <div class="meal-tag">晚餐：くら壽司 (永旺店)</div>
-                        <p class="text-xs text-gray-600">迴轉壽司方便帶小孩，且有扭蛋可以玩。</p>
                     </div>
                 </div>
 
                 <!-- Day 3 -->
                 <div id="day-3" class="day-card">
                     <div class="mb-4 text-center">
-                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年3月30日 (週一)</span>
+                        <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">2026年3月30日 (週一)</span>
                     </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">09:00 - 10:30</span>
-                        <div class="breakfast-tag">推薦早餐：豬肉蛋飯糰 (國際通本店)</div>
-                        <h3 class="font-bold text-gray-800">波上宮 & 海灘 <a href="https://www.google.com/maps/search/Naminoue+Beach" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <p class="text-xs text-gray-600">海灘踩水，沙子很細。這時候水溫涼爽適合玩一下水。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">11:00 - 13:00</span>
-                        <h3 class="font-bold text-gray-800">浦添大公園 <a href="https://www.google.com/maps/search/Urasoe+Dai+Park" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <p class="text-xs text-gray-600">專屬 1-3 歲幼兒的「B 區」遊樂場，放電絕佳場所。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">13:30 - 15:30</span>
-                        <div class="meal-tag">午餐：琉球之牛 (北谷店)</div>
-                        <h3 class="font-bold text-gray-800">美濱地區午餐</h3>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">15:30 - 19:00</span>
-                        <h3 class="font-bold text-gray-800">美國村散策 <a href="https://www.google.com/maps/search/American+Village+Okinawa" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <div class="coffee-break">
-                            <i class="fas fa-sun mr-2 text-orange-400"></i><strong>大人時刻：</strong>在 <strong>Zhyvago Coffee</strong> 看海。美國村傍晚點燈與夕陽非常浪漫。
+                    <div class="day-card-enhanced">
+                        <div class="timeline-container">
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">09:00 - 10:30</span>
+                                <div class="breakfast-tag">推薦早餐：豬肉蛋飯糰</div>
+                                <h3 class="timeline-title">波上宮 & 海灘 <a href="https://www.google.com/maps/search/Naminoue+Beach" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <p class="timeline-desc">海灘踩水，沙子很細。這時候水溫涼爽適合玩一下水。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #10b981;"></div>
+                                <span class="timeline-time">11:00 - 13:00</span>
+                                <h3 class="timeline-title">浦添大公園 <a href="https://www.google.com/maps/search/Urasoe+Dai+Park" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <p class="timeline-desc">專屬 1-3 歲幼兒遊樂場，放電絕佳場所。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #f59e0b;"></div>
+                                <span class="timeline-time">13:30 - 15:30</span>
+                                <div class="meal-tag">午餐：琉球之牛 (北谷店)</div>
+                                <h3 class="timeline-title">美濱地區午餐</h3>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">15:30 - 19:00</span>
+                                <h3 class="timeline-title">美國村散策 <a href="https://www.google.com/maps/search/American+Village+Okinawa" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <div class="coffee-break">
+                                    <i class="fas fa-sun mr-2 text-orange-400"></i><strong>大人時刻：</strong>在 Zhyvago Coffee 看海。傍晚點燈與夕陽非常浪漫。
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #f59e0b;"></div>
+                                <span class="timeline-time">19:30 - 21:00</span>
+                                <div class="meal-tag">晚餐：暖暮拉麵 (中城店)</div>
+                                <p class="timeline-desc">回程途中用餐，避開市區人潮。</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">19:30 - 21:00</span>
-                        <div class="meal-tag">晚餐：暖暮拉麵 (中城店)</div>
-                        <p class="text-xs text-gray-600">回程途中用餐，避開市區人潮。</p>
                     </div>
                 </div>
 
                 <!-- Day 4 -->
                 <div id="day-4" class="day-card">
                     <div class="mb-4 text-center">
-                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年3月31日 (週二)</span>
+                        <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">2026年3月31日 (週二)</span>
                     </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">09:00 - 10:30</span>
-                        <div class="breakfast-tag">推薦早餐：oHacorté Bakery</div>
-                        <h3 class="font-bold text-gray-800">美味吐司早餐</h3>
-                        <p class="text-xs text-gray-600">在那霸市區的高質感麵包早午餐店。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">11:00 - 13:30</span>
-                        <h3 class="font-bold text-gray-800">平和祈念公園 <a href="https://www.google.com/maps/search/Okinawa+Peace+Memorial+Park+Playground" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <p class="text-xs text-gray-600">全沖繩最強幼兒公園，專屬遮陽與安全地板設施。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">14:00 - 15:30</span>
-                        <div class="meal-tag">午餐：奧武島天婦羅</div>
-                        <h3 class="font-bold text-gray-800">奧武島看貓</h3>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">16:00 - 18:30</span>
-                        <h3 class="font-bold text-gray-800">瀨長島夕陽 <a href="https://www.google.com/maps/search/Umikaji+Terrace+Senagajima" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <div class="coffee-break">
-                            <i class="fas fa-plane mr-2 text-orange-400"></i><strong>大人時刻：</strong>看飛機起降，品嚐幸福鬆餅。若 D1 沒買夠，可在此時回附近的 iias 補貨。
+                    <div class="day-card-enhanced">
+                        <div class="timeline-container">
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">09:00 - 10:30</span>
+                                <div class="breakfast-tag">推薦早餐：oHacorté Bakery</div>
+                                <h3 class="timeline-title">美味吐司早餐</h3>
+                                <p class="timeline-desc">在那霸市區的高質感麵包早午餐店。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #10b981;"></div>
+                                <span class="timeline-time">11:00 - 13:30</span>
+                                <h3 class="timeline-title">平和祈念公園 <a href="https://www.google.com/maps/search/Okinawa+Peace+Memorial+Park+Playground" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <p class="timeline-desc">全沖繩最強幼兒公園，專屬遮陽與安全地板設施。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #f59e0b;"></div>
+                                <span class="timeline-time">14:00 - 15:30</span>
+                                <div class="meal-tag">午餐：奧武島天婦羅</div>
+                                <h3 class="timeline-title">奧武島看貓</h3>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">16:00 - 18:30</span>
+                                <h3 class="timeline-title">瀨長島夕陽 <a href="https://www.google.com/maps/search/Umikaji+Terrace+Senagajima" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <div class="coffee-break">
+                                    <i class="fas fa-plane mr-2 text-orange-400"></i><strong>大人時刻：</strong>看飛機起降，品嚐幸福鬆餅。
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #f59e0b;"></div>
+                                <span class="timeline-time">19:00 - 20:30</span>
+                                <div class="meal-tag">晚餐：瀨長島美食廣場</div>
+                                <p class="timeline-desc">享受在海邊的最後一頓晚餐。</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">19:00 - 20:30</span>
-                        <div class="meal-tag">晚餐：瀨長島美食廣場</div>
-                        <p class="text-xs text-gray-600">享受在海邊的最後一頓晚餐。</p>
                     </div>
                 </div>
 
                 <!-- Day 5 -->
                 <div id="day-5" class="day-card">
                     <div class="mb-4 text-center">
-                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">2026年4月1日 (週三)</span>
+                        <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">2026年4月1日 (週三)</span>
                     </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">09:00 - 11:00</span>
-                        <div class="breakfast-tag">推薦早餐：飯店早餐</div>
-                        <h3 class="font-bold text-gray-800">悠閒退房</h3>
-                        <p class="text-xs text-gray-600">最後整理行李，前往國際通。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">11:00 - 13:00</span>
-                        <h3 class="font-bold text-gray-800">國際通 / 牧志市場 <a href="https://www.google.com/maps/search/Kokusai+Dori" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
-                        <p class="text-xs text-gray-600">最後的伴手禮衝刺（黑糖、藥妝）。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-red-600">13:30 - 14:30</span>
-                        <h3 class="font-bold text-gray-800">加油、還車、前往機場</h3>
-                        <p class="text-xs text-gray-600">14:55 前需抵達那霸機場，辦理 Air Asia 登機手續。</p>
-                    </div>
-                    <div class="time-slot">
-                        <span class="text-sm font-bold text-blue-600">16:55 - 17:30</span>
-                        <h3 class="font-bold text-gray-800">返抵台灣</h3>
-                        <p class="text-xs text-gray-600">平安回家，期待下次旅行。</p>
+                    <div class="day-card-enhanced">
+                        <div class="timeline-container">
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">09:00 - 11:00</span>
+                                <div class="breakfast-tag">推薦早餐：飯店早餐</div>
+                                <h3 class="timeline-title">悠閒退房</h3>
+                                <p class="timeline-desc">最後整理行李，前往國際通。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #10b981;"></div>
+                                <span class="timeline-time">11:00 - 13:00</span>
+                                <h3 class="timeline-title">國際通 / 牧志市場 <a href="https://www.google.com/maps/search/Kokusai+Dori" target="_blank" class="nav-btn"><i class="fas fa-map-marker-alt mr-1"></i>導航</a></h3>
+                                <p class="timeline-desc">最後的伴手禮衝刺（黑糖、藥妝）。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">13:30 - 14:30</span>
+                                <h3 class="timeline-title">加油、還車、前往機場</h3>
+                                <p class="timeline-desc">14:55 前需抵達那霸機場，辦理 Air Asia 登機手續。</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-time">16:55 - 17:30</span>
+                                <h3 class="timeline-title">返抵台灣</h3>
+                                <p class="timeline-desc">平安回家，期待下次旅行。</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
