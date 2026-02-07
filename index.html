@@ -9,8 +9,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- 引入外部資料與邏輯 -->
-    <script src="data.js?v=20260208"></script>
-    <script src="prompts.js"></script>
+    <script src="data.js?v=20260208v2"></script>
+    <script src="prompts.js?v=20260208v2"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
@@ -46,6 +46,11 @@
         .parent-tip { background: #fff7ed; border-left: 4px solid #f97316; padding: 8px; border-radius: 4px; margin-top: 8px; }
         
         .day-card-enhanced { background-color: white; border-radius: 1.5rem; padding: 1.5rem; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+
+        /* Checklist 樣式 */
+        .checklist-item { display: flex; align-items: center; padding: 8px 16px; transition: background 0.2s; cursor: pointer; }
+        .checklist-item:hover { background-color: #f8fafc; }
+        .checklist-item input[type="checkbox"] { width: 16px; height: 16px; margin-right: 12px; cursor: pointer; }
     </style>
 </head>
 <body class="pb-24">
@@ -77,26 +82,12 @@
 
         <!-- [Tab 2] 行前準備 -->
         <div id="content-preparation" class="tab-content">
-            <div id="preparation-container" class="space-y-6 p-4 bg-white rounded-2xl shadow-sm min-h-[50vh]">
-                <h2 class="font-bold text-lg mb-4 text-blue-800 border-b pb-2">行李與文件清單</h2>
-                <div class="text-sm text-gray-600 space-y-2">
-                    <div class="flex items-center space-x-2"><i class="far fa-square"></i><span>護照、駕照正本、日文譯本</span></div>
-                    <div class="flex items-center space-x-2"><i class="far fa-square"></i><span>寶寶手冊、常用藥品</span></div>
-                    <div class="flex items-center space-x-2"><i class="far fa-square"></i><span>尿布、奶粉、濕紙巾、推車</span></div>
-                </div>
-            </div>
+            <div id="preparation-list" class="space-y-6"></div>
         </div>
 
         <!-- [Tab 3] 注意事項 -->
         <div id="content-notes" class="tab-content">
-            <div id="notes-container" class="space-y-4 p-4 bg-white rounded-2xl shadow-sm min-h-[50vh]">
-                <h2 class="font-bold text-lg mb-4 text-red-700 border-b pb-2">重要提醒</h2>
-                <ul class="text-sm text-gray-600 list-disc pl-5 space-y-2">
-                    <li>右駕注意，轉彎時請口訣：左小彎、右大彎。</li>
-                    <li>多數景點設有親子優先車位，請善加利用。</li>
-                    <li>餐廳若無提供餐椅，推車是很好的替代方案。</li>
-                </ul>
-            </div>
+            <div id="notes-list" class="space-y-4"></div>
         </div>
     </main>
 
@@ -164,7 +155,7 @@
         </div>
     </div>
 
-    <!-- [Footer] 固定導覽列 (恢復為原始設計) -->
+    <!-- [Footer] 固定導覽列 -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 flex justify-around items-center max-w-md mx-auto shadow-2xl z-40">
         <button onclick="switchMainTab('itinerary')" class="text-center text-blue-600">
             <i class="fas fa-route block text-lg"></i>
@@ -219,11 +210,107 @@
                         }
                     ]
                 }
+            ],
+            preparation: [
+                {
+                    category: "🪪 重要證件與文件",
+                    style: "blue",
+                    badge: "不可遺忘",
+                    items: ["護照 (大人小孩共 3 本)", "台灣駕照正本 + 日文譯本 (開車者)", "Visit Japan Web 截圖 (登機用)", "日幣現金 + 信用卡 (雙系統)", "海外旅遊平安險證明"]
+                },
+                {
+                    category: "👶 寶寶用品 (1Y4M)",
+                    style: "pink",
+                    tip: "建議：尿布在日本買，行李箱留給戰利品",
+                    items: ["輕便推車 (建議可平躺/機門取車)", "奶粉分裝盒 / 奶瓶 x2 / 刷具", "副食品料理包 (3-5天量)", "食物剪 / 寶寶餐具 / 圍兜", "安撫玩具 / 被被 / 奶嘴", "常備藥 (退燒/感冒/腸胃/OK繃)", "泳衣 / 游泳尿布 (瀨長島玩水用)"]
+                },
+                {
+                    category: "👕 大人行李建議",
+                    style: "green",
+                    items: ["行動電源 / 充電線 / 轉接頭(日本不用)", "個人盥洗保養品 / 隱形眼鏡"]
+                }
+            ],
+            notes: [
+                {
+                    title: "搭機注意事項", icon: "fa-plane-arrival", style: "blue",
+                    content: [
+                        "<strong>🛒 推車託運：</strong> 建議在櫃台報到時要求「機門取車 (Gate Check)」。",
+                        "<strong>🍼 降落安撫：</strong> 1歲多寶寶耳壓不適時，請在起飛與降落時讓寶寶「喝奶」或「吸奶嘴」。",
+                        "<strong>🍱 寶寶餐：</strong> JAL 通常需提前預約寶寶餐 (Baby Meal)。"
+                    ]
+                },
+                {
+                    title: "沖繩自駕安全", icon: "fa-car", style: "green",
+                    content: [
+                        "<strong>💺 兒童座椅：</strong> 日本法律規定 6 歲以下強制使用。",
+                        "<strong>🚦 交通守則：</strong> 「右駕」新手請記得：轉彎時「左小右大」。",
+                        "<strong>🅿️ 停車：</strong> 景點多有免費停車，但那霸市區飯店多需另付 1000-1500円/晚。"
+                    ]
+                },
+                {
+                    title: "飲食與補貨", icon: "fa-utensils", style: "orange",
+                    content: [
+                        "<strong>🍶 泡奶用水：</strong> 日本自來水可生飲 but 含礦物質，建議買「純水」。",
+                        "<strong>🤱 親子設施：</strong> 沖繩百貨公司哺乳室設備非常完善。"
+                    ]
+                }
             ]
         };
 
         function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
         function getMapUrl(dest) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dest)}`; }
+
+        function renderPreparation() {
+            const container = document.getElementById('preparation-list');
+            const data = (typeof okinawaTripData !== 'undefined') ? okinawaTripData : okinawa_fallback_data;
+            if (!container || !data.preparation) return;
+
+            const styleMap = {
+                blue: { bg: 'bg-blue-50', border: 'border-blue-100', text: 'text-blue-800', badge: 'bg-blue-200 text-blue-700' },
+                pink: { bg: 'bg-pink-50', border: 'border-pink-100', text: 'text-pink-800', badge: 'bg-pink-200 text-pink-700' },
+                green: { bg: 'bg-green-50', border: 'border-green-100', text: 'text-green-800', badge: 'bg-green-200 text-green-700' }
+            };
+
+            container.innerHTML = data.preparation.map(group => {
+                const s = styleMap[group.style] || styleMap.blue;
+                return `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="${s.bg} px-4 py-3 border-b ${s.border} flex items-center justify-between">
+                            <span class="font-bold ${s.text}">${group.category}</span>
+                            ${group.badge ? `<span class="text-[10px] ${s.badge} px-2 py-0.5 rounded font-bold">${group.badge}</span>` : ''}
+                        </div>
+                        <div class="p-2">
+                            ${group.tip ? `<p class="px-4 py-2 text-xs text-gray-500 italic">💡 ${group.tip}</p>` : ''}
+                            ${group.items.map(item => `
+                                <label class="checklist-item">
+                                    <input type="checkbox"> 
+                                    <span class="text-sm text-gray-700">${item}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderNotes() {
+            const container = document.getElementById('notes-list');
+            const data = (typeof okinawaTripData !== 'undefined') ? okinawaTripData : okinawa_fallback_data;
+            if (!container || !data.notes) return;
+
+            const styleMap = { blue: 'text-blue-700', green: 'text-green-700', orange: 'text-orange-700' };
+
+            container.innerHTML = data.notes.map(note => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold ${styleMap[note.style] || 'text-gray-700'} mb-3 border-b pb-2 flex items-center">
+                        <i class="fas ${note.icon} mr-2"></i> ${note.title}
+                    </h3>
+                    <ul class="text-xs text-gray-600 space-y-3 leading-relaxed">
+                        ${note.content.map(li => `<li>${li}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
 
         function renderApp() {
             const data = (typeof okinawaTripData !== 'undefined') ? okinawaTripData : okinawa_fallback_data;
@@ -268,6 +355,9 @@
                 card.innerHTML = `<div class="mb-4 text-center"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-100">${dayObj.fullDate}</span></div><div class="day-card-enhanced"><div class="timeline-container">${itemsHtml}</div></div>`;
                 daysContainer.appendChild(card);
             });
+
+            renderPreparation();
+            renderNotes();
         }
 
         function openDetail(item) {
@@ -275,37 +365,56 @@
             document.getElementById('detail-title').innerText = item.title;
             document.getElementById('detail-category').innerText = d.category || '活動詳情';
             document.getElementById('detail-content').innerText = d.info;
+            
+            // 圖片處理
             const img = document.getElementById('detail-img');
             const placeholder = document.getElementById('detail-img-placeholder');
             if (d.img) { img.src = d.img; img.classList.remove('hidden'); placeholder.classList.add('hidden'); }
             else { img.classList.add('hidden'); placeholder.classList.remove('hidden'); }
+            
+            // Stats 處理
             const grid = document.getElementById('detail-info-grid'); grid.innerHTML = '';
             if (d.stats) {
                 Object.entries(d.stats).forEach(([key, value]) => {
                     grid.innerHTML += `<div class="info-box"><span class="info-label">${key}</span><span class="info-value font-bold">${value}</span></div>`;
                 });
             }
+            
+            // 親子建議
             const tipBox = document.getElementById('detail-parent-tips');
             if (d.parentTips) { document.getElementById('detail-parent-content').innerText = d.parentTips; tipBox.classList.remove('hidden'); } 
             else { tipBox.classList.add('hidden'); }
+            
+            // 備案計畫
             const backupBox = document.getElementById('detail-backup-plan');
-            if (d.backup) { document.getElementById('detail-backup-content').innerText = d.backup; backupBox.classList.remove('hidden'); } 
+            if (d.backup) { document.getElementById('detail-backup-content').innerText = d.backup; backupBox.classList.remove('hidden'); }
             else { backupBox.classList.add('hidden'); }
+
+            // 按鈕列處理
             const navContainer = document.getElementById('detail-modal-nav-container'); navContainer.innerHTML = '';
             navContainer.innerHTML += `<a href="${getMapUrl(item.location || item.title)}" target="_blank" class="bg-slate-100 text-slate-700 px-3 py-2 rounded-xl font-bold text-xs flex items-center border border-slate-200"><i class="fas fa-map mr-2"></i>地圖</a>`;
             if (d.website) {
-                navContainer.innerHTML += `<a href="${d.website}" target="_blank" class="bg-blue-50 text-blue-700 px-3 py-2 rounded-xl font-bold text-xs flex items-center border border-blue-100"><i class="fas fa-globe mr-2"></i>網站</a>`;
+                navContainer.innerHTML += `<a href="${d.website}" target="_blank" class="bg-blue-100 text-blue-700 px-3 py-2 rounded-xl font-bold text-xs flex items-center border border-blue-200"><i class="fas fa-globe mr-2"></i>網頁</a>`;
             }
             navContainer.innerHTML += `<a href="${getNavUrl(item.location || item.title)}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm ml-auto"><i class="fas fa-location-arrow mr-2 text-[10px]"></i>開始導航</a>`;
+            
             document.getElementById('detail-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
 
         function closeDetail() { document.getElementById('detail-modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
+        
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('content-' + tabId).classList.add('active');
+            const tabs = ['itinerary', 'preparation', 'notes'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('main-tab-' + t);
+                if (t === tabId) { btn.classList.add('bg-white', 'text-blue-700', 'shadow-sm'); btn.classList.remove('text-white'); } 
+                else { btn.classList.remove('bg-white', 'text-blue-700', 'shadow-sm'); btn.classList.add('text-white'); }
+            });
         }
+
         function showDay(day) {
             document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
             document.getElementById('day-' + day).classList.add('active');
@@ -315,6 +424,7 @@
             document.getElementById('btn-' + day).classList.replace('bg-white', 'bg-blue-600');
             document.getElementById('btn-' + day).classList.replace('text-gray-600', 'text-white');
         }
+
         function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
         function setupApiKey() {
             const key = prompt("輸入 Gemini API Key:", localStorage.getItem('GEMINI_API_KEY') || "");
@@ -325,4 +435,3 @@
     </script>
 </body>
 </html>
-
