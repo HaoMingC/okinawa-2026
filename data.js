@@ -36,6 +36,7 @@ const okinawaTripData = {
                         info: "桃園國際機場第二航廈起飛。JAL 服務優質，雖無兒童餐但餐點品質穩定。",
                         stats: { "航程": "約 90 分鐘", "航廈": "T2", "餐點": "含飛機餐" },
                         parentTips: "起飛與降落時讓寶寶吸奶嘴或喝水，減緩耳壓不適。",
+                        backup: "若入境太久，取消第一個小景點直接去飯店。",
                         img: "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?auto=format&fit=crop&q=80&w=600"
                     }
                 },
