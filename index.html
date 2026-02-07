@@ -12,7 +12,7 @@
     <script src="data.js?v=20260208v3"></script>
     <script src="prompts.js?v=20260208v3"></script>
     
-    <style>
+    <<style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -144,8 +144,12 @@
                 <div class="flex items-center space-x-2"><i class="fas fa-robot"></i><h3 class="font-bold text-sm">沖繩旅遊助手</h3></div>
                 <button onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
             </div>
-            <div id="ai-response-container" class="p-4 overflow-y-auto flex-grow text-sm text-gray-700 leading-relaxed">您好！我是您的資深沖繩導遊，請問有什麼我可以幫您的？</div>
-            <div id="ai-loading" class="hidden p-4 text-center text-purple-600 font-medium italic animate-pulse">導遊思考中...</div>
+            <div id="ai-response-container" class="p-4 overflow-y-auto flex-grow text-[11px] text-gray-700 leading-relaxed space-y-3">
+                <div class="bg-purple-50 p-3 rounded-xl border border-purple-100">
+                    您好！我是您的資深沖繩導遊，請問有什麼我可以幫您的？
+                </div>
+            </div>
+            <div id="ai-loading" class="hidden p-4 text-center text-purple-600 font-medium italic animate-pulse text-xs">導遊思考中...</div>
             <div class="p-4 border-t bg-gray-50 rounded-b-2xl">
                 <form onsubmit="event.preventDefault(); handleCustomQuery();" class="flex space-x-2">
                     <input id="ai-input" type="text" placeholder="例如：今天幾點要去哪？" class="flex-grow border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-sm">
@@ -257,7 +261,7 @@
             ]
         };
 
-        function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
+         function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
         function getMapUrl(dest) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dest)}`; }
 
         function renderPreparation() {
@@ -432,33 +436,95 @@
         }
 
         /**
-         * 處理自定義問題 (串接 API 或使用 Prompts 資料庫)
+         * 【核心修復】處理 AI 助手對話與 API 串接
          */
-        function handleCustomQuery() {
+        async function handleCustomQuery() {
             const input = document.getElementById('ai-input');
             const query = input.value.trim();
             if (!query) return;
 
+            const apiKey = localStorage.getItem('GEMINI_API_KEY');
             const container = document.getElementById('ai-response-container');
             const loading = document.getElementById('ai-loading');
             
-            // 顯示使用者訊息
-            container.innerHTML = `<div class="bg-blue-50 p-2 rounded-lg mb-2 text-right text-xs"><strong>您：</strong> ${query}</div>` + container.innerHTML;
+            // 1. 顯示使用者問題
+            const userMsg = document.createElement('div');
+            userMsg.className = "bg-blue-50 p-3 rounded-xl ml-8 text-right border border-blue-100 shadow-sm font-medium";
+            userMsg.innerHTML = `<strong>您：</strong> ${query}`;
+            container.appendChild(userMsg);
+            
             input.value = '';
             loading.classList.remove('hidden');
+            container.scrollTop = container.scrollHeight;
 
-            // 邏輯處理 (此處簡化為模擬，實際可透過 API 或 Prompts 邏輯)
-            setTimeout(() => {
-                loading.classList.add('hidden');
-                let response = "抱歉，我目前只能協助處理行程相關的預定義問題。您可以問我『第一天要去哪？』";
+            // 2. 檢查 API Key
+            if (!apiKey) {
+                setTimeout(() => {
+                    loading.classList.add('hidden');
+                    addAIResponse("⚠️ 尚未設定 API Key。請點擊頁面右上角的鑰匙圖示進行設定。");
+                }, 500);
+                return;
+            }
+
+            try {
+                // 3. 準備 Context (從頁面提取文字)
+                const pageContent = document.body.innerText.substring(0, 4000); // 避免 Context 過長
                 
-                // 這裡可以插入您的 prompts.js 邏輯
-                if (typeof getAIResponse === 'function') {
-                    response = getAIResponse(query);
+                // 調用 prompts.js 中的 buildFullPrompt
+                let fullPrompt = query;
+                if (typeof AIPrompts !== 'undefined' && AIPrompts.buildFullPrompt) {
+                    fullPrompt = await AIPrompts.buildFullPrompt(query, pageContent);
                 }
 
-                container.innerHTML = `<div class="bg-purple-50 p-2 rounded-lg mb-2 text-xs"><strong>導遊：</strong> ${response}</div>` + container.innerHTML;
-            }, 800);
+                // 4. 調用 Gemini API (實施指數退避)
+                const fetchWithRetry = async (url, options, retries = 5, delay = 1000) => {
+                    try {
+                        const res = await fetch(url, options);
+                        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                        return await res.json();
+                    } catch (e) {
+                        if (retries <= 0) throw e;
+                        await new Promise(r => setTimeout(r, delay));
+                        return fetchWithRetry(url, options, retries - 1, delay * 2);
+                    }
+                };
+
+                const result = await fetchWithRetry(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: fullPrompt }] }],
+                            systemInstruction: { parts: [{ text: (typeof AIPrompts !== 'undefined' ? AIPrompts.systemInstruction : "你是一位親切的導遊") }] }
+                        })
+                    }
+                );
+
+                const aiResponse = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，我暫時無法處理您的問題。";
+                
+                loading.classList.add('hidden');
+                addAIResponse(aiResponse);
+
+            } catch (error) {
+                console.error("AI Error:", error);
+                loading.classList.add('hidden');
+                addAIResponse("❌ 抱歉，連線至 AI 伺服器時發生錯誤，請確認您的 API Key 是否有效或網路連線正常。");
+            }
+        }
+
+        function addAIResponse(text) {
+            const container = document.getElementById('ai-response-container');
+            const aiMsg = document.createElement('div');
+            aiMsg.className = "bg-purple-50 p-3 rounded-xl mr-8 border border-purple-100 shadow-sm";
+            // 處理換行與簡單的 Markdown 加粗
+            const formattedText = text
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            aiMsg.innerHTML = `<strong>導遊：</strong><br>${formattedText}`;
+            container.appendChild(aiMsg);
+            container.scrollTop = container.scrollHeight;
         }
 
         document.addEventListener('DOMContentLoaded', renderApp);
