@@ -28,7 +28,7 @@ const okinawaTripData = {
             items: [
                 { time: "08:00 - 10:00", title: "桃機 T2 起飛", desc: "JAL 包含飛機餐(無兒童餐)，小孩可先在機上用餐及補眠。", type: "standard" },
                 { time: "14:00 - 15:00", title: "那霸機場取車", desc: "取車後直接前往豐崎地區（約 15 分鐘車程）。", type: "standard" },
-                { time: "15:15 - 17:00", title: "DMM Kariyushi 水族館", desc: "優先看魚！室內冷氣舒適，小孩可以自由走動看觸摸池，減緩搭機疲勞。", type: "attraction", nav: "https://www.google.com/maps/search/DMM+Kariyushi+Aquarium" },
+                { time: "15:15 - 17:00", title: "DMM Kariyushi 水族館", desc: "優先看魚！室內冷氣舒適，小孩可以自由走動看觸摸池。", type: "attraction", nav: "https://www.google.com/maps/search/DMM+Kariyushi+Aquarium" },
                 { time: "17:00 - 18:30", title: "iias 豐崎：快速採買 🍼", desc: "就在隔壁。直奔西松屋買「這兩天」必備的奶粉尿布，其餘大採購留給 D2 或 D4。", type: "standard" },
                 { time: "19:00 - 20:30", title: "晚餐推薦：通堂拉麵", desc: "", type: "meal" },
                 { time: "住宿", title: "住宿トラベルホステルnaha-de.asobu", desc: "小孩預計 21:00 前就寢。", type: "standard", nav: "https://www.google.com/maps/search/naha-de.asobu" }
