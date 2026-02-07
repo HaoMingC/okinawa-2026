@@ -36,8 +36,8 @@ const okinawaTripData = {
                         info: "桃園國際機場第二航廈起飛。JAL 服務優質，雖無兒童餐但餐點品質穩定。",
                         stats: { "航程": "約 90 分鐘", "航廈": "T2", "餐點": "含飛機餐" },
                         parentTips: "起飛與降落時讓寶寶吸奶嘴或喝水，減緩耳壓不適。",
-                        backup: "若入境太久，取消第一個小景點直接去飯店。",
-                        img: "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?auto=format&fit=crop&q=80&w=600"
+                        backup: "若遇班機延誤，取車後可直接前往飯店，取消 DMM 水族館行程。",
+                        img: "https://images.unsplash.com/photo-1436491865332-7a61a109cc0f3?auto=format&fit=crop&q=80&w=600"
                     }
                 },
                 { 
@@ -50,6 +50,7 @@ const okinawaTripData = {
                         info: "抵達那霸後搭乘租車公司接駁車前往營業所，辦理取車手續。",
                         stats: { "車型": "5-7人座", "取車": "含接駁", "備註": "需查驗譯本" },
                         parentTips: "取車時請務必確認兒童安全座椅已安裝牢固。",
+                        backup: "若機場接駁候車過久，可由一名大人先去排隊取車，另一名帶孩子在機場休息。",
                         img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600"
                     }
                 },
@@ -65,6 +66,7 @@ const okinawaTripData = {
                         info: "2020年開幕的室內水族館，結合影像與聲光效果，位於 iias 購物中心旁。",
                         stats: { "停留": "2 小時", "門票": "2400円", "推車": "全程友善" },
                         parentTips: "觸摸池區可讓寶寶摸海星，旁邊有洗手台非常方便。",
+                        backup: "室內景點不受天氣影響，若當天太累可縮短停留時間，直接逛隔壁商場。",
                         img: "https://images.unsplash.com/photo-1501333190117-bf584426b89a?auto=format&fit=crop&q=80&w=600",
                         website: "https://kariyushi-aquarium.com/tc/"
                     }
@@ -79,6 +81,7 @@ const okinawaTripData = {
                         info: "大型購物中心，內有西松屋、超市，是補齊嬰兒用品的首選地。",
                         stats: { "重點": "西松屋/超市", "退稅": "有", "停車": "免費" },
                         parentTips: "3 樓有設備完善的育兒室，包含哺乳室與熱水供應。",
+                        backup: "若西松屋缺貨，可改前往新都心的玩具反斗城補貨。",
                         img: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&q=80&w=600",
                         website: "https://toyosaki.iias.jp/zh-hant/"
                     }
@@ -94,6 +97,7 @@ const okinawaTripData = {
                         info: "男人麵是濃厚豚骨，女人麵是清爽鹽味雞湯，適合小孩分享。",
                         stats: { "價位": "中低", "排隊": "視時段", "兒童椅": "有" },
                         parentTips: "店內有塌塌米區，對帶幼兒的家長來說非常輕鬆。",
+                        backup: "若小祿店排隊太長，附近有 A&W 漢堡或便利商店作為快速晚餐備案。",
                         img: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&q=80&w=600",
                         website: "http://www.ryukyu-shinmen.com/"
                     }
@@ -109,6 +113,7 @@ const okinawaTripData = {
                         info: "鄰近國際通與美榮橋站，空間適合小家庭，出入方便。",
                         stats: { "類型": "青年旅館/套房", "進房": "15:00", "車位": "需預約/另付" },
                         parentTips: "若有需要熱水泡奶，可使用交誼廳的飲水設備。",
+                        backup: "若旅館車位已滿，可停至附近的「三井リパーク」停車場。",
                         img: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=600"
                     }
                 }
@@ -131,6 +136,7 @@ const okinawaTripData = {
                         info: "名古屋風格早餐，買咖啡送吐司與紅豆泥，CP值極高。",
                         stats: { "價位": "低", "停車": "對面收費停車場", "推薦": "紅豆吐司" },
                         parentTips: "吐司可要求不要烤太焦，方便讓 1 歲多寶寶食用。",
+                        backup: "若店內客滿，可改去對面的便利商店買飯糰，爭取時間前往普天滿宮。",
                         img: "https://images.unsplash.com/photo-1484723088339-fe7838eba639?auto=format&fit=crop&q=80&w=600",
                         website: "http://www.manmaru-okinawa.com/"
                     }
@@ -146,6 +152,7 @@ const okinawaTripData = {
                         info: "宜野灣市最古老的神社，著名的洞穴神社需要現場登記進入。",
                         stats: { "停留": "45 分鐘", "門票": "免費", "特色": "鐘乳石洞" },
                         parentTips: "進入洞穴的路徑較窄且有階梯，建議暫時使用背巾或手抱。",
+                        backup: "若當天洞穴維修不開放，可改至外部建築參拜並提早前往動物園。",
                         img: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&q=80&w=600",
                         website: "http://futenmagu.or.jp/"
                     }
@@ -162,6 +169,7 @@ const okinawaTripData = {
                         info: "結合動物園、美術館、遊樂園的綜合場域，適合小小孩近距離看動物。",
                         stats: { "停留": "3 小時", "門票": "500円", "體驗": "餵食體驗" },
                         parentTips: "Wonder Museum (室內區) 非常適合避暑或雨天備案，有許多感官互動設施。",
+                        backup: "若遇下雨，可延長在 Wonder Museum 室內區的停留時間，取消戶外動物區。",
                         img: "https://images.unsplash.com/photo-1534567153574-2b12153a87f0?auto=format&fit=crop&q=80&w=600",
                         website: "https://www.okzm.jp/"
                     }
@@ -178,6 +186,7 @@ const okinawaTripData = {
                         info: "全沖繩最大百貨，擁有 200 多間店鋪。1 樓大水族箱非常壯觀。",
                         stats: { "重點": "玩具反斗城/GAP", "退稅": "有", "停車": "免費" },
                         parentTips: "推車可租借，4 樓美食廣場設有幼兒專屬用餐區與軟墊遊戲區。",
+                        backup: "若時間不足，可縮短購物行程，優先前往 4 樓美食廣場解決晚餐。",
                         img: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&q=80&w=600",
                         website: "https://okinawarycom-aeonmall.com/"
                     }
@@ -192,6 +201,7 @@ const okinawaTripData = {
                         info: "平價迴轉壽司，透過螢幕點餐，每五盤可抽扭蛋一次。",
                         stats: { "價位": "中", "預約": "可用App預約", "兒童具": "有" },
                         parentTips: "有豆皮壽司、烏龍麵、茶碗蒸，非常適合給 1 歲多寶寶吃。",
+                        backup: "若壽司店候位過久，永旺百貨美食街還有非常多適合親子的選擇。",
                         img: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&q=80&w=600",
                         website: "https://www.kurasushi.co.jp/"
                     }
@@ -223,6 +233,7 @@ const okinawaTripData = {
                         info: "唯一市區內的海灘，沙灘乾淨且海水淺，適合幼兒戲水。",
                         stats: { "停留": "60 分鐘", "門票": "免費", "淋浴": "有(付費)" },
                         parentTips: "海邊風大且曬，玩完後請記得補充水分，附近有著名的飯糰店可外帶。",
+                        backup: "若浪大或氣候不佳不適合玩水，可直接改往浦添大公園。",
                         img: "https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=600",
                         website: "http://naminouebeach.jp/"
                     }
@@ -238,6 +249,7 @@ const okinawaTripData = {
                         info: "C 區遊具是專門為幼童設計的，地板皆有彈性防護墊。",
                         stats: { "停留": "90 分鐘", "停車": "免費", "難度": "初級" },
                         parentTips: "滾輪溜滑梯雖然好玩但寶寶太小不建議單獨玩，建議在 1-3 歲專區活動。",
+                        backup: "下雨天公園無法遊玩，可改前往宜野灣的室內兒童遊樂場 (如 Round 1)。",
                         img: "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?auto=format&fit=crop&q=80&w=600",
                         website: "https://www.pref.okinawa.jp/site/doboku/toshimono/park/urasoedai.html"
                     }
@@ -253,6 +265,7 @@ const okinawaTripData = {
                         info: "頂級黑毛和牛燒肉，肉質入口即化。午間套餐價格較實惠。",
                         stats: { "價位": "高", "預約": "強烈建議", "兒童椅": "有" },
                         parentTips: "雖然是燒肉店，但排煙系統好且環境舒適，對小孩很友善。",
+                        backup: "若沒預約到琉球之牛，美國村內還有四季鐵板燒或漢堡店等眾多選擇。",
                         img: "https://images.unsplash.com/photo-1534790561517-40e1c61fad52?auto=format&fit=crop&q=80&w=600",
                         website: "https://www.u-shi.net/"
                     }
@@ -269,6 +282,7 @@ const okinawaTripData = {
                         info: "充滿美式風情的購物與步道區，傍晚在海岸步道散步非常舒服。",
                         stats: { "特色": "夕陽/夕照", "拍照": "極佳", "推車": "全程可推" },
                         parentTips: "步道寬廣，小孩可自由行走，但海邊柵欄需注意安全。",
+                        backup: "若遇大雨，可改在美國村內的 AEON 百貨或 Depot Island 室內區域逛街。",
                         img: "https://images.unsplash.com/photo-1565011523534-70323a82862d?auto=format&fit=crop&q=80&w=600",
                         website: "https://www.okinawa-americanvillage.com/"
                     }
@@ -283,6 +297,7 @@ const okinawaTripData = {
                         info: "九州拉麵總票選第一名，細麵濃湯，可自選麵體硬度。",
                         stats: { "價位": "低", "停車": "附停車場", "推薦": "芝麻蔥拉麵" },
                         parentTips: "中城店相較國際通店排隊人潮較少，比較適合帶小孩快速用餐。",
+                        backup: "若中城店也要排很久，附近還有其他拉麵店或家庭式連鎖餐廳。",
                         img: "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600",
                         website: "http://danbo.jp/"
                     }
@@ -313,6 +328,7 @@ const okinawaTripData = {
                         info: "結合雜貨與烘焙的法式吐司店，法式吐司是必點項目。",
                         stats: { "價位": "中", "特色": "法式吐司", "停車": "附近付費" },
                         parentTips: "環境優雅，建議早點出發以免需要排隊。",
+                        backup: "若候位太長，可改去附近的超商買早餐，提早前往公園佔位。",
                         img: "https://images.unsplash.com/photo-1506084868730-34ad5033887c?auto=format&fit=crop&q=80&w=600",
                         website: "http://ohacorte-bakery.com/"
                     }
@@ -328,6 +344,7 @@ const okinawaTripData = {
                         info: "園區極大，「命之卵」遊戲區有無數適合 1-3 歲的遊具。",
                         stats: { "停留": "2 小時", "門票": "免費", "等級": "沖繩前三" },
                         parentTips: "這裡有大型噴霧設施與遮陽棚，是沖繩少數不怕大太陽的公園。",
+                        backup: "雨天備案：改往附近的沖繩世界文化王國（玉泉洞），室內鐘乳石洞較不受影響。",
                         img: "https://images.unsplash.com/photo-1545624239-10bca210daee?auto=format&fit=crop&q=80&w=600",
                         website: "https://www.heiwa-irei-okinawa.jp/"
                     }
@@ -343,6 +360,7 @@ const okinawaTripData = {
                         info: "一過橋就有許多流浪貓迎接，天婦羅每份只要 100円 左右。",
                         stats: { "價位": "極低", "停留": "45 分鐘", "亮點": "貓咪/天婦羅" },
                         parentTips: "天婦羅攤位多為外帶，可拿在手邊在港口邊吃邊看海看貓。",
+                        backup: "若奧武島人潮太多，可跳過此點，直接提早前往瀨長島搶鬆餅候位。",
                         img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=600"
                     }
                 },
@@ -358,6 +376,7 @@ const okinawaTripData = {
                         info: "白色希臘風建築群，可近距離看那霸機場飛機起降。",
                         stats: { "亮點": "飛機/夕陽", "美食": "幸福鬆餅", "推車": "部分有階梯" },
                         parentTips: "幸福鬆餅需提前預約，現場排隊可能很久，露台區適合小孩看飛機。",
+                        backup: "若鬆餅排不到，可改在露台區買其他小點心，坐在海邊同樣能享受夕陽。",
                         img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=600",
                         website: "https://www.umikajiterrace.com/"
                     }
@@ -372,6 +391,7 @@ const okinawaTripData = {
                         info: "集結沖繩各地美食，塔可飯、漢堡、精釀啤酒一應俱全。",
                         stats: { "環境": "戶外露天", "景色": "星空海景", "價位": "中" },
                         parentTips: "晚上風大，請幫寶寶加一件輕便外套。",
+                        backup: "若海邊風太大，可改回那霸市區享用晚餐（如 暖暮或通堂）。",
                         img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=600"
                     }
                 },
@@ -401,6 +421,7 @@ const okinawaTripData = {
                         info: "牧志公設市場 2 樓可以吃到在地新鮮海鮮與道地家常菜。",
                         stats: { "停留": "2 小時", "重點": "伴手禮", "氣氛": "在地生活" },
                         parentTips: "新大樓環境乾淨且有電梯，帶推車也不擔心。",
+                        backup: "若市場太擁擠，可改去國際通上的咖啡店享用簡易早餐。",
                         img: "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&q=80&w=600",
                         website: "https://kosetsu-ichiba.com/"
                     }
@@ -416,6 +437,7 @@ const okinawaTripData = {
                         info: "沖繩最熱鬧的一條街，包含卡爾比現炸薯條、各式藥妝店與紀念品。",
                         stats: { "推車": "可推", "人潮": "多", "亮點": "最後補貨" },
                         parentTips: "主幹道兩側人行道寬敞，但進入分支市場巷弄建議改用背巾。",
+                        backup: "若時間太趕，可放棄國際通，提早去機場免稅店進行最後採購。",
                         img: "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=600"
                     }
                 },
@@ -429,6 +451,7 @@ const okinawaTripData = {
                         info: "還車前記得去加油站加滿油(滿油還車規則)。",
                         stats: { "步驟": "加油->還車->接駁", "提醒": "保留加油收據", "時間": "需預留30分" },
                         parentTips: "機場出境大廳 2 樓有許多免稅伴手禮，若還有遺漏可在這最後購買。",
+                        backup: "若還車程序耽誤，應優先確保報到時效，免稅店採買可縮減。",
                         img: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=600"
                     }
                 },
@@ -441,6 +464,7 @@ const okinawaTripData = {
                         category: "交通運輸",
                         info: "返程航班順利結束，回憶滿滿。",
                         stats: { "航班": "AirAsia", "航程": "約 90 分鐘", "家": "Sweet Home" },
+                        backup: "返台後若需接駁，可提早預約機場接送或停在機場停車場。",
                         img: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&q=80&w=600"
                     }
                 }
