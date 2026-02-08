@@ -27,48 +27,44 @@ const okinawaTripData = {
             fullDate: "2026年3月28日 (週六)",
             items: [
                  { 
-                    time: "07:00 - 08:00", 
-                    title: "機場接送", 
-                    desc: "已預約呼叫小黃TDV-1965", 
+                    time: "07:00 - 08:00",
+                    title: "機場接送",
+                    desc: "已預約呼叫小黃TDV-1965。司機將協助搬運大件行李與折疊推車，請提前確認兒童安全座椅已備妥。",
                     type: "standard",
                     detail: {
                         category: "交通運輸",
-                        info: "從家中接送",
-                        stats: { "車程": "約 40 分鐘", "目的地": "桃機T2" },
-                        img: "https://images.unsplash.com/photo-1556122071-e404eaedb77f??auto=format&fit=crop&q=80&w=600"
+                        info: "由住家出發直達桃園機場第二航廈，司機將於出發前 5 分鐘電話聯繫。",
+                        stats: { "車程": "約 40 分鐘", "目的地": "桃機T2", "車型": "五人座休旅" },
+                        img: "https://images.unsplash.com/photo-1556122071-e404eaedb77f?auto=format&fit=crop&q=80&w=600"
                     }
                 },
                 { 
-                    time: "08:00 - 10:00", 
-                    title: "桃機 T2 搭機", 
-                    desc: "JAL NU302，包含飛機餐(無兒童餐)，小孩可先在機上用餐及補眠。", 
+                    time: "08:00 - 10:00",
+                    title: "桃機 T2 搭機",
+                    desc: "JAL NU302，包含飛機餐(無兒童餐)，小孩可先在機上用餐及補眠。登機前可先到育兒室釋放電力。",
                     type: "standard",
                     detail: {
                         category: "交通運輸",
-                        info: "桃園國際機場第二航廈1號櫃檯報到，7:30開櫃。C5登機門附近有育兒區",
-                        stats: { "航廈": "T2", "報到": "1號櫃臺","航程": "約 90 分鐘", "餐點": "含飛機餐" },
-                        parentTips: "起飛與降落時讓寶寶吸奶嘴或喝水，減緩耳壓不適。推車於機邊託運。登機前泡奶、換尿布。",
-                        backup: "若遇班機延誤，取車後可直接前往飯店，取消 DMM 水族館行程。",
-                        img: "https://images.unsplash.com/photo-1720518989092-1d07b068c1de?auto=format&fit=crop&q=80&w=600"
-                    }
+                            info: "桃園國際機場第二航廈1號櫃檯報到，7:30開櫃。C5登機門附近有育兒區（含哺乳室、飲水機）。",
+                            stats: { "航廈": "T2", "報到": "1號櫃臺", "航程": "約 90 分鐘", "餐點": "含飛機餐" },
+                            parentTips: "起飛與降落時讓寶寶吸奶嘴或喝水，減緩耳壓不適。推車於機邊託運（需掛牌）。登機前完成泡奶與更換尿布。",
+                            backup: "若遇班機延誤，取車後可直接前往飯店 Check-in，視情況取消 DMM 水族館行程。",
+                            img: "https://images.unsplash.com/photo-1720518989092-1d07b068c1de?auto=format&fit=crop&q=80&w=600"
+                        }
                 },
-                { 
-                    time: "10:00 - 12:30(日本時間)", 
-                    title: "桃園-沖繩", 
-                    type: "standard",
-                },
+
                 { 
                     time: "14:00 - 15:00", 
-                    title: "那霸機場取車", 
-                    desc: "取車後直接前往豐崎地區（約 15 分鐘車程）。", 
+                    title: "那霸機場取車",
+                    desc: "抵達那霸國際線航廈後，沿指標前往Sky租車接駁站搭乘接駁車。取車後直接前往豐崎地區（約 15 分鐘車程）。",
                     type: "standard",
                     detail: {
                         category: "交通運輸",
-                        info: "抵達那霸後搭乘租車公司接駁車前往營業所，辦理取車手續。",
-                        stats: { "車型": "5-7人座", "取車": "含接駁", "備註": "需查驗譯本" },
-                        parentTips: "取車時請務必確認兒童安全座椅已安裝牢固。",
-                        backup: "若機場接駁候車過久，可由一名大人先去排隊取車，另一名帶孩子在機場休息。",
-                        img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600"
+                        info: "抵達機場後，從出境大廳出航廈，過斑馬線就是「租車公司機場接駁巴士乘車處」。Sky租車的員工，將手持有Sky租車標誌手板，在11-B的導覽板附近等待。搭乘Sky租車公司接駁車前往附近營業所。辦理時需核對台灣駕照正本與日文譯本。",
+                        stats: { "車型": "Yaris cross hybrid", "取車": "含接駁", "備註": "需查驗譯本" },
+                        parentTips: "取車時請務必確認兒童安全座椅已安裝牢固，並詢問如何開啟後座車門兒童安全鎖。",
+                        backup: "若機場接駁候車過久，可由一名大人先去排隊取車，另一名帶孩子在機場休息區（有冷氣）等待通知。",
+                        img: "https://plus.unsplash.com/premium_photo-1661290470322-a313098e7c2a?auto=format&fit=crop&q=80&w=600"
                     }
                 },
                 { 
