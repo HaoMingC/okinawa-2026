@@ -178,7 +178,7 @@
         const okinawa_fallback_data = {
             logistics: {
                 departure: { flight: "JAL NU302", route: "TPE-OKA", car: "租車 1 號" },
-                return: { flight: "JAL NU301", route: "OKA-TPE", car: "租車 2 號" }
+                arrival: { flight: "JAL NU301", route: "OKA-TPE", car: "租車 2 號" }
             },
             days: [
                 {
@@ -320,6 +320,10 @@
             const data = (typeof okinawaTripData !== 'undefined') ? okinawaTripData : okinawa_fallback_data;
             document.getElementById('logistics-container').innerHTML = `
                 <div class="flex justify-between mb-1">
+                    <span><i class="fas fa-plane-departure mr-1"></i> ${data.logistics.departure.flight}</span>
+                    <span><i class="fas fa-taxi mr-1"></i> ${data.logistics.departure.car}</span>
+                </div>
+                <div class="flex justify-between">
                     <span><i class="fas fa-plane-departure mr-1"></i> ${data.logistics.departure.flight}</span>
                     <span><i class="fas fa-taxi mr-1"></i> ${data.logistics.departure.car}</span>
                 </div>
@@ -531,3 +535,4 @@
     </script>
 </body>
 </html>
+
