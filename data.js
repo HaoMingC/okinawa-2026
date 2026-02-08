@@ -11,7 +11,7 @@ const okinawaTripData = {
             route: "TPE 10:00 - OKA 12:30",
             car: "TDV-1965"
         },
-        return: {
+        arrival: {
             flight: "AirAsia FD231",
             route: "OKA 16:55 - TPE 17:30",
             car: "TAR-288"
