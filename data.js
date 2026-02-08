@@ -26,19 +26,36 @@ const okinawaTripData = {
             date: "2026/3/28 (六)",
             fullDate: "2026年3月28日 (週六)",
             items: [
-                { 
-                    time: "08:00 - 10:00", 
-                    title: "桃機 T2 起飛", 
-                    desc: "JAL 包含飛機餐(無兒童餐)，小孩可先在機上用餐及補眠。", 
+                 { 
+                    time: "07:00 - 08:00", 
+                    title: "機場接送", 
+                    desc: "已預約呼叫小黃TDV-1965", 
                     type: "standard",
                     detail: {
                         category: "交通運輸",
-                        info: "桃園國際機場第二航廈起飛。JAL 服務優質，雖無兒童餐但餐點品質穩定。",
-                        stats: { "航程": "約 90 分鐘", "航廈": "T2", "餐點": "含飛機餐" },
-                        parentTips: "起飛與降落時讓寶寶吸奶嘴或喝水，減緩耳壓不適。",
-                        backup: "若遇班機延誤，取車後可直接前往飯店，取消 DMM 水族館行程。",
-                        img: "https://images.unsplash.com/photo-1436491865332-7a61a109cc0f3?auto=format&fit=crop&q=80&w=600"
+                        info: "從家中接送",
+                        stats: { "車程": "約 40 分鐘", "目的地": "桃機T2" },
+                        img: "https://images.unsplash.com/photo-1556122071-e404eaedb77f??auto=format&fit=crop&q=80&w=600"
                     }
+                },
+                { 
+                    time: "08:00 - 10:00", 
+                    title: "桃機 T2 搭機", 
+                    desc: "JAL NU302，包含飛機餐(無兒童餐)，小孩可先在機上用餐及補眠。", 
+                    type: "standard",
+                    detail: {
+                        category: "交通運輸",
+                        info: "桃園國際機場第二航廈1號櫃檯報到，7:30開櫃。C5登機門附近有育兒區",
+                        stats: { "航廈": "T2", "報到": "1號櫃臺","航程": "約 90 分鐘", "餐點": "含飛機餐" },
+                        parentTips: "起飛與降落時讓寶寶吸奶嘴或喝水，減緩耳壓不適。推車於機邊託運。登機前泡奶、換尿布。",
+                        backup: "若遇班機延誤，取車後可直接前往飯店，取消 DMM 水族館行程。",
+                        img: "https://images.unsplash.com/photo-1720518989092-1d07b068c1de?auto=format&fit=crop&q=80&w=600"
+                    }
+                },
+                { 
+                    time: "10:00 - 12:30(日本時間)", 
+                    title: "桃園-沖繩", 
+                    type: "standard",
                 },
                 { 
                     time: "14:00 - 15:00", 
