@@ -12,7 +12,7 @@
     <script src="data.js?v=20260208v3"></script>
     <script src="prompts.js?v=20260208v3"></script>
     
-    <<style>
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -178,7 +178,7 @@
         const okinawa_fallback_data = {
             logistics: {
                 departure: { flight: "JAL NU302", route: "TPE-OKA", car: "租車 1 號" },
-                return: { flight: "JAL NU301", route: "OKA-TPE", car: "租車 2 號" }
+                arrival: { flight: "JAL NU301", route: "OKA-TPE", car: "租車 2 號" }
             },
             days: [
                 {
@@ -322,6 +322,10 @@
                 <div class="flex justify-between mb-1">
                     <span><i class="fas fa-plane-departure mr-1"></i> ${data.logistics.departure.flight}</span>
                     <span><i class="fas fa-taxi mr-1"></i> ${data.logistics.departure.car}</span>
+                </div>
+                <div class="flex justify-between mb-1">
+                    <span><i class="fas fa-plane-arrival mr-1"></i> ${data.logistics.arrival.flight}</span>
+                    <span><i class="fas fa-taxi mr-1"></i> ${data.logistics.arrival.car}</span>
                 </div>
             `;
             const daysContainer = document.getElementById('days-container');
