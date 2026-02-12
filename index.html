@@ -94,7 +94,6 @@
     <!-- [Modal] 景點詳細資訊彈窗 -->
     <div id="detail-modal" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <!-- 頂部圖片區 -->
             <div class="relative h-48 bg-gray-200">
                 <img id="detail-img" src="" alt="" class="w-full h-full object-cover hidden">
                 <div id="detail-img-placeholder" class="w-full h-full flex items-center justify-center text-gray-400 bg-slate-100">
@@ -109,8 +108,6 @@
                     <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
-
-            <!-- 內容區 -->
             <div class="p-5 overflow-y-auto space-y-5">
                 <div class="info-grid" id="detail-info-grid"></div>
                 <div id="detail-parent-tips" class="parent-tip hidden">
@@ -126,8 +123,6 @@
                     <div id="detail-backup-content" class="text-xs text-slate-600"></div>
                 </div>
             </div>
-
-            <!-- 底部動作按鈕列 -->
             <div class="p-4 border-t bg-slate-50">
                 <div id="detail-modal-nav-container" class="flex flex-wrap gap-2 mb-2"></div>
                 <div class="flex justify-end mt-2">
@@ -261,18 +256,21 @@
             ]
         };
 
-         function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
+        const getTripData = () => (typeof okinawaTripData !== 'undefined') ? okinawaTripData : okinawa_fallback_data;
+
+        function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
         function getMapUrl(dest) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dest)}`; }
 
         function renderPreparation() {
             const container = document.getElementById('preparation-list');
-            const data = (typeof okinawaTripData !== 'undefined') ? okinawaTripData : okinawa_fallback_data;
+            const data = getTripData();
             if (!container || !data.preparation) return;
 
             const styleMap = {
                 blue: { bg: 'bg-blue-50', border: 'border-blue-100', text: 'text-blue-800', badge: 'bg-blue-200 text-blue-700' },
                 pink: { bg: 'bg-pink-50', border: 'border-pink-100', text: 'text-pink-800', badge: 'bg-pink-200 text-pink-700' },
-                green: { bg: 'bg-green-50', border: 'border-green-100', text: 'text-green-800', badge: 'bg-green-200 text-green-700' }
+                green: { bg: 'bg-green-50', border: 'border-green-100', text: 'text-green-800', badge: 'bg-green-200 text-green-700' },
+                orange: { bg: 'bg-orange-50', border: 'border-orange-100', text: 'text-orange-800', badge: 'bg-orange-200 text-orange-700' }
             };
 
             container.innerHTML = data.preparation.map(group => {
@@ -299,11 +297,9 @@
 
         function renderNotes() {
             const container = document.getElementById('notes-list');
-            const data = (typeof okinawaTripData !== 'undefined') ? okinawaTripData : okinawa_fallback_data;
+            const data = getTripData();
             if (!container || !data.notes) return;
-
-            const styleMap = { blue: 'text-blue-700', green: 'text-green-700', orange: 'text-orange-700' };
-
+            const styleMap = { blue: 'text-blue-700', green: 'text-green-700', orange: 'text-orange-700', pink: 'text-pink-700' };
             container.innerHTML = data.notes.map(note => `
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <h3 class="font-bold ${styleMap[note.style] || 'text-gray-700'} mb-3 border-b pb-2 flex items-center">
@@ -317,17 +313,20 @@
         }
 
         function renderApp() {
-            const data = (typeof okinawaTripData !== 'undefined') ? okinawaTripData : okinawa_fallback_data;
+            const data = getTripData();
+            
+            // 渲染頂部摘要 (新增支援 route 顯示)
             document.getElementById('logistics-container').innerHTML = `
                 <div class="flex justify-between mb-1">
-                    <span><i class="fas fa-plane-departure mr-1"></i> ${data.logistics.departure.flight}</span>
-                    <span><i class="fas fa-taxi mr-1"></i> ${data.logistics.departure.car}</span>
+                    <span><i class="fas fa-plane-departure mr-1"></i> ${data.logistics.departure.flight} ${data.logistics.departure.route || ''}</span>
+                    <span><i class="fas fa-car mr-1"></i> ${data.logistics.departure.car}</span>
                 </div>
                 <div class="flex justify-between">
-                    <span><i class="fas fa-plane-arrival mr-1"></i> ${data.logistics.arrival.flight}</span>
-                    <span><i class="fas fa-taxi mr-1"></i> ${data.logistics.arrival.car}</span>
+                    <span><i class="fas fa-plane-arrival mr-1"></i> ${data.logistics.arrival.flight} ${data.logistics.arrival.route || ''}</span>
+                    <span><i class="fas fa-car mr-1"></i> ${data.logistics.arrival.car}</span>
                 </div>
             `;
+
             const daysContainer = document.getElementById('days-container');
             const daySelector = document.getElementById('day-selector');
             daysContainer.innerHTML = ''; daySelector.innerHTML = '';
@@ -344,6 +343,7 @@
                 const card = document.createElement('div');
                 card.id = `day-${dayObj.day}`;
                 card.className = `day-card ${isActive ? 'active' : ''}`;
+                
                 let itemsHtml = '';
                 dayObj.items.forEach(item => {
                     const dotColor = item.type === 'attraction' ? '#10b981' : (item.type === 'meal' ? '#f59e0b' : '#3b82f6');
@@ -363,7 +363,6 @@
                 card.innerHTML = `<div class="mb-4 text-center"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-100">${dayObj.fullDate}</span></div><div class="day-card-enhanced"><div class="timeline-container">${itemsHtml}</div></div>`;
                 daysContainer.appendChild(card);
             });
-
             renderPreparation();
             renderNotes();
         }
@@ -372,40 +371,21 @@
             const d = item.detail;
             document.getElementById('detail-title').innerText = item.title;
             document.getElementById('detail-category').innerText = d.category || '活動詳情';
-            document.getElementById('detail-content').innerText = d.info;
-            
-            // 圖片處理
+            document.getElementById('detail-content').innerText = d.info || '';
             const img = document.getElementById('detail-img');
             const placeholder = document.getElementById('detail-img-placeholder');
             if (d.img) { img.src = d.img; img.classList.remove('hidden'); placeholder.classList.add('hidden'); }
             else { img.classList.add('hidden'); placeholder.classList.remove('hidden'); }
-            
-            // Stats 處理
             const grid = document.getElementById('detail-info-grid'); grid.innerHTML = '';
-            if (d.stats) {
-                Object.entries(d.stats).forEach(([key, value]) => {
-                    grid.innerHTML += `<div class="info-box"><span class="info-label">${key}</span><span class="info-value font-bold">${value}</span></div>`;
-                });
-            }
-            
-            // 親子建議
+            if (d.stats) { Object.entries(d.stats).forEach(([key, value]) => { grid.innerHTML += `<div class="info-box"><span class="info-label">${key}</span><span class="info-value font-bold">${value}</span></div>`; }); }
             const tipBox = document.getElementById('detail-parent-tips');
-            if (d.parentTips) { document.getElementById('detail-parent-content').innerText = d.parentTips; tipBox.classList.remove('hidden'); } 
-            else { tipBox.classList.add('hidden'); }
-            
-            // 備案計畫
+            if (d.parentTips) { document.getElementById('detail-parent-content').innerText = d.parentTips; tipBox.classList.remove('hidden'); } else { tipBox.classList.add('hidden'); }
             const backupBox = document.getElementById('detail-backup-plan');
-            if (d.backup) { document.getElementById('detail-backup-content').innerText = d.backup; backupBox.classList.remove('hidden'); }
-            else { backupBox.classList.add('hidden'); }
-
-            // 按鈕列處理
+            if (d.backup) { document.getElementById('detail-backup-content').innerText = d.backup; backupBox.classList.remove('hidden'); } else { backupBox.classList.add('hidden'); }
             const navContainer = document.getElementById('detail-modal-nav-container'); navContainer.innerHTML = '';
             navContainer.innerHTML += `<a href="${getMapUrl(item.location || item.title)}" target="_blank" class="bg-slate-100 text-slate-700 px-3 py-2 rounded-xl font-bold text-xs flex items-center border border-slate-200"><i class="fas fa-map mr-2"></i>地圖</a>`;
-            if (d.website) {
-                navContainer.innerHTML += `<a href="${d.website}" target="_blank" class="bg-blue-100 text-blue-700 px-3 py-2 rounded-xl font-bold text-xs flex items-center border border-blue-200"><i class="fas fa-globe mr-2"></i>網頁</a>`;
-            }
+            if (d.website) { navContainer.innerHTML += `<a href="${d.website}" target="_blank" class="bg-blue-100 text-blue-700 px-3 py-2 rounded-xl font-bold text-xs flex items-center border border-blue-200"><i class="fas fa-globe mr-2"></i>網頁</a>`; }
             navContainer.innerHTML += `<a href="${getNavUrl(item.location || item.title)}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm ml-auto"><i class="fas fa-location-arrow mr-2 text-[10px]"></i>開始導航</a>`;
-            
             document.getElementById('detail-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
@@ -415,8 +395,7 @@
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('content-' + tabId).classList.add('active');
-            const tabs = ['itinerary', 'preparation', 'notes'];
-            tabs.forEach(t => {
+            ['itinerary', 'preparation', 'notes'].forEach(t => {
                 const btn = document.getElementById('main-tab-' + t);
                 if (t === tabId) { btn.classList.add('bg-white', 'text-blue-700', 'shadow-sm'); btn.classList.remove('text-white'); } 
                 else { btn.classList.remove('bg-white', 'text-blue-700', 'shadow-sm'); btn.classList.add('text-white'); }
@@ -426,11 +405,9 @@
         function showDay(day) {
             document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
             document.getElementById('day-' + day).classList.add('active');
-            document.querySelectorAll('.day-btn').forEach(b => {
-                b.classList.replace('bg-blue-600', 'bg-white'); b.classList.replace('text-white', 'text-gray-600');
-            });
-            document.getElementById('btn-' + day).classList.replace('bg-white', 'bg-blue-600');
-            document.getElementById('btn-' + day).classList.replace('text-gray-600', 'text-white');
+            document.querySelectorAll('.day-btn').forEach(b => { b.classList.replace('bg-blue-600', 'bg-white'); b.classList.replace('text-white', 'text-gray-600'); });
+            const targetBtn = document.getElementById('btn-' + day);
+            if (targetBtn) { targetBtn.classList.replace('bg-white', 'bg-blue-600'); targetBtn.classList.replace('text-gray-600', 'text-white'); }
         }
 
         function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
@@ -439,81 +416,37 @@
             if (key !== null) localStorage.setItem('GEMINI_API_KEY', key.trim());
         }
 
-        /**
-         * 【核心修復】處理 AI 助手對話與 API 串接
-         */
         async function handleCustomQuery() {
             const input = document.getElementById('ai-input');
             const query = input.value.trim();
             if (!query) return;
-
             const apiKey = localStorage.getItem('GEMINI_API_KEY');
             const container = document.getElementById('ai-response-container');
             const loading = document.getElementById('ai-loading');
-            
-            // 1. 顯示使用者問題
             const userMsg = document.createElement('div');
             userMsg.className = "bg-blue-50 p-3 rounded-xl ml-8 text-right border border-blue-100 shadow-sm font-medium";
             userMsg.innerHTML = `<strong>您：</strong> ${query}`;
             container.appendChild(userMsg);
-            
-            input.value = '';
-            loading.classList.remove('hidden');
-            container.scrollTop = container.scrollHeight;
-
-            // 2. 檢查 API Key
-            if (!apiKey) {
-                setTimeout(() => {
-                    loading.classList.add('hidden');
-                    addAIResponse("⚠️ 尚未設定 API Key。請點擊頁面右上角的鑰匙圖示進行設定。");
-                }, 500);
-                return;
-            }
-
+            input.value = ''; loading.classList.remove('hidden'); container.scrollTop = container.scrollHeight;
+            if (!apiKey) { setTimeout(() => { loading.classList.add('hidden'); addAIResponse("⚠️ 尚未設定 API Key。請點擊頁面右上角的鑰匙圖示進行設定。"); }, 500); return; }
             try {
-                // 3. 準備 Context (從頁面提取文字)
-                const pageContent = document.body.innerText.substring(0, 4000); // 避免 Context 過長
-                
-                // 調用 prompts.js 中的 buildFullPrompt
                 let fullPrompt = query;
                 if (typeof AIPrompts !== 'undefined' && AIPrompts.buildFullPrompt) {
-                    fullPrompt = await AIPrompts.buildFullPrompt(query, pageContent);
+                    fullPrompt = await AIPrompts.buildFullPrompt(query, JSON.stringify(getTripData()));
                 }
-
-                // 4. 調用 Gemini API (實施指數退避)
-                const fetchWithRetry = async (url, options, retries = 5, delay = 1000) => {
-                    try {
-                        const res = await fetch(url, options);
-                        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                        return await res.json();
-                    } catch (e) {
-                        if (retries <= 0) throw e;
-                        await new Promise(r => setTimeout(r, delay));
-                        return fetchWithRetry(url, options, retries - 1, delay * 2);
-                    }
-                };
-
-                const result = await fetchWithRetry(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: fullPrompt }] }],
-                            systemInstruction: { parts: [{ text: (typeof AIPrompts !== 'undefined' ? AIPrompts.systemInstruction : "你是一位親切的導遊") }] }
-                        })
-                    }
-                );
-
-                const aiResponse = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，我暫時無法處理您的問題。";
-                
-                loading.classList.add('hidden');
-                addAIResponse(aiResponse);
-
+                const result = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: fullPrompt }] }],
+                        systemInstruction: { parts: [{ text: (typeof AIPrompts !== 'undefined' ? AIPrompts.systemInstruction : "你是一位親切的導遊，請根據提供的行程資訊回答問題。") }] }
+                    })
+                });
+                const data = await result.json();
+                const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，我暫時無法處理您的問題。";
+                loading.classList.add('hidden'); addAIResponse(aiResponse);
             } catch (error) {
-                console.error("AI Error:", error);
-                loading.classList.add('hidden');
-                addAIResponse("❌ 抱歉，連線至 AI 伺服器時發生錯誤，請確認您的 API Key 是否有效或網路連線正常。");
+                console.error("AI Error:", error); loading.classList.add('hidden'); addAIResponse("❌ 抱歉，連線發生錯誤。請確認 API Key 是否有效。");
             }
         }
 
@@ -521,19 +454,12 @@
             const container = document.getElementById('ai-response-container');
             const aiMsg = document.createElement('div');
             aiMsg.className = "bg-purple-50 p-3 rounded-xl mr-8 border border-purple-100 shadow-sm";
-            // 處理換行與簡單的 Markdown 加粗
-            const formattedText = text
-                .replace(/\n/g, '<br>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
+            const formattedText = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             aiMsg.innerHTML = `<strong>導遊：</strong><br>${formattedText}`;
-            container.appendChild(aiMsg);
-            container.scrollTop = container.scrollHeight;
+            container.appendChild(aiMsg); container.scrollTop = container.scrollHeight;
         }
 
         document.addEventListener('DOMContentLoaded', renderApp);
     </script>
 </body>
 </html>
-
-
