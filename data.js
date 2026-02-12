@@ -1,12 +1,13 @@
 /**
  * 沖繩親子旅遊資料庫 (JSON 結構)
  * 版本：3.3 (完整同步版：包含行程、行前準備與注意事項)
+ * 修正：移除 export 語法以相容於直接 script 載入
  */
 
 const travelData = {
   metadata: {
-    title: "2026 沖繩親子五日遊 (v3.2)",
-    version: "3.2",
+    title: "2026 沖繩親子五日遊 (v3.3)",
+    version: "3.3",
     travelers: { adults: 2, children: 1, childAge: "1Y4M" },
     stay: {
       name: "naha-de.asobu (Gree)",
@@ -242,7 +243,6 @@ const travelData = {
     }
   },
 
-  // 新增：行前準備 (Checklist)
   preparation: [
     {
       category: "🪪 重要證件與文件",
@@ -263,7 +263,6 @@ const travelData = {
     }
   ],
 
-  // 新增：注意事項與攻略
   notes: [
     {
       title: "搭機注意事項",
@@ -296,4 +295,3 @@ const travelData = {
     }
   ]
 };
-
