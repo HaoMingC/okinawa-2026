@@ -256,7 +256,15 @@
             ]
         };
 
-        const getTripData = () => (typeof okinawaTripData !== 'undefined') ? okinawaTripData : okinawa_fallback_data;
+        /**
+         * 優先讀取外部 data.js 的資料
+         * 支援 okinawaTripData (舊名) 或 travelData (新名)
+         */
+        const getTripData = () => {
+            if (typeof okinawaTripData !== 'undefined') return okinawaTripData;
+            if (typeof travelData !== 'undefined') return travelData;
+            return okinawa_fallback_data;
+        };
 
         function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
         function getMapUrl(dest) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dest)}`; }
@@ -315,29 +323,42 @@
         function renderApp() {
             const data = getTripData();
             
-            // 渲染頂部摘要 (新增支援 route 顯示)
-            document.getElementById('logistics-container').innerHTML = `
-                <div class="flex justify-between mb-1">
-                    <span><i class="fas fa-plane-departure mr-1"></i> ${data.logistics.departure.flight} ${data.logistics.departure.route || ''}</span>
-                    <span><i class="fas fa-car mr-1"></i> ${data.logistics.departure.car}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span><i class="fas fa-plane-arrival mr-1"></i> ${data.logistics.arrival.flight} ${data.logistics.arrival.route || ''}</span>
-                    <span><i class="fas fa-car mr-1"></i> ${data.logistics.arrival.car}</span>
-                </div>
-            `;
+            // 處理物流摘要顯示
+            if (data.logistics) {
+                // 支援舊版 Array 格式與新版 Object 格式
+                let logisticsHtml = '';
+                if (Array.isArray(data.logistics)) {
+                    logisticsHtml = data.logistics.map(l => `<span><i class="fas ${l.icon} mr-1"></i> ${l.text}</span>`).join('');
+                } else {
+                    logisticsHtml = `
+                        <div class="flex justify-between mb-1">
+                            <span><i class="fas fa-plane-departure mr-1"></i> ${data.logistics.departure.flight} ${data.logistics.departure.route || ''}</span>
+                            <span><i class="fas fa-car mr-1"></i> ${data.logistics.departure.car}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span><i class="fas fa-plane-arrival mr-1"></i> ${data.logistics.arrival.flight} ${data.logistics.arrival.route || ''}</span>
+                            <span><i class="fas fa-car mr-1"></i> ${data.logistics.arrival.car}</span>
+                        </div>
+                    `;
+                }
+                document.getElementById('logistics-container').innerHTML = logisticsHtml;
+            }
 
             const daysContainer = document.getElementById('days-container');
             const daySelector = document.getElementById('day-selector');
             daysContainer.innerHTML = ''; daySelector.innerHTML = '';
 
-            data.days.forEach((dayObj, index) => {
+            // 判斷資料格式 (itinerary 陣列或 days 陣列)
+            const days = data.days || data.itinerary;
+            if (!days) return;
+
+            days.forEach((dayObj, index) => {
                 const isActive = index === 0;
                 const btn = document.createElement('button');
                 btn.id = `btn-${dayObj.day}`;
                 btn.onclick = () => showDay(dayObj.day);
                 btn.className = `day-btn flex-shrink-0 w-20 py-2 rounded-xl text-center transition ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-100'}`;
-                btn.innerHTML = `<div class="font-bold">${dayObj.title}</div><div class="text-[9px] opacity-80">${dayObj.date}</div>`;
+                btn.innerHTML = `<div class="font-bold">Day ${dayObj.day}</div><div class="text-[9px] opacity-80">${dayObj.date}</div>`;
                 daySelector.appendChild(btn);
 
                 const card = document.createElement('div');
@@ -345,21 +366,33 @@
                 card.className = `day-card ${isActive ? 'active' : ''}`;
                 
                 let itemsHtml = '';
-                dayObj.items.forEach(item => {
-                    const dotColor = item.type === 'attraction' ? '#10b981' : (item.type === 'meal' ? '#f59e0b' : '#3b82f6');
-                    itemsHtml += `
-                        <div class="timeline-item">
-                            <div class="timeline-dot" style="background: ${dotColor};"></div>
-                            <span class="timeline-time">${item.time}</span>
-                            <h3 class="timeline-title">
-                                ${item.title}
-                                <a href="${getNavUrl(item.location || item.title)}" target="_blank" class="action-btn nav-btn"><i class="fas fa-directions mr-1 text-[8px]"></i>導航</a>
-                                ${item.detail ? `<button onclick='openDetail(${JSON.stringify(item)})' class="action-btn detail-btn"><i class="fas fa-info-circle mr-1 text-[8px]"></i>詳情</button>` : ''}
-                            </h3>
-                            <p class="timeline-desc">${item.desc}</p>
-                        </div>
-                    `;
-                });
+                // 支援 items 或 events 欄位名
+                const events = dayObj.items || dayObj.events;
+                if (events) {
+                    events.forEach(item => {
+                        // 轉換為通用格式
+                        const time = item.time;
+                        const title = item.title || item.activity;
+                        const desc = item.desc || "";
+                        const poi = (data.pois && item.poiId) ? data.pois[item.poiId] : null;
+                        
+                        const dotColor = (item.type === 'attraction' || (poi && poi.category === '熱門景點')) ? '#10b981' : (item.isMeal ? '#f59e0b' : '#3b82f6');
+                        
+                        itemsHtml += `
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: ${dotColor};"></div>
+                                <span class="timeline-time">${time}</span>
+                                <h3 class="timeline-title">
+                                    ${title}
+                                    <a href="${getNavUrl(item.location || title)}" target="_blank" class="action-btn nav-btn"><i class="fas fa-directions mr-1 text-[8px]"></i>導航</a>
+                                    ${(item.detail || poi) ? `<button onclick='openDetail(${JSON.stringify(item)})' class="action-btn detail-btn"><i class="fas fa-info-circle mr-1 text-[8px]"></i>詳情</button>` : ''}
+                                </h3>
+                                <p class="timeline-desc">${desc}</p>
+                            </div>
+                        `;
+                    });
+                }
+                
                 card.innerHTML = `<div class="mb-4 text-center"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-100">${dayObj.fullDate}</span></div><div class="day-card-enhanced"><div class="timeline-container">${itemsHtml}</div></div>`;
                 daysContainer.appendChild(card);
             });
@@ -368,24 +401,53 @@
         }
 
         function openDetail(item) {
-            const d = item.detail;
-            document.getElementById('detail-title').innerText = item.title;
+            const data = getTripData();
+            let d = item.detail;
+            let title = item.title || item.activity;
+            let location = item.location || title;
+
+            // 支援從 POIs 資料庫讀取詳情
+            if (!d && data.pois && item.poiId) {
+                const poi = data.pois[item.poiId];
+                d = {
+                    category: poi.category,
+                    info: poi.detailedStory || poi.desc,
+                    img: poi.img,
+                    website: poi.website,
+                    parentTips: poi.parentTips,
+                    backup: poi.backupPlan,
+                    stats: {}
+                };
+                if (poi.infoSections) {
+                    poi.infoSections.forEach(s => d.stats[s.label] = s.content);
+                }
+            }
+
+            if (!d) return;
+
+            document.getElementById('detail-title').innerText = title;
             document.getElementById('detail-category').innerText = d.category || '活動詳情';
             document.getElementById('detail-content').innerText = d.info || '';
+            
             const img = document.getElementById('detail-img');
             const placeholder = document.getElementById('detail-img-placeholder');
             if (d.img) { img.src = d.img; img.classList.remove('hidden'); placeholder.classList.add('hidden'); }
             else { img.classList.add('hidden'); placeholder.classList.remove('hidden'); }
+            
             const grid = document.getElementById('detail-info-grid'); grid.innerHTML = '';
             if (d.stats) { Object.entries(d.stats).forEach(([key, value]) => { grid.innerHTML += `<div class="info-box"><span class="info-label">${key}</span><span class="info-value font-bold">${value}</span></div>`; }); }
+            
             const tipBox = document.getElementById('detail-parent-tips');
             if (d.parentTips) { document.getElementById('detail-parent-content').innerText = d.parentTips; tipBox.classList.remove('hidden'); } else { tipBox.classList.add('hidden'); }
+            
             const backupBox = document.getElementById('detail-backup-plan');
             if (d.backup) { document.getElementById('detail-backup-content').innerText = d.backup; backupBox.classList.remove('hidden'); } else { backupBox.classList.add('hidden'); }
+            
             const navContainer = document.getElementById('detail-modal-nav-container'); navContainer.innerHTML = '';
-            navContainer.innerHTML += `<a href="${getMapUrl(item.location || item.title)}" target="_blank" class="bg-slate-100 text-slate-700 px-3 py-2 rounded-xl font-bold text-xs flex items-center border border-slate-200"><i class="fas fa-map mr-2"></i>地圖</a>`;
+            navContainer.innerHTML += `<a href="${getMapUrl(location)}" target="_blank" class="bg-slate-100 text-slate-700 px-3 py-2 rounded-xl font-bold text-xs flex items-center border border-slate-200"><i class="fas fa-map mr-2"></i>地圖</a>`;
             if (d.website) { navContainer.innerHTML += `<a href="${d.website}" target="_blank" class="bg-blue-100 text-blue-700 px-3 py-2 rounded-xl font-bold text-xs flex items-center border border-blue-200"><i class="fas fa-globe mr-2"></i>網頁</a>`; }
-            navContainer.innerHTML += `<a href="${getNavUrl(item.location || item.title)}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm ml-auto"><i class="fas fa-location-arrow mr-2 text-[10px]"></i>開始導航</a>`;
+            navContainer.innerHTML += `<a href="${getNavUrl(location)}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm ml-auto"><i class="fas fa-location-arrow mr-2 text-[10px]"></i>開始導航</a>`;
+            
             document.getElementById('detail-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
@@ -404,10 +466,18 @@
 
         function showDay(day) {
             document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
-            document.getElementById('day-' + day).classList.add('active');
-            document.querySelectorAll('.day-btn').forEach(b => { b.classList.replace('bg-blue-600', 'bg-white'); b.classList.replace('text-white', 'text-gray-600'); });
+            const targetCard = document.getElementById('day-' + day);
+            if (targetCard) targetCard.classList.add('active');
+            
+            document.querySelectorAll('.day-btn').forEach(b => { 
+                b.classList.remove('bg-blue-600', 'text-white', 'shadow-md'); 
+                b.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-100'); 
+            });
             const targetBtn = document.getElementById('btn-' + day);
-            if (targetBtn) { targetBtn.classList.replace('bg-white', 'bg-blue-600'); targetBtn.classList.replace('text-gray-600', 'text-white'); }
+            if (targetBtn) { 
+                targetBtn.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-100');
+                targetBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md'); 
+            }
         }
 
         function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
