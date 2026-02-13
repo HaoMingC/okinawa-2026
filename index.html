@@ -61,8 +61,8 @@
             </div>
             <div class="flex bg-blue-700/50 rounded-xl p-1 mb-2">
                 <button onclick="switchMainTab('itinerary')" id="main-tab-itinerary" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-blue-700 shadow-sm transition-all">行程規劃</button>
-                <button onclick="switchMainTab('preparation')" id="main-tab-preparation" class="flex-1 py-2 text-sm font-bold rounded-lg text-white transition-all">行前準備</button>
-                <button onclick="switchMainTab('notes')" id="main-tab-notes" class="flex-1 py-2 text-sm font-bold rounded-lg text-white transition-all">注意事項</button>
+                <button onclick="switchMainTab('preparation')" id="main-tab-preparation" class="flex-1 py-2 text-sm font-bold rounded-lg text-blue transition-all">行前準備</button>
+                <button onclick="switchMainTab('notes')" id="main-tab-notes" class="flex-1 py-2 text-sm font-bold rounded-lg text-blue transition-all">注意事項</button>
             </div>
         </div>
     </header>
@@ -168,6 +168,13 @@
                     day: 1, date: "3/28", fullDate: "2026年3月28日 (六)",
                     events: [
                         { time: "12:15", poiId: "FALLBACK_ARR", activity: "抵達那霸機場" },
+                        { time: "15:00", poiId: "FALLBACK_SHRINE", activity: "波上宮參拜" }
+                    ]
+                    
+                },
+                {
+                    day: 2, date: "3/29", fullDate: "2026年3月29日 (日)",
+                    events: [
                         { time: "15:00", poiId: "FALLBACK_SHRINE", activity: "波上宮參拜" }
                     ]
                 }
@@ -383,7 +390,7 @@
                 b.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
                 b.classList.add('bg-white', 'text-gray-600');
             });
-            document.getElementById('btn-' + d).classList.add('bg-blue-600', 'text-white', 'shadow-md');
+            document.getElementById('btn-' + d).classList.add('bg-blue-600', 'text-black', 'shadow-md');
         }
 
         async function handleCustomQuery() {
