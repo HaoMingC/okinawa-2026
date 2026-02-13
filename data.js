@@ -19,7 +19,7 @@ const travelData = {
       { icon: 'fa-plane-departure', text: 'JAL NU302 (去程)' },
       { icon: 'fa-plane-arrival', text: 'AirAsia FD231 (回程)' },
       { icon: 'fa-car', text: 'SKY 租車 (TDV-1965)' },
-      { icon: 'fa-hotel', text: '安里站民宿 (Gree)' }
+      { icon: 'fa-hotel', text: '民宿naha-de.asobu (Gree)' }
     ]
   },
 
@@ -294,4 +294,4 @@ const travelData = {
       ]
     }
   ]
-};
+}
