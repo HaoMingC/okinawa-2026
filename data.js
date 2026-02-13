@@ -187,7 +187,6 @@ const travelData = {
       ],
       parentTips: "神社階梯較多，建議使用輕便型推車或背巾。海灘沙子細軟，記得攜帶替換衣物與毛巾。",
       backupPlan: "若遇下雨或海灘風浪較大，可改至附近的室內景點或商場稍作休息。"
-"
     },
     "MAIN_PLACE": {
       name: "San-A 那霸 Main Place",
