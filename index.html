@@ -393,18 +393,22 @@
             const apiKey = localStorage.getItem('GEMINI_API_KEY');
             const container = document.getElementById('ai-response-container');
             const loading = document.getElementById('ai-loading');
+
             const userMsg = document.createElement('div');
             userMsg.className = "bg-blue-50 p-3 rounded-xl ml-8 text-right border border-blue-100 shadow-sm font-medium";
-            userMsg.innerHTML = `<strong>您：</strong> ${query}`;
+            userMsg.innerHTML = `${query}`;
             container.appendChild(userMsg);
+            
             input.value = ''; loading.classList.remove('hidden'); container.scrollTop = container.scrollHeight;
+            
             if (!apiKey) {
                 setTimeout(() => { loading.classList.add('hidden'); addAIResponse("⚠️ 尚未設定 API Key。"); }, 500);
                 return;
             }
+
             try {
                 let fullPrompt = query;
-                if (window.AIPrompts) {
+                if (typeof AIPrompts !== 'undefined' && AIPrompts.buildFullPrompt) {
                     fullPrompt = await AIPrompts.buildFullPrompt(query, JSON.stringify(getTripData()));
                 }
                 const result = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
