@@ -17,9 +17,9 @@ const travelData = {
     },
     logistics: [
       { icon: 'fa-plane-departure', text: 'JAL NU302 (去程)' },
-      { icon: 'fa-car', text: '呼叫小黃 (TDV-1965)' },
+      { icon: 'fa-car', text: '送機-呼叫小黃 (TDV-1965)' },
       { icon: 'fa-plane-arrival', text: 'AirAsia FD231 (回程)' },
-      { icon: 'fa-car', text: '寶寶車 (TAR-288)' },
+      { icon: 'fa-car', text: '接機-寶寶車 (TAR-288)' },
       { icon: 'fa-car', text: 'SKY 租車' }, 
       { icon: 'fa-hotel', text: '民宿naha-de.asobu (Gree)' }
     ]
@@ -32,14 +32,15 @@ const travelData = {
       title: "Day 1：抵達、取車與首日參拜",
       fullDate: "2026年3月28日 (六)",
       events: [
-        { time: "06:00-08:00", poiId: "TPE_CHECKIN", activity: "桃園機場報到 & 登機手續" },
-        { time: "08:00-12:15", poiId: "JAL_FLIGHT", activity: "JAL 機上用餐與飛行" },
-        { time: "12:15-13:30", poiId: "OKA_ARRIVAL", activity: "抵達那霸機場 & 入關" },
-        { time: "13:30-14:30", poiId: "SKY_RENTAL", activity: "14:00 預約取車 (SKY)" },
+        { time: "07:00-08:00", poiId: "CAB_DEPARTURE", activity: "送機-呼叫小黃" },
+        { time: "08:00-10:00", poiId: "TPE_CHECKIN", activity: "桃園機場報到 & 登機手續" },
+        { time: "10:00-12:30", poiId: "JAL_FLIGHT", activity: "JAL 機上用餐與飛行" },
+        { time: "12:30-13:45", poiId: "OKA_ARRIVAL", activity: "抵達那霸機場 & 入關" },
+        { time: "14:00-14:40", poiId: "SKY_RENTAL", activity: "租車取車 (SKY)" },
         { time: "15:00-16:00", poiId: "NAMINOU_SHRINE", activity: "波上宮參拜" },
-        { time: "16:30-17:00", poiId: "STAY_ASOBU", activity: "民宿 Check-in" },
-        { time: "17:30-19:30", poiId: "MAIN_PLACE", activity: "San-A Main Place 補給" },
-        { time: "19:30-21:00", poiId: "DINNER_ASATO", activity: "晚餐：民宿周邊熟食", isMeal: true }
+        { time: "16:30-17:30", poiId: "STAY_ASOBU", activity: "民宿 Check-in" },
+        { time: "18:00-19:00", poiId: "MAIN_PLACE", activity: "San-A Main Place 補給"},
+        { time: "19:00-20:00", poiId: "DINNER_DAY1", activity: "晚餐：賣場美食街(和風亭)", isMeal: true  }
       ]
     },
     {
@@ -99,33 +100,107 @@ const travelData = {
   ],
 
   pois: {
+    "CAB_DEPARTURE": {
+      name: "送機-呼叫小黃",
+      navName: "桃園國際機場第二航廈",
+      category: "交通運輸",
+      img: "https://images.unsplash.com/photo-1556122071-e404eaedb77f?auto=format&fit=crop&q=80&w=400",
+      detailedStory: "",
+      infoSections: [
+        { label: "目的地", content: "桃機T2" },
+        { label: "車程", content: "約40分" },
+        { label: "費用", content: "NT1100" }
+      ],
+      parentTips: "預約車輛有後向座椅。",
+    },
     "TPE_CHECKIN": {
       name: "桃園機場報到",
       navName: "桃園國際機場第二航廈",
       category: "行政流程",
-      img: "https://images.unsplash.com/photo-1436491865332-7a61a109c05d?auto=format&fit=crop&q=80&w=400",
+      img: "https://images.unsplash.com/photo-1583330357508-1864f8e57785?auto=format&fit=crop&q=80&w=400",
       desc: "JAL 櫃台報到，辦理行李託運與嬰兒車掛牌。",
       detailedStory: "請於起飛前 2.5 小時抵達。JAL 櫃台通常在第二航廈。告知櫃台嬰兒車要「門口托運(Gate Check)」，他們會給予專用吊牌。過安檢前請確認隨身包內無超過 100ml 液體（寶寶飲用水/奶粉除外）。",
       website: "https://www.taoyuan-airport.com/",
       infoSections: [
         { label: "航廈", content: "T2" },
         { label: "嬰兒車", content: "Gate Check" },
-        { label: "飲水", content: "保溫瓶可帶水" }
+        { label: "託運額度", content: "23kg*4" }
       ],
-      parentTips: "二航廈 3 樓有 Hello Kitty 遊戲區，過完安檢後可以去殺時間。",
+      parentTips: "二航廈 3 樓有 Hello Kitty 遊戲區，C5登機門附近有育兒區。登機前泡好奶、換尿布、準備食品與小玩具。",
       backupPlan: "若人潮過多，建議優先辦理自助報到機以節省排隊時間。"
+    },
+    "JAL_FLIGHT": {
+      name: "搭機 JAL NU302",
+      navName: "那霸機場",
+      category: "交通運輸",
+      img: "https://images.unsplash.com/photo-1569839333583-7375336cde4b?auto=format&fit=crop&q=80&w=400",
+      detailedStory: "",
+      infoSections: [
+        { label: "航程", content: "約90分" },
+        { label: "飛機餐", content: "香腸雞蛋沙拉麵包、蘋果汁" }
+      ],
+      parentTips: "起飛時餵食以減輕氣壓變化帶來的耳朵不適（耳鳴），小孩吵鬧時拿出小玩具分散注意力",
+    },
+    "OKA_ARRIVAL": {
+      name: "那霸機場入關",
+      navName: "那覇空港",
+      category: "行政流程",
+      img: "https://images.unsplash.com/photo-1703446207814-8097620d3069?auto=format&fit=crop&q=80&w=400",
+      desc: "抵達與入關程序。請準備好 Visit Japan Web。",
+      detailedStory: "下飛機後跟隨 'Arrival' 指標前往證照查驗。領完行李後通過稅關即可到達接機大廳。記得先連上機場 Wi-Fi 開啟 VJW。",
+      website: "https://services.digital.go.jp/zh-cmn-hant/visit-japan-web/",
+      infoSections: [
+        { label: "必備", content: "VJW QR Code" },
+        { label: "順序", content: "查驗->行李->稅關" }
+      ],
+      parentTips: "領行李處旁有寬敞育嬰室，建議先換完尿布再排隊等租車接駁。",
+      backupPlan: "若海關排隊超過 1 小時，聯繫租車公司告知會延後抵達。"
+    },
+    "SKY_RENTAL": {
+      name: "SKY Rent-A-Car 那霸店",
+      navName: "スカイレンタカー那覇空港店",
+      category: "交通運輸",
+      img: "https://plus.unsplash.com/premium_photo-1661290470322-a313098e7c2a?auto=format&fit=crop&q=80&w=400",
+      desc: "機場接駁取車。請至 11-B 站牌搭乘。",
+      detailedStory: "從出境大廳出航廈，過斑馬線就是「租車公司機場接駁巴士乘車處」。SKY 租車接駁車停靠在機場外第 11-B 號站牌。取車時會核對保險與汽座。辦理完畢後直接導航前往波上宮。",
+      website: "https://www.skyrent.jp/okinawa/naha-airport/",
+      infoSections: [
+        { label: "預約", content: "14:00 取車" },
+        { label: "站牌", content: "11-B 候車" },
+        { label: "文件", content: "駕照+譯本" },
+        { label: "車款", content: "YYaris Cross Hybrid" }
+      ],
+      parentTips: "車輛包含後向安全座椅。店內設有小遊戲區，辦理手續時可讓寶寶在地墊上活動。",
+      backupPlan: "若接駁車等待過久，可改搭計程車直接前往店面。"
+    },
+    "NAMINOU_SHRINE": {
+      name: "參拜波上宮",
+      navName: "若狭海浜公園駐車場",
+      category: "熱門景點",
+      img: "https://images.unsplash.com/photo-1640052790613-717b927414e0?auto=format&fit=crop&q=80&w=400",
+      desc: "建於懸崖之上的神社，可俯瞰蔚藍海景，是那霸最具代表性的能量景點。",
+      detailedStory: "波上宮是沖繩八社之一，自琉球王國時代便是祈求航海平安的重要聖地。神社建在臨海峭壁之上，參拜後可步行前往波之上海灘，讓孩子在沙灘踏浪、玩沙，是市區少見可同時感受文化與自然的地點。",
+      website: "https://www.san-a.co.jp/mainplace/",
+      infoSections: [
+        { label: "參拜時間", content: "09-17點" },
+        { label: "建議停留", content: "1小時" }
+      ],
+      parentTips: "神社階梯較多，建議使用輕便型推車或背巾。海灘沙子細軟，記得攜帶替換衣物與毛巾。",
+      backupPlan: "若遇下雨或海灘風浪較大，可改至附近的室內景點或商場稍作休息。"
+"
     },
     "MAIN_PLACE": {
       name: "San-A 那霸 Main Place",
       navName: "サンエー那覇メインプレイス",
       category: "購物補給",
-      img: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=400",
-      desc: "在地最強購物中心，超市與服飾品牌極齊全。",
-      detailedStory: "這是那霸市區最受當地人歡迎的商場。1 樓超市區非常大，可以買到最新鮮的沖繩水果、鮮乳與寶寶副食品素材。重點櫃位：LOFT、Afternoon Tea、及大型服飾區。",
+      img: "https://images.unsplash.com/photo-1522684462852-01b24e76b77d?auto=format&fit=crop&q=80&w=400",
+      desc: "補給尿布及食物。在地最強購物中心，超市與服飾品牌極齊全。",
+      detailedStory: "這是那霸市區最受當地人歡迎的商場。1 樓超市區非常大，可以買到最新鮮的沖繩水果、鮮乳與寶寶副食品素材。重點櫃位：3coins+、無印良品等。",
       website: "https://www.san-a.co.jp/mainplace/",
       infoSections: [
         { label: "超市", content: "1F (09-23點)" },
-        { label: "推薦", content: "LOFT/生活用品" },
+        { label: "推薦", content: "超市" },
+        { label: "步行", content: "約12分" },
         { label: "停車", content: "室內停車場免費" }
       ],
       parentTips: "超市區有專屬的小孩推車（有方向盤那種），寶寶坐得很開心。",
@@ -135,49 +210,34 @@ const travelData = {
       name: "naha-de.asobu 民宿",
       navName: "naha-de.asobu",
       category: "住宿休息",
-      img: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=400",
-      desc: "位於安里站附近，自助 Check-in。",
-      detailedStory: "民宿採自助式入住，大門密碼會於前一日提供。建築內有電梯，方便推車。停車場位於建築物一樓，位置為編號「5」，請確認無誤後再停放。",
-      website: "https://www.airbnb.com.tw/rooms/21833503",
+      img: "https://images.unsplash.com/photo-1730787056513-66090abd076d?auto=format&fit=crop&q=80&w=400",
+      desc: "自助 Check-in。",
+      detailedStory: "民宿採自助式入住，輸入密碼後取得鑰匙卡。建築內有電梯，方便推車。投幣式停車場位於建築物一樓，可停放2、3、5、6。",
+      website: "https://www.chillnn.com/177d40f34fb27a/room/17910feba7d2bb",
       infoSections: [
-        { label: "方式", content: "電子鎖自助" },
-        { label: "停車", content: "1F 5號位" },
-        { label: "垃圾", content: "需自行分類" }
+        { label: "入住", content: "15:00後自助入住" },
+        { label: "停車", content: "1F 2、3、5、6號位" },
+        { label: "設備", content: "廚房、微波爐、洗衣機、浴缸" },
+        { label: "備品", content: "牙刷、毛巾、洗髮精、肥皂" }
       ],
       parentTips: "屋內備有微波爐可加熱副食品，地板為木地板需注意防滑。",
-      backupPlan: "若專屬車位被占用，請致電民宿主人，並暫停對面特約停車場。"
+      backupPlan: "若1F車位被占用，可改停鄰近安里セントラルパーク。"
     },
-    "OKA_ARRIVAL": {
-      name: "那霸機場入關",
-      navName: "那覇空港",
-      category: "行政流程",
-      img: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&q=80&w=400",
-      desc: "抵達與入關程序。請準備好 Visit Japan Web。",
-      detailedStory: "下飛機後跟隨 'Arrival' 指標前往證照查驗。沖繩機場入關通常比成田快。領完行李後通過稅關即可到達接機大廳。記得先連上機場 Wi-Fi 開啟 VJW。",
-      website: "https://www.naha-airport.co.jp/zh-hant/",
+    "DINNER_DAY1": {
+      name: "和風亭",
+      navName: "サンエー那覇メインプレイス 和風亭",
+      category: "特色飲食",
+      img: "https://images.unsplash.com/photo-1730787056513-66090abd076d?auto=format&fit=crop&q=80&w=400",
+      desc: "主打日式定食與炸豬排，口味溫和、份量充足，適合全家用餐。",
+      detailedStory: "和風亭是沖繩在地家庭常訪的日式定食餐廳。招牌炸豬排外酥內嫩，搭配高麗菜絲與味噌湯相當經典；也有壽喜燒、天婦羅、兒童餐等選擇。用餐空間寬敞舒適，適合帶小孩同行，逛街後直接用餐非常方便。",
+      website: "https://www.san-a.co.jp/store/1036/",
       infoSections: [
-        { label: "必備", content: "VJW QR Code" },
-        { label: "順序", content: "查驗->行李->稅關" },
-        { label: "提醒", content: "肉製品禁入" }
+        { label: "位置", content: "賣場4F" },
+        { label: "推薦", content: "炸豬排定食／壽喜燒／兒童餐" },
+        { label: "預算", content: "約¥1,200-¥2,000/人" }
       ],
-      parentTips: "領行李處旁有寬敞育嬰室，建議先換完尿布再排隊等租車接駁。",
-      backupPlan: "若海關排隊超過 1 小時，聯繫租車公司告知會延後抵達。"
-    },
-    "SKY_RENTAL": {
-      name: "SKY Rent-A-Car 那霸店",
-      navName: "スカイレンタカー那覇空港店",
-      category: "交通運輸",
-      img: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&q=80&w=400",
-      desc: "機場接駁取車。請至 11-B 站牌搭乘。",
-      detailedStory: "SKY 租車接駁車停靠在機場外第 11-B 號站牌。取車時會核對保險與汽座。辦理完畢後直接導航前往波上宮。",
-      website: "https://www.skyrent.jp/okinawa/naha-airport/",
-      infoSections: [
-        { label: "預約", content: "14:00 取車" },
-        { label: "站牌", content: "11-B 候車" },
-        { label: "文件", content: "駕照+譯本" }
-      ],
-      parentTips: "店內設有小遊戲區，辦理手續時可讓寶寶在地墊上活動。",
-      backupPlan: "若接駁車等待過久，可改搭計程車直接前往店面。"
+      parentTips: "提供兒童餐與兒童座椅，餐點口味不會過重。可請店員將炸物剪小塊方便孩子食用。",
+      backupPlan: "若尖峰時段需候位，可改至同樓層其他餐廳或至地下樓美食區選擇更快速的餐點。"
     },
     "DMM_AQUARIUM": {
       name: "DMM Kariyushi 水族館",
