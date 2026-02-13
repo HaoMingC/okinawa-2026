@@ -180,7 +180,7 @@
 
         const getTripData = () => {
             // 嘗試從全域變數讀取外部 data.js 內容
-            const externalData = window.travelData || window.okinawaTripData2026 || window.okinawaTripData;
+            const externalData = travelData || window.okinawaTripData2026 || window.okinawaTripData;
             if (externalData) {
                 console.log("偵測到外部數據庫，版本:", externalData.metadata?.version);
                 return externalData;
@@ -377,3 +377,4 @@
     </script>
 </body>
 </html>
+
