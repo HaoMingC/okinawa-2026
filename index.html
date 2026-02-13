@@ -388,9 +388,10 @@
             document.getElementById('day-' + d).classList.add('active');
             document.querySelectorAll('.day-btn').forEach(b => {
                 b.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
-                b.classList.add('bg-white', 'text-gray-600');
+                b.classList.add('bg-white', 'text-gray-600', 'border-gray-100');
             });
-            document.getElementById('btn-' + d).classList.add('bg-blue-600', 'text-black', 'shadow-md');
+            document.getElementById('btn-' + d).classList.remove('bg-white', 'text-gray-600', 'border-gray-100');
+            document.getElementById('btn-' + d).classList.add('bg-blue-600', 'text-white', 'shadow-md');
         }
 
         async function handleCustomQuery() {
