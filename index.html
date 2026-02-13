@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>沖繩 5 天 4 夜親子遊 (2026/3/28起)</title>
+    <title>2026 沖繩親子五日遊</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- 引入外部資料與邏輯 -->
-    <script src="data.js?v=20260208v4"></script>
-    <script src="prompts.js?v=20260208v4"></script>
+    <!-- 確保路徑正確，加入時間戳記防止快取 -->
+    <script src="data.js?v=20260208_final"></script>
+    <script src="prompts.js?v=20260208_final"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
@@ -23,29 +23,21 @@
         .day-card.active { display: block; animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* 時間軸視覺樣式 */
         .timeline-container { position: relative; padding-left: 28px; margin-left: 4px; }
         .timeline-container::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; background: #e2e8f0; border-radius: 1px; }
         .timeline-item { position: relative; padding-bottom: 24px; }
-        .timeline-item:last-child { padding-bottom: 0; }
         .timeline-dot { position: absolute; left: -33px; top: 6px; width: 12px; height: 12px; border: 2px solid #fff; border-radius: 50%; z-index: 10; }
         .timeline-time { display: block; font-size: 0.8rem; font-weight: 700; color: #2563eb; margin-bottom: 2px; }
         .timeline-title { font-weight: 700; color: #1e293b; font-size: 1.05rem; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; }
         .timeline-desc { font-size: 0.85rem; color: #64748b; line-height: 1.6; }
         
-        .action-btn { font-size: 10px; padding: 4px 8px; border-radius: 6px; margin-left: 6px; display: inline-flex; align-items: center; transition: all 0.2s; }
+        .action-btn { font-size: 10px; padding: 4px 8px; border-radius: 6px; margin-left: 6px; display: inline-flex; align-items: center; }
         .nav-btn { background-color: #dcfce7; color: #15803d; }
         .detail-btn { background-color: #e0f2fe; color: #0369a1; }
         
-        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        .info-box { background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #f1f5f9; }
-        .info-label { font-size: 10px; color: #94a3b8; font-weight: 700; display: block; }
-        .info-value { font-size: 12px; color: #1e293b; font-weight: 500; }
         .parent-tip { background: #fff7ed; border-left: 4px solid #f97316; padding: 8px; border-radius: 4px; margin-top: 8px; }
-        
         .day-card-enhanced { background-color: white; border-radius: 1.5rem; padding: 1.5rem; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
-        .checklist-item { display: flex; align-items: center; padding: 8px 16px; transition: background 0.2s; cursor: pointer; }
-        .checklist-item input[type="checkbox"] { width: 16px; height: 16px; margin-right: 12px; }
+        .checklist-item { display: flex; align-items: center; padding: 8px 16px; cursor: pointer; }
     </style>
 </head>
 <body class="pb-24">
@@ -53,22 +45,25 @@
     <header class="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-md mx-auto px-4 pt-4 pb-2">
             <div class="flex justify-between items-center mb-4">
-                <h1 id="header-title" class="text-xl font-bold">🌸 沖繩初航 🌸</h1>
-                <div class="flex space-x-2">
-                    <button onclick="setupApiKey()" class="bg-white/20 p-2 rounded-full"><i class="fas fa-key text-sm"></i></button>
-                    <button onclick="toggleAIChat()" class="bg-white/20 p-2 rounded-full"><i class="fas fa-robot text-sm"></i></button>
-                </div>
+                <h1 id="header-title" class="text-xl font-bold">🌸 沖繩親子遊 🌸</h1>
+                <button onclick="toggleAIChat()" class="bg-white/20 p-2 rounded-full"><i class="fas fa-robot text-sm"></i></button>
             </div>
             <div class="flex bg-blue-700/50 rounded-xl p-1 mb-2">
-                <button onclick="switchMainTab('itinerary')" id="main-tab-itinerary" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-blue-700 shadow-sm transition-all">行程規劃</button>
-                <button onclick="switchMainTab('preparation')" id="main-tab-preparation" class="flex-1 py-2 text-sm font-bold rounded-lg text-white transition-all">行前準備</button>
-                <button onclick="switchMainTab('notes')" id="main-tab-notes" class="flex-1 py-2 text-sm font-bold rounded-lg text-white transition-all">注意事項</button>
+                <button onclick="switchMainTab('itinerary')" id="main-tab-itinerary" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-blue-700 shadow-sm">行程規劃</button>
+                <button onclick="switchMainTab('preparation')" id="main-tab-preparation" class="flex-1 py-2 text-sm font-bold rounded-lg text-white">行前準備</button>
+                <button onclick="switchMainTab('notes')" id="main-tab-notes" class="flex-1 py-2 text-sm font-bold rounded-lg text-white">注意事項</button>
             </div>
         </div>
     </header>
 
     <main class="max-w-md mx-auto p-4">
-        <div id="content-itinerary" class="tab-content active">
+        <!-- 載入中提示 -->
+        <div id="loading-spinner" class="py-20 text-center">
+            <i class="fas fa-circle-notch animate-spin text-3xl text-blue-500 mb-4"></i>
+            <p class="text-gray-500 text-sm">正在載入行程資料...</p>
+        </div>
+
+        <div id="content-itinerary" class="tab-content">
             <div id="logistics-container" class="bg-white rounded-xl p-3 shadow-sm mb-4 border border-blue-100 text-[10px]"></div>
             <div id="day-selector" class="flex space-x-2 mb-6 overflow-x-auto pb-2 no-scrollbar text-xs"></div>
             <div id="days-container"></div>
@@ -81,41 +76,14 @@
         </div>
     </main>
 
-    <!-- [Modal] 景點詳細資訊彈窗 -->
+    <!-- 景點詳情彈窗 -->
     <div id="detail-modal" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="relative h-48 bg-gray-200">
-                <img id="detail-img" src="" alt="" class="w-full h-full object-cover hidden">
-                <div id="detail-img-placeholder" class="w-full h-full flex items-center justify-center text-gray-400 bg-slate-100">
-                    <i class="fas fa-camera text-4xl"></i>
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                <div class="absolute bottom-4 left-4 right-4">
-                    <span id="detail-category" class="bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-md mb-1 inline-block font-bold">景點類別</span>
-                    <h3 id="detail-title" class="text-xl font-bold text-white"></h3>
-                </div>
-                <button onclick="closeDetail()" class="absolute top-3 right-3 bg-white/20 backdrop-blur-md text-white w-8 h-8 rounded-full flex items-center justify-center">
-                    <i class="fas fa-times text-sm"></i>
-                </button>
+            <div class="p-5 overflow-y-auto space-y-5" id="detail-body">
+                <!-- 內容動態生成 -->
             </div>
-            <div class="p-5 overflow-y-auto space-y-5">
-                <div class="info-grid" id="detail-info-grid"></div>
-                <div id="detail-parent-tips" class="parent-tip hidden">
-                    <div class="text-[10px] font-bold text-orange-600 mb-1 flex items-center"><i class="fas fa-baby mr-1.5"></i>親子友善提醒</div>
-                    <div id="detail-parent-content" class="text-xs text-orange-800 leading-relaxed"></div>
-                </div>
-                <div>
-                    <div class="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest border-l-2 border-gray-300 pl-2">活動詳情</div>
-                    <div id="detail-content" class="text-sm text-gray-600 leading-relaxed"></div>
-                </div>
-                <div id="detail-backup-plan" class="bg-slate-50 p-3 rounded-xl border border-dashed border-slate-300 hidden">
-                    <div class="text-[10px] font-bold text-slate-500 mb-1 flex items-center"><i class="fas fa-exchange-alt mr-1.5"></i>行程彈性與備案</div>
-                    <div id="detail-backup-content" class="text-xs text-slate-600"></div>
-                </div>
-            </div>
-            <div class="p-4 border-t bg-slate-50 flex justify-between items-center">
-                <div id="detail-modal-nav-container" class="flex gap-2"></div>
-                <button onclick="closeDetail()" class="text-slate-400 text-xs font-bold px-4 py-2">關閉</button>
+            <div class="p-4 border-t bg-slate-50 text-right">
+                <button onclick="closeDetail()" class="text-blue-600 font-bold px-4 py-2">關閉</button>
             </div>
         </div>
     </div>
@@ -127,10 +95,7 @@
                 <div class="flex items-center space-x-2"><i class="fas fa-robot"></i><h3 class="font-bold text-sm">沖繩旅遊助手</h3></div>
                 <button onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
             </div>
-            <div id="ai-response-container" class="p-4 overflow-y-auto flex-grow text-[11px] text-gray-700 leading-relaxed space-y-3">
-                <div class="bg-purple-50 p-3 rounded-xl border border-purple-100">您好！我是您的資深沖繩導遊。</div>
-            </div>
-            <div id="ai-loading" class="hidden p-4 text-center text-purple-600 font-medium italic animate-pulse text-xs">導遊思考中...</div>
+            <div id="ai-response-container" class="p-4 overflow-y-auto flex-grow text-[11px] text-gray-700 space-y-3"></div>
             <div class="p-4 border-t bg-gray-50 rounded-b-2xl">
                 <form onsubmit="event.preventDefault(); handleCustomQuery();" class="flex space-x-2">
                     <input id="ai-input" type="text" placeholder="有什麼問題嗎？" class="flex-grow border rounded-xl px-4 py-2 text-sm">
@@ -140,188 +105,158 @@
         </div>
     </div>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 flex justify-around items-center max-w-md mx-auto shadow-2xl z-40">
-        <button onclick="switchMainTab('itinerary')" class="text-center text-blue-600">
-            <i class="fas fa-route block text-lg"></i><span class="text-[10px] font-bold">行程</span>
-        </button>
-        <button onclick="toggleAIChat()" class="text-center text-purple-600">
-            <i class="fas fa-comments block text-lg"></i><span class="text-[10px] font-bold">問助手</span>
-        </button>
-    </nav>
-
     <script>
-        const getTripData = () => {
-            // 強制檢查 window.travelData，這是你在 Console 看到的結果
-            const data = window.okinawaTripData2026 || window.okinawaTripData || window.travelData;
-            console.log("偵測到的資料庫版本:", data?.metadata?.version || "Fallback");
-            return data || okinawa_fallback_data;
-        };
-
-        function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
-        function getMapUrl(dest) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dest)}`; }
-
-        function renderPreparation() {
-            const container = document.getElementById('preparation-list');
-            const data = getTripData();
-            if (!container || !data.preparation) return;
-            const styleMap = {
-                blue: { bg: 'bg-blue-50', border: 'border-blue-100', text: 'text-blue-800', badge: 'bg-blue-200 text-blue-700' },
-                pink: { bg: 'bg-pink-50', border: 'border-pink-100', text: 'text-pink-800', badge: 'bg-pink-200 text-pink-700' },
-                green: { bg: 'bg-green-50', border: 'border-green-100', text: 'text-green-800', badge: 'bg-green-200 text-green-700' },
-                orange: { bg: 'bg-orange-50', border: 'border-orange-100', text: 'text-orange-800', badge: 'bg-orange-200 text-orange-700' }
-            };
-            container.innerHTML = data.preparation.map(group => {
-                const s = styleMap[group.style] || styleMap.blue;
-                return `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="${s.bg} px-4 py-3 border-b ${s.border} flex items-center justify-between">
-                        <span class="font-bold ${s.text}">${group.category}</span>
-                        ${group.badge ? `<span class="text-[10px] ${s.badge} px-2 py-0.5 rounded font-bold">${group.badge}</span>` : ''}
-                    </div>
-                    <div class="p-2">
-                        ${group.tip ? `<p class="px-4 py-2 text-xs text-gray-500 italic">💡 ${group.tip}</p>` : ''}
-                        ${group.items.map(item => `<label class="checklist-item"><input type="checkbox"><span class="text-sm text-gray-700 ml-2">${item}</span></label>`).join('')}
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function renderNotes() {
-            const container = document.getElementById('notes-list');
-            const data = getTripData();
-            if (!container || !data.notes) return;
-            const styleMap = { blue: 'text-blue-700', green: 'text-green-700', orange: 'text-orange-700', pink: 'text-pink-700' };
-            container.innerHTML = data.notes.map(note => `<div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                <h3 class="font-bold ${styleMap[note.style] || 'text-gray-700'} mb-3 border-b pb-2 flex items-center">
-                    <i class="fas ${note.icon} mr-2"></i> ${note.title}
-                </h3>
-                <ul class="text-xs text-gray-600 space-y-3 leading-relaxed">
-                    ${note.content.map(li => `<li>${li}</li>`).join('')}
-                </ul>
-            </div>`).join('');
+        // 核心資料讀取邏輯
+        function getTripData() {
+            // 同時檢查所有可能的變數名稱
+            const data = window.travelData || window.okinawaTripData2026 || window.okinawaTripData;
+            return data;
         }
 
         function renderApp() {
             const data = getTripData();
             
-            // 更新標題
-            if (data.metadata?.title) document.getElementById('header-title').innerText = data.metadata.title;
-
-            // 處理物流
-            const logBox = document.getElementById('logistics-container');
-            if (data.metadata?.logistics) {
-                logBox.innerHTML = `<div class="grid grid-cols-2 gap-2">${data.metadata.logistics.map(l => `<span><i class="fas ${l.icon} mr-1 text-blue-500"></i> ${l.text}</span>`).join('')}</div>`;
-            } else if (data.logistics) {
-                logBox.innerHTML = `去程: ${data.logistics.departure?.flight} | 回程: ${data.logistics.arrival?.flight}`;
+            // 如果還沒拿到資料，顯示載入中並延遲重試
+            if (!data) {
+                console.log("資料尚未就緒，0.5秒後重試...");
+                setTimeout(renderApp, 500);
+                return;
             }
 
-            // 處理行程天數
+            // 隱藏載入提示，顯示內容區
+            document.getElementById('loading-spinner').classList.add('hidden');
+            document.getElementById('content-itinerary').classList.add('active');
+
+            // 1. 更新標題
+            if (data.metadata?.title) document.getElementById('header-title').innerText = data.metadata.title;
+
+            // 2. 物流資訊
+            const logBox = document.getElementById('logistics-container');
+            const logistics = data.metadata?.logistics || [];
+            logBox.innerHTML = `<div class="grid grid-cols-2 gap-2">${logistics.map(l => `<span><i class="fas ${l.icon} mr-1 text-blue-500"></i> ${l.text}</span>`).join('')}</div>`;
+
+            // 3. 行程渲染
             const daysContainer = document.getElementById('days-container');
             const daySelector = document.getElementById('day-selector');
-            daysContainer.innerHTML = ''; daySelector.innerHTML = '';
-
-            // 重要：修正 v3.3 的讀取點
-            const days = data.itinerary?.days || (Array.isArray(data.itinerary) ? data.itinerary : null) || data.days;
-            if (!days) return;
+            const days = data.itinerary?.days || (Array.isArray(data.itinerary) ? data.itinerary : []);
 
             days.forEach((dayObj, index) => {
-                const isActive = index === 0;
+                // 生成上方日期按鈕
                 const btn = document.createElement('button');
                 btn.id = `btn-${dayObj.day}`;
                 btn.onclick = () => showDay(dayObj.day);
-                btn.className = `day-btn flex-shrink-0 w-20 py-2 rounded-xl text-center transition ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-100'}`;
+                btn.className = `day-btn flex-shrink-0 w-20 py-2 rounded-xl text-center transition ${index === 0 ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-100'}`;
                 btn.innerHTML = `<div class="font-bold">Day ${dayObj.day}</div><div class="text-[9px] opacity-80">${dayObj.date}</div>`;
                 daySelector.appendChild(btn);
 
+                // 生成當日行程卡片
                 const card = document.createElement('div');
                 card.id = `day-${dayObj.day}`;
-                card.className = `day-card ${isActive ? 'active' : ''}`;
+                card.className = `day-card ${index === 0 ? 'active' : ''}`;
                 
-                // 修正 v3.3 的活動讀取點
-                const events = dayObj.events || dayObj.items;
+                const events = dayObj.events || dayObj.items || [];
                 let itemsHtml = '';
-                if (events) {
-                    events.forEach(item => {
-                        const title = item.activity || item.title;
-                        const poi = (data.pois && item.poiId) ? data.pois[item.poiId] : null;
-                        const dotColor = (item.isMeal || (poi && poi.category === '特色飲食')) ? '#f59e0b' : '#3b82f6';
-                        
-                        itemsHtml += `<div class="timeline-item">
-                            <div class="timeline-dot" style="background: ${dotColor};"></div>
-                            <span class="timeline-time font-mono">${item.time}</span>
+                events.forEach(item => {
+                    const title = item.activity || item.title;
+                    const poi = (data.pois && item.poiId) ? data.pois[item.poiId] : null;
+                    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(poi?.navName || title)}`;
+                    
+                    itemsHtml += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background: #3b82f6;"></div>
+                            <span class="timeline-time">${item.time}</span>
                             <h3 class="timeline-title">
                                 ${title}
-                                <a href="${getNavUrl(poi?.navName || title)}" target="_blank" class="action-btn nav-btn"><i class="fas fa-directions mr-1"></i>導航</a>
-                                ${(item.detail || poi) ? `<button onclick='openDetail(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="action-btn detail-btn"><i class="fas fa-info-circle mr-1"></i>詳情</button>` : ''}
+                                <a href="${navUrl}" target="_blank" class="action-btn nav-btn"><i class="fas fa-directions mr-1"></i>導航</a>
+                                <button onclick='showDetail("${item.poiId || ''}", "${title}")' class="action-btn detail-btn"><i class="fas fa-info-circle mr-1"></i>詳情</button>
                             </h3>
                             <p class="timeline-desc">${item.desc || poi?.desc || ""}</p>
                         </div>`;
-                    });
-                }
-                card.innerHTML = `<div class="mb-4 text-center"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-100">${dayObj.fullDate || dayObj.date}</span></div><div class="day-card-enhanced"><div class="timeline-container">${itemsHtml}</div></div>`;
+                });
+                
+                card.innerHTML = `
+                    <div class="mb-4 text-center"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-100">${dayObj.fullDate || dayObj.date}</span></div>
+                    <div class="day-card-enhanced"><div class="timeline-container">${itemsHtml}</div></div>`;
                 daysContainer.appendChild(card);
             });
-            renderPreparation();
-            renderNotes();
+
+            renderPreparation(data);
+            renderNotes(data);
         }
 
-        function openDetail(item) {
+        function showDetail(poiId, title) {
             const data = getTripData();
-            let d = item.detail;
-            const poi = (data.pois && item.poiId) ? data.pois[item.poiId] : null;
-            const title = item.activity || item.title || poi?.name;
-
-            if (!d && poi) {
-                d = {
-                    category: poi.category,
-                    info: poi.detailedStory || poi.desc,
-                    img: poi.img,
-                    website: poi.website,
-                    parentTips: poi.parentTips,
-                    backup: poi.backupPlan,
-                    stats: {}
-                };
-                if (poi.infoSections) poi.infoSections.forEach(s => d.stats[s.label] = s.content);
+            const poi = data.pois?.[poiId];
+            const body = document.getElementById('detail-body');
+            
+            let html = `<h2 class="text-xl font-bold text-gray-800 border-b pb-2">${title}</h2>`;
+            
+            if (poi) {
+                if (poi.parentTips) {
+                    html += `<div class="parent-tip"><div class="text-[10px] font-bold text-orange-600 mb-1"><i class="fas fa-baby mr-1"></i>親子提醒</div><div class="text-xs text-orange-800">${poi.parentTips}</div></div>`;
+                }
+                html += `<div class="text-sm text-gray-600 leading-relaxed">${poi.detailedStory || poi.desc || "暫無詳細說明"}</div>`;
+                if (poi.infoSections) {
+                    html += `<div class="grid grid-cols-2 gap-2">`;
+                    poi.infoSections.forEach(s => {
+                        html += `<div class="bg-gray-50 p-2 rounded-lg"><span class="block text-[10px] text-gray-400">${s.label}</span><span class="text-xs font-bold">${s.content}</span></div>`;
+                    });
+                    html += `</div>`;
+                }
+            } else {
+                html += `<p class="text-sm text-gray-500 mt-4">更多詳情規劃中...</p>`;
             }
-            if (!d) return;
-
-            document.getElementById('detail-title').innerText = title;
-            document.getElementById('detail-category').innerText = d.category || '活動詳情';
-            document.getElementById('detail-content').innerText = d.info || '';
-            const img = document.getElementById('detail-img');
-            const placeholder = document.getElementById('detail-img-placeholder');
-            if (d.img) { img.src = d.img; img.classList.remove('hidden'); placeholder.classList.add('hidden'); }
-            else { img.classList.add('hidden'); placeholder.classList.remove('hidden'); }
             
-            const grid = document.getElementById('detail-info-grid'); grid.innerHTML = '';
-            if (d.stats) Object.entries(d.stats).forEach(([k, v]) => { grid.innerHTML += `<div class="info-box"><span class="info-label">${k}</span><span class="info-value font-bold">${v}</span></div>`; });
-            
-            const tipBox = document.getElementById('detail-parent-tips');
-            if (d.parentTips) { document.getElementById('detail-parent-content').innerText = d.parentTips; tipBox.classList.remove('hidden'); } else { tipBox.classList.add('hidden'); }
-            
-            const navContainer = document.getElementById('detail-modal-nav-container');
-            navContainer.innerHTML = `<a href="${getNavUrl(poi?.navName || title)}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm"><i class="fas fa-location-arrow mr-2"></i>導航</a>`;
-            
+            body.innerHTML = html;
             document.getElementById('detail-modal').classList.remove('hidden');
         }
 
-        function closeDetail() { document.getElementById('detail-modal').classList.add('hidden'); }
+        function renderPreparation(data) {
+            const container = document.getElementById('preparation-list');
+            if (!container || !data.preparation) return;
+            container.innerHTML = data.preparation.map(group => `
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-blue-50 px-4 py-3 border-b border-blue-100 font-bold text-blue-800">${group.category}</div>
+                    <div class="p-2">
+                        ${group.items.map(item => `<label class="checklist-item"><input type="checkbox" class="mr-3"><span class="text-sm text-gray-700">${item}</span></label>`).join('')}
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderNotes(data) {
+            const container = document.getElementById('notes-list');
+            if (!container || !data.notes) return;
+            container.innerHTML = data.notes.map(note => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-blue-700 mb-3 border-b pb-2"><i class="fas ${note.icon} mr-2"></i>${note.title}</h3>
+                    <ul class="text-xs text-gray-600 space-y-2">${note.content.map(li => `<li>• ${li}</li>`).join('')}</ul>
+                </div>`).join('');
+        }
+
+        function showDay(d) {
+            document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('day-' + d).classList.add('active');
+            document.querySelectorAll('.day-btn').forEach(b => {
+                b.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                b.classList.add('bg-white', 'text-gray-600');
+            });
+            document.getElementById('btn-' + d).classList.add('bg-blue-600', 'text-white', 'shadow-md');
+        }
+
         function switchMainTab(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('content-' + t).classList.add('active');
             ['itinerary', 'preparation', 'notes'].forEach(tab => {
                 const btn = document.getElementById('main-tab-' + tab);
-                if (tab === t) { btn.classList.add('bg-white', 'text-blue-700', 'shadow-sm'); btn.classList.remove('text-white'); }
-                else { btn.classList.remove('bg-white', 'text-blue-700', 'shadow-sm'); btn.classList.add('text-white'); }
+                if (tab === t) btn.classList.add('bg-white', 'text-blue-700');
+                else btn.classList.remove('bg-white', 'text-blue-700');
             });
         }
-        function showDay(d) {
-            document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
-            document.getElementById('day-' + d).classList.add('active');
-            document.querySelectorAll('.day-btn').forEach(b => { b.classList.remove('bg-blue-600', 'text-white', 'shadow-md'); b.classList.add('bg-white', 'text-gray-600'); });
-            document.getElementById('btn-' + d).className = 'day-btn flex-shrink-0 w-20 py-2 rounded-xl text-center transition bg-blue-600 text-white shadow-md';
-        }
+
+        function closeDetail() { document.getElementById('detail-modal').classList.add('hidden'); }
         function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
-        document.addEventListener('DOMContentLoaded', renderApp);
+
+        window.onload = renderApp;
     </script>
 </body>
 </html>
