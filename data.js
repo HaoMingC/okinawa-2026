@@ -227,7 +227,7 @@ const travelData = {
       name: "和風亭",
       navName: "サンエー那覇メインプレイス 和風亭",
       category: "特色飲食",
-      img: "https://images.unsplash.com/photo-1730787056513-66090abd076d?auto=format&fit=crop&q=80&w=400",
+      img: "https://images.unsplash.com/photo-1591814252471-068b545dff62?auto=format&fit=crop&q=80&w=400",
       desc: "主打日式定食與炸豬排，口味溫和、份量充足，適合全家用餐。",
       detailedStory: "和風亭是沖繩在地家庭常訪的日式定食餐廳。招牌炸豬排外酥內嫩，搭配高麗菜絲與味噌湯相當經典；也有壽喜燒、天婦羅、兒童餐等選擇。用餐空間寬敞舒適，適合帶小孩同行，逛街後直接用餐非常方便。",
       website: "https://www.san-a.co.jp/store/1036/",
