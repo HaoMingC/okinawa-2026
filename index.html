@@ -95,17 +95,31 @@
                 <button onclick="closeDetail()" class="absolute top-3 right-3 bg-white/20 backdrop-blur-md text-white w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-times text-sm"></i></button>
             </div>
             <div class="p-5 overflow-y-auto space-y-5">
+                <!-- 基本資訊格線 -->
                 <div class="info-grid" id="detail-info-grid"></div>
+                
+                <!-- 親子提醒 -->
                 <div id="detail-parent-tips" class="parent-tip hidden">
                     <div class="text-[10px] font-bold text-orange-600 mb-1 flex items-center"><i class="fas fa-baby mr-1.5"></i>親子友善提醒</div>
                     <div id="detail-parent-content" class="text-xs text-orange-800 leading-relaxed"></div>
                 </div>
+
+                
+
+                <!-- 詳細活動內容 -->
                 <div>
                     <div class="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest border-l-2 border-gray-300 pl-2">活動詳情</div>
                     <div id="detail-content" class="text-sm text-gray-600 leading-relaxed"></div>
                 </div>
+
+                <!-- 備案資訊 (新增修正點 1) -->
+                <div id="detail-backup-plan" class="bg-slate-50 p-3 rounded-xl border border-dashed border-slate-300 hidden">
+                    <div class="text-[10px] font-bold text-slate-500 mb-1 flex items-center"><i class="fas fa-exchange-alt mr-1.5"></i>行程彈性與備案</div>
+                    <div id="detail-backup-content" class="text-xs text-slate-600"></div>
+                </div>
             </div>
             <div class="p-4 border-t bg-slate-50">
+                <!-- 按鈕容器 (新增修正點 2) -->
                 <div id="detail-modal-nav-container" class="flex flex-wrap gap-2 mb-2"></div>
                 <div class="flex justify-end mt-2"><button onclick="closeDetail()" class="text-slate-400 text-xs font-bold px-4 py-2">關閉視窗</button></div>
             </div>
@@ -160,9 +174,20 @@
             ],
             pois: {
                 "FALLBACK_ARR": {
-                    name: "那霸機場", category: "行政流程",
-                    desc: "抵達沖繩的第一站。",
-                    infoSections: [{ label: "提醒", content: "準備 VJW QR Code" }]
+                    name: "那霸機場入關",
+                    navName: "那覇空港",
+                    category: "行政流程",
+                    img: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&q=80&w=400",
+                    desc: "抵達與入關程序。請準備好 Visit Japan Web。",
+                    detailedStory: "下飛機後跟隨 'Arrival' 指標前往證照查驗。沖繩機場入關通常比成田快。領完行李後通過稅關即可到達接機大廳。記得先連上機場 Wi-Fi 開啟 VJW。",
+                    website: "https://www.naha-airport.co.jp/zh-hant/",
+                    infoSections: [
+                        { label: "必備", content: "VJW QR Code" },
+                        { label: "順序", content: "查驗->行李->稅關" },
+                        { label: "提醒", content: "肉製品禁入" }
+                    ],
+                    parentTips: "領行李處旁有寬敞育嬰室，建議先換完尿布再排隊等租車接駁。",
+                    backupPlan: "若海關排隊超過 1 小時，聯繫租車公司告知會延後抵達。"
                 },
                 "FALLBACK_SHRINE": {
                     name: "波上宮", category: "熱門景點",
@@ -179,36 +204,34 @@
         };
 
         const getTripData = () => {
-            // 嘗試從全域變數讀取外部 data.js 內容
-            const externalData = travelData || window.okinawaTripData2026 || window.okinawaTripData;
+            let externalData = null;
+            try {
+                if (typeof travelData !== 'undefined') externalData = travelData;
+                else if (typeof okinawaTripData2026 !== 'undefined') externalData = okinawaTripData2026;
+                else if (window.travelData) externalData = window.travelData;
+            } catch (e) {
+                console.error("讀取外部數據時發生非預期錯誤:", e);
+            }
             if (externalData) {
-                console.log("偵測到外部數據庫，版本:", externalData.metadata?.version);
                 return externalData;
             }
-            console.warn("未偵測到外部數據，啟用 Fallback 模式");
             return okinawa_fallback_data;
         };
 
+        function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
+
         function renderApp() {
             const data = getTripData();
-            
-            // 更新標題
             if (data.metadata?.title) {
                 document.getElementById('header-main-title').innerText = data.metadata.title;
             }
-
-            // 處理物流
             const logBox = document.getElementById('logistics-container');
             const logistics = data.metadata?.logistics || [];
             logBox.innerHTML = `<div class="grid grid-cols-2 gap-2">${logistics.map(l => `<span><i class="fas ${l.icon} mr-1 text-blue-500"></i> ${l.text}</span>`).join('')}</div>`;
-
             const daysContainer = document.getElementById('days-container');
             const daySelector = document.getElementById('day-selector');
             daysContainer.innerHTML = ''; daySelector.innerHTML = '';
-
-            // 統一讀取行程陣列（相容 itinerary.days 或 itinerary 直接就是陣列）
             const days = Array.isArray(data.itinerary) ? data.itinerary : (data.itinerary?.days || []);
-
             days.forEach((dayObj, index) => {
                 const isActive = index === 0;
                 const btn = document.createElement('button');
@@ -217,36 +240,30 @@
                 btn.className = `day-btn flex-shrink-0 w-20 py-2 rounded-xl text-center transition ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-100'}`;
                 btn.innerHTML = `<div class="font-bold">Day ${dayObj.day}</div><div class="text-[9px] opacity-80">${dayObj.date}</div>`;
                 daySelector.appendChild(btn);
-
                 const card = document.createElement('div');
                 card.id = `day-${dayObj.day}`;
                 card.className = `day-card ${isActive ? 'active' : ''}`;
-                
-                // 統一讀取事件陣列（相容 events 或 items）
                 const events = dayObj.events || dayObj.items || [];
                 let itemsHtml = '';
                 events.forEach(item => {
                     const title = item.activity || item.title;
                     const poi = (data.pois && item.poiId) ? data.pois[item.poiId] : null;
                     const dotColor = item.isMeal ? '#f59e0b' : '#3b82f6';
-                    
                     itemsHtml += `
                         <div class="timeline-item">
                             <div class="timeline-dot" style="background: ${dotColor};"></div>
                             <span class="timeline-time">${item.time}</span>
                             <h3 class="timeline-title">
                                 ${title}
-                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poi?.navName || title)}" target="_blank" class="action-btn nav-btn"><i class="fas fa-directions mr-1"></i>導航</a>
+                                <a href="${getNavUrl(poi?.navName || title)}" target="_blank" class="action-btn nav-btn"><i class="fas fa-directions mr-1"></i>導航</a>
                                 <button onclick='openDetail(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="action-btn detail-btn"><i class="fas fa-info-circle mr-1"></i>詳情</button>
                             </h3>
                             <p class="timeline-desc">${item.desc || poi?.desc || ""}</p>
                         </div>`;
                 });
-                
                 card.innerHTML = `<div class="mb-4 text-center"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-100">${dayObj.fullDate || dayObj.date}</span></div><div class="day-card-enhanced"><div class="timeline-container">${itemsHtml}</div></div>`;
                 daysContainer.appendChild(card);
             });
-
             renderPreparation(data);
             renderNotes(data);
         }
@@ -265,17 +282,60 @@
             if (poi?.img) { img.src = poi.img; img.classList.remove('hidden'); placeholder.classList.add('hidden'); }
             else { img.classList.add('hidden'); placeholder.classList.remove('hidden'); }
             
+            // 基礎資訊格線
             const grid = document.getElementById('detail-info-grid'); grid.innerHTML = '';
             const sections = poi?.infoSections || [];
             sections.forEach(s => { grid.innerHTML += `<div class="info-box"><span class="info-label">${s.label}</span><span class="info-value font-bold">${s.content}</span></div>`; });
             
+            // 親子提醒
             const tipBox = document.getElementById('detail-parent-tips');
             if (poi?.parentTips) { document.getElementById('detail-parent-content').innerText = poi.parentTips; tipBox.classList.remove('hidden'); } 
             else { tipBox.classList.add('hidden'); }
+
+            // 修正點 1: 行程彈性與備案
+            const backupBox = document.getElementById('detail-backup-plan');
+            if (poi?.backupPlan) {
+                document.getElementById('detail-backup-content').innerText = poi.backupPlan;
+                backupBox.classList.remove('hidden');
+            } else {
+                backupBox.classList.add('hidden');
+            }
             
+            // 修正點 2: 導航按鈕與網頁按鈕
             const navContainer = document.getElementById('detail-modal-nav-container');
-            navContainer.innerHTML = `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(poi?.navName || title)}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm ml-auto"><i class="fas fa-location-arrow mr-2 text-[10px]"></i>開始導航</a>`;
-            
+            navContainer.innerHTML = '';
+
+            // 確保是 flex + 可換行
+            navContainer.className = "flex flex-wrap gap-2 mb-2";
+
+            // 地圖 (左)
+            const mapQuery = encodeURIComponent(poi?.navName || title);
+
+            navContainer.innerHTML += `
+                <a href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" 
+                target="_blank"
+                class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm">
+                <i class="fas fa-map-marked-alt mr-2 text-[10px]"></i>地圖
+                </a>`;
+
+            // 網頁 (左)
+            if (poi?.website) {
+                navContainer.innerHTML += `
+                    <a href="${poi.website}" 
+                    target="_blank"
+                    class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm">
+                    <i class="fas fa-globe mr-2 text-[10px]"></i>網頁
+                    </a>`;
+            }
+
+            // 👉 導航（右邊）
+            navContainer.innerHTML += `
+                <a href="${getNavUrl(poi?.navName || title)}" 
+                target="_blank"
+                class="ml-auto bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm">
+                <i class="fas fa-location-arrow mr-2"></i>導航
+                </a>`;           
+
             document.getElementById('detail-modal').classList.remove('hidden');
         }
 
@@ -333,19 +393,15 @@
             const apiKey = localStorage.getItem('GEMINI_API_KEY');
             const container = document.getElementById('ai-response-container');
             const loading = document.getElementById('ai-loading');
-            
             const userMsg = document.createElement('div');
             userMsg.className = "bg-blue-50 p-3 rounded-xl ml-8 text-right border border-blue-100 shadow-sm font-medium";
             userMsg.innerHTML = `<strong>您：</strong> ${query}`;
             container.appendChild(userMsg);
-            
             input.value = ''; loading.classList.remove('hidden'); container.scrollTop = container.scrollHeight;
-            
             if (!apiKey) {
                 setTimeout(() => { loading.classList.add('hidden'); addAIResponse("⚠️ 尚未設定 API Key。"); }, 500);
                 return;
             }
-
             try {
                 let fullPrompt = query;
                 if (window.AIPrompts) {
@@ -377,4 +433,3 @@
     </script>
 </body>
 </html>
-
