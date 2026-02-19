@@ -394,25 +394,21 @@
             document.getElementById('btn-' + d).classList.add('bg-blue-600', 'text-white', 'shadow-md');
         }
 
-        async function handleCustomQuery() {
+         async function handleAIQuery(e) {
+            e.preventDefault();
             const input = document.getElementById('ai-input');
-            const query = input.value.trim();
-            if (!query) return;
-            const apiKey = localStorage.getItem('GEMINI_API_KEY');
-            const container = document.getElementById('ai-response-container');
-            const loading = document.getElementById('ai-loading');
+            const userText = input.value.trim();
+            if (!userText) return;
 
-            const userMsg = document.createElement('div');
-            userMsg.className = "bg-blue-50 p-3 rounded-xl ml-8 text-right border border-blue-100 shadow-sm font-medium";
-            userMsg.innerHTML = `${query}`;
-            container.appendChild(userMsg);
-            
-            input.value = ''; loading.classList.remove('hidden'); container.scrollTop = container.scrollHeight;
-            
+            const apiKey = localStorage.getItem('GEMINI_API_KEY');
             if (!apiKey) {
-                setTimeout(() => { loading.classList.add('hidden'); addAIResponse("⚠️ 尚未設定 API Key。"); }, 500);
+                alert("請先點擊上方鑰匙圖示設定 API Key");
                 return;
             }
+
+            appendMsg(userText, 'user');
+            input.value = '';
+            document.getElementById('ai-loading').classList.remove('hidden');
 
             try {
                 // 使用正確的 092025 模型與端點
@@ -440,16 +436,18 @@
             }
         }
 
-        function addAIResponse(text) {
-            const container = document.getElementById('ai-response-container');
-            const aiMsg = document.createElement('div');
-            aiMsg.className = "bg-purple-50 p-3 rounded-xl mr-8 border border-purple-100 shadow-sm";
-            aiMsg.innerHTML = `<strong>導遊：</strong><br>${text.replace(/\n/g, '<br>')}`;
-            container.appendChild(aiMsg); container.scrollTop = container.scrollHeight;
+        function appendMsg(text, role) {
+            const box = document.getElementById('ai-messages');
+            const div = document.createElement('div');
+            div.className = role === 'user' ? "bg-blue-600 text-white p-3 rounded-lg ml-8" : "bg-gray-100 p-3 rounded-lg mr-8 text-gray-700";
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
         }
 
         window.onload = renderApp;
     </script>
 </body>
 </html>
+
 
