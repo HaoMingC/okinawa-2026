@@ -367,11 +367,6 @@
         }
 
         function closeDetail() { document.getElementById('detail-modal').classList.add('hidden'); }
-        function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
-        function setupApiKey() {
-            const key = prompt("輸入 Gemini API Key:", localStorage.getItem('GEMINI_API_KEY') || "");
-            if (key !== null) localStorage.setItem('GEMINI_API_KEY', key.trim());
-        }
 
         function switchMainTab(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -394,7 +389,13 @@
             document.getElementById('btn-' + d).classList.add('bg-blue-600', 'text-white', 'shadow-md');
         }
 
-         async function handleAIQuery(e) {
+         function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
+        function setupApiKey() {
+            const key = prompt("請輸入您的 Gemini API Key:", localStorage.getItem('GEMINI_API_KEY') || "");
+            if (key) localStorage.setItem('GEMINI_API_KEY', key);
+        }
+
+        async function handleAIQuery(e) {
             e.preventDefault();
             const input = document.getElementById('ai-input');
             const userText = input.value.trim();
@@ -449,5 +450,6 @@
     </script>
 </body>
 </html>
+
 
 
