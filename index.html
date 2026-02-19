@@ -389,7 +389,7 @@
             document.getElementById('btn-' + d).classList.add('bg-blue-600', 'text-white', 'shadow-md');
         }
 
-         function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
+        function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
         function setupApiKey() {
             const key = prompt("請輸入您的 Gemini API Key:", localStorage.getItem('GEMINI_API_KEY') || "");
             if (key) localStorage.setItem('GEMINI_API_KEY', key);
@@ -450,6 +450,7 @@
     </script>
 </body>
 </html>
+
 
 
 
