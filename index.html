@@ -415,8 +415,14 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: userText }] }],
-                        systemInstruction: { parts: [{ text: "你是資深沖繩導遊，根據行程回答。親切專業。" }] }
+                        contents: [
+                            {
+                                role: "user",
+                                parts: [{
+                                    text: "你是資深沖繩導遊，回答親切專業。\n\n使用者問題：" + userText
+                                }]
+                            }
+                        ] }
                     })
                 });
 
@@ -450,6 +456,7 @@
     </script>
 </body>
 </html>
+
 
 
 
