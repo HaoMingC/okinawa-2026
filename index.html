@@ -9,7 +9,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- 引入外部資料與邏輯 -->
-    <script src="data.js?v=20260208v4"></script>
+    <!-- <script src="data.js?v=20260208v4"></script> -->
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyMnfozIig53jQs9GwYlp3UBrsnXDyba4_3g3pAf6Xk9bCUOyn-qgwf2OSLCAfpjPd8/exec";
+    </script>
     <script src="prompts.js?v=20260208v4"></script>
     
     <style>
@@ -454,9 +457,54 @@
         }
 
         window.onload = renderApp;
+
+        //為20260224測試內容
+        
+        const getTripData = () => {
+            if (window.travelData) {
+            return window.travelData;
+        }
+        // 如果雲端還沒讀到，先顯示預覽資料
+            return okinawa_fallback_data;
+        };
+
+        // 2. 新增非同步抓取函式
+        async function fetchCloudData() {
+            try {
+                // 顯示載入狀態（選用）
+                document.getElementById('header-main-title').innerText = "📍 雲端資料同步中...";
+                
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                if (!response.ok) throw new Error('網路回應不正確');
+                
+                const data = await response.json();
+                
+                // 將抓到的資料存入 window.travelData
+                window.travelData = data;
+                
+                // 重新執行渲染
+                renderApp();
+                console.log("✅ 雲端資料同步成功");
+            } catch (error) {
+                console.error("❌ 無法取得雲端資料:", error);
+                // 失敗時會自動維持 fallback_data 的顯示
+                document.getElementById('header-main-title').innerText = "⚠️ 預覽模式 (同步失敗)";
+            }
+        }
+        
+        // 3. 修改啟動流程：先渲染預覽資料，同時去抓雲端資料
+        window.onload = () => {
+            renderApp();        // 先讓畫面有東西（Fallback）
+            fetchCloudData();   // 去抓最新的 Google Sheet 資料
+        };
+
+        //以上為20260224測試內容
+
+        
     </script>
 </body>
 </html>
+
 
 
 
