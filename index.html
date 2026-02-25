@@ -252,6 +252,7 @@
             
             const days = data.itinerary || [];
             const useScrollLayout = days.length > 5;
+            const manyDays = days.length > 6;
             daySelector.className = useScrollLayout
                 ? "flex overflow-x-auto no-scrollbar mb-6 text-xs"
                 : "flex mb-6 text-xs";
@@ -261,7 +262,9 @@
                 btn.id = `btn-${dayObj.day}`;
                 btn.onclick = () => showDay(dayObj.day);
                 btn.className = `day-btn ${
-                  useScrollLayout ? "flex-shrink-0 w-1/5" : "flex-1"
+                  useScrollLayout
+                    ? `flex-shrink-0 ${manyDays ? "w-[18%]" : "w-1/5"}`
+                    : "flex-1"
                 } py-2 rounded-xl text-center transition ${
                   isActive 
                     ? 'bg-blue-600 text-white shadow-md' 
@@ -459,6 +462,7 @@
     </script>
 </body>
 </html>
+
 
 
 
