@@ -50,6 +50,12 @@
 </head>
 <body class="pb-24">
 
+    <!-- Loading 遮罩 -->
+    <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-blue-600 font-bold animate-pulse">正在從 Google 讀取最新行程...</p>
+    </div>
+
     <header class="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-md mx-auto px-4 pt-4 pb-2">
             <div class="flex justify-between items-center mb-4">
@@ -152,9 +158,11 @@
     </nav>
 
     <script>
-        /**
-         * 重新改寫 Fallback 資料結構，使其與 data.js 的 3.3 版本完全一致
-         */
+        // *** 重要 放入 Google Apps Script 部署網址 ***
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxQDWiiZVEw7cfAP8LxO-3NAprzJxODaevUHsN5qEOOuu5tK6x2j4jPFgrXpf1B9IxN/exec"; 
+        
+        let currentTravelData = null;
+        
         const okinawa_fallback_data = {
             metadata: {
                 title: "沖繩親子五日遊 (預覽模式)",
@@ -210,35 +218,39 @@
             ]
         };
 
-        const getTripData = () => {
-            let externalData = null;
+        async function fetchTripData() {
             try {
-                if (typeof travelData !== 'undefined') externalData = travelData;
-                else if (typeof okinawaTripData2026 !== 'undefined') externalData = okinawaTripData2026;
-                else if (window.travelData) externalData = window.travelData;
+                // 嘗試從 GAS API 抓取
+                const response = await fetch(GAS_API_URL);
+                if (!response.ok) throw new Error("API 響應錯誤");
+                const data = await response.json();
+                console.log("從雲端成功讀取行程");
+                return data;
             } catch (e) {
-                console.error("讀取外部數據時發生非預期錯誤:", e);
+                console.error("無法從雲端讀取，改用本地 data.js 或 fallback:", e);
+                // 優先使用本地 data.js 的變數，最後才用 fallback
+                return typeof travelData !== 'undefined' ? travelData : okinawa_fallback_data;
             }
-            if (externalData) {
-                return externalData;
-            }
-            return okinawa_fallback_data;
-        };
+        }
+        
+
+        const getTripData = () => currentTravelData || okinawa_fallback_data;
 
         function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
 
         function renderApp() {
             const data = getTripData();
-            if (data.metadata?.title) {
-                document.getElementById('header-main-title').innerText = data.metadata.title;
-            }
+            if (data.metadata?.title) document.getElementById('header-main-title').innerText = data.metadata.title;
+            
             const logBox = document.getElementById('logistics-container');
             const logistics = data.metadata?.logistics || [];
             logBox.innerHTML = `<div class="grid grid-cols-2 gap-2">${logistics.map(l => `<span><i class="fas ${l.icon} mr-1 text-blue-500"></i> ${l.text}</span>`).join('')}</div>`;
+            
             const daysContainer = document.getElementById('days-container');
             const daySelector = document.getElementById('day-selector');
             daysContainer.innerHTML = ''; daySelector.innerHTML = '';
-            const days = Array.isArray(data.itinerary) ? data.itinerary : (data.itinerary?.days || []);
+            
+            const days = data.itinerary || [];
             days.forEach((dayObj, index) => {
                 const isActive = index === 0;
                 const btn = document.createElement('button');
@@ -247,14 +259,15 @@
                 btn.className = `day-btn flex-shrink-0 w-20 py-2 rounded-xl text-center transition ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-100'}`;
                 btn.innerHTML = `<div class="font-bold">Day ${dayObj.day}</div><div class="text-[9px] opacity-80">${dayObj.date}</div>`;
                 daySelector.appendChild(btn);
+
                 const card = document.createElement('div');
                 card.id = `day-${dayObj.day}`;
                 card.className = `day-card ${isActive ? 'active' : ''}`;
-                const events = dayObj.events || dayObj.items || [];
+                
                 let itemsHtml = '';
-                events.forEach(item => {
+                (dayObj.events || []).forEach(item => {
                     const title = item.activity || item.title;
-                    const poi = (data.pois && item.poiId) ? data.pois[item.poiId] : null;
+                    const poi = data.pois?.[item.poiId];
                     const dotColor = item.isMeal ? '#f59e0b' : '#3b82f6';
                     itemsHtml += `
                         <div class="timeline-item">
@@ -273,6 +286,10 @@
             });
             renderPreparation(data);
             renderNotes(data);
+            
+            // 隱藏 Loading
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
         }
 
         function openDetail(item) {
@@ -289,59 +306,29 @@
             if (poi?.img) { img.src = poi.img; img.classList.remove('hidden'); placeholder.classList.add('hidden'); }
             else { img.classList.add('hidden'); placeholder.classList.remove('hidden'); }
             
-            // 基礎資訊格線
+            // 基礎資訊
             const grid = document.getElementById('detail-info-grid'); grid.innerHTML = '';
-            const sections = poi?.infoSections || [];
+            // 修正點：如果是從 GAS 抓的，確保 infoSections 存在或自動生成
+            const sections = poi?.infoSections || [
+                { label: "分類", content: poi?.category },
+                { label: "MapCode", content: poi?.mapCode || "無" }
+            ];
             sections.forEach(s => { grid.innerHTML += `<div class="info-box"><span class="info-label">${s.label}</span><span class="info-value font-bold">${s.content}</span></div>`; });
             
-            // 親子提醒
             const tipBox = document.getElementById('detail-parent-tips');
             if (poi?.parentTips) { document.getElementById('detail-parent-content').innerText = poi.parentTips; tipBox.classList.remove('hidden'); } 
             else { tipBox.classList.add('hidden'); }
 
-            // 修正點 1: 行程彈性與備案
             const backupBox = document.getElementById('detail-backup-plan');
-            if (poi?.backupPlan) {
-                document.getElementById('detail-backup-content').innerText = poi.backupPlan;
-                backupBox.classList.remove('hidden');
-            } else {
-                backupBox.classList.add('hidden');
-            }
+            if (poi?.backupPlan) { document.getElementById('detail-backup-content').innerText = poi.backupPlan; backupBox.classList.remove('hidden'); } 
+            else { backupBox.classList.add('hidden'); }
             
-            // 修正點 2: 導航按鈕與網頁按鈕
             const navContainer = document.getElementById('detail-modal-nav-container');
             navContainer.innerHTML = '';
-
-            // 確保是 flex + 可換行
-            navContainer.className = "flex flex-wrap gap-2 mb-2";
-
-            // 地圖 (左)
             const mapQuery = encodeURIComponent(poi?.navName || title);
-
-            navContainer.innerHTML += `
-                <a href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" 
-                target="_blank"
-                class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm">
-                <i class="fas fa-map-marked-alt mr-2 text-[10px]"></i>地圖
-                </a>`;
-
-            // 網頁 (左)
-            if (poi?.website) {
-                navContainer.innerHTML += `
-                    <a href="${poi.website}" 
-                    target="_blank"
-                    class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm">
-                    <i class="fas fa-globe mr-2 text-[10px]"></i>網頁
-                    </a>`;
-            }
-
-            // 👉 導航（右邊）
-            navContainer.innerHTML += `
-                <a href="${getNavUrl(poi?.navName || title)}" 
-                target="_blank"
-                class="ml-auto bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm">
-                <i class="fas fa-location-arrow mr-2"></i>導航
-                </a>`;           
+            navContainer.innerHTML += `<a href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm"><i class="fas fa-map-marked-alt mr-2 text-[10px]"></i>地圖</a>`;
+            if (poi?.website) navContainer.innerHTML += `<a href="${poi.website}" target="_blank" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm"><i class="fas fa-globe mr-2 text-[10px]"></i>網頁</a>`;
+            navContainer.innerHTML += `<a href="${getNavUrl(poi?.navName || title)}" target="_blank" class="ml-auto bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm"><i class="fas fa-location-arrow mr-2"></i>導航</a>`;            
 
             document.getElementById('detail-modal').classList.remove('hidden');
         }
@@ -396,7 +383,7 @@
             if (key) localStorage.setItem('GEMINI_API_KEY', key);
         }
 
-// 20260220修正：優化後的 AI 查詢處理邏輯，整合 prompts.js
+        // 20260220修正：優化後的 AI 查詢處理邏輯，整合 prompts.js
         async function handleAIQuery(e) {
             e.preventDefault();
             const input = document.getElementById('ai-input');
@@ -453,7 +440,12 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        window.onload = renderApp;      
+        // 初始化：先抓資料再算
+        window.onload = async () => {
+            currentTravelData = await fetchTripData();
+            renderApp();
+        };      
     </script>
 </body>
 </html>
+
