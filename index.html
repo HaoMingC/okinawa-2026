@@ -311,7 +311,7 @@
             const title = item.activity || item.title;
             
             document.getElementById('detail-title').innerText = title;
-            document.getElementById('detail-category').innerText = poi?.category || '活動詳情';
+            document.getElementById('detail-category').innerText = poi?.category || "";
             document.getElementById('detail-content').innerText = poi?.detailedStory || poi?.desc || item.desc || "暫無詳細說明";
             
             const img = document.getElementById('detail-img');
@@ -322,10 +322,7 @@
             // 基礎資訊
             const grid = document.getElementById('detail-info-grid'); grid.innerHTML = '';
             // 修正點：如果是從 GAS 抓的，確保 infoSections 存在或自動生成
-            const sections = poi?.infoSections || [
-                { label: "分類", content: poi?.category },
-                { label: "MapCode", content: poi?.mapCode || "無" }
-            ];
+            const sections = poi?.infoSections;
             sections.forEach(s => { grid.innerHTML += `<div class="info-box"><span class="info-label">${s.label}</span><span class="info-value font-bold">${s.content}</span></div>`; });
             
             const tipBox = document.getElementById('detail-parent-tips');
@@ -461,6 +458,7 @@
     </script>
 </body>
 </html>
+
 
 
 
