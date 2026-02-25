@@ -287,7 +287,7 @@
                     const navBtn = `<a href="${getNavUrl(poi?.navName || title)}" target="_blank" class="action-btn nav-btn">
                                         <i class="fas fa-directions mr-1"></i>導航
                                     </a>`;
-                        // 生成詳情按鈕（只有有 poi 才顯示）
+                    // 生成詳情按鈕（只有有 poi 才顯示）
                     const detailBtn = poi
                         ? `<button data-poi-id="${item.poiId}" class="action-btn detail-btn">
                                 <i class="fas fa-info-circle mr-1"></i>詳情
@@ -308,17 +308,7 @@
                 card.innerHTML = `<div class="mb-4 text-center"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-100">${dayObj.fullDate || dayObj.date}</span></div><div class="day-card-enhanced"><div class="timeline-container">${itemsHtml}</div></div>`;
                 daysContainer.appendChild(card);
 
-                // 事件代理處理詳情按鈕
-                document.addEventListener("click", function(e) {
-                    const btn = e.target.closest(".detail-btn");
-                    if (!btn) return;
                 
-                    const poiId = btn.dataset.poiId;
-                    const poi = data.pois?.[poiId];
-                    if (!poi) return;
-                
-                    openDetail(poi);
-                });
             });
             renderPreparation(data);
             renderNotes(data);
@@ -328,24 +318,36 @@
             setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
         }
 
-        function openDetail(item) {
-            const data = getTripData();
-            const poi = data.pois?.[item.poiId];
-            const title = item.activity || item.title;
+        // 事件代理處理詳情按鈕
+        document.addEventListener("click", function(e) {
+            const btn = e.target.closest(".detail-btn");
+            if (!btn) return;
+        
+            const poiId = btn.dataset.poiId;
+            const poi = data.pois?.[poiId];
+            if (!poi) return;
+        
+            openDetail(poi);
+        });
+
+        function openDetail(poi) {
+            if (!poi) return;
             
-            document.getElementById('detail-title').innerText = title;
-            document.getElementById('detail-category').innerText = poi?.category || "";
-            document.getElementById('detail-content').innerText = poi?.detailedStory || poi?.desc || item.desc || "暫無詳細說明";
+            const data = getTripData();
+            
+            document.getElementById('detail-title').innerText = poi.name || "";
+            document.getElementById('detail-category').innerText = poi.category || "";
+            document.getElementById('detail-content').innerText = poi.detailedStory || poi.desc || "暫無詳細說明";
             
             const img = document.getElementById('detail-img');
             const placeholder = document.getElementById('detail-img-placeholder');
-            if (poi?.img) { img.src = poi.img; img.classList.remove('hidden'); placeholder.classList.add('hidden'); }
+            if (poi.img) { img.src = poi.img; img.classList.remove('hidden'); placeholder.classList.add('hidden'); }
             else { img.classList.add('hidden'); placeholder.classList.remove('hidden'); }
             
             // 基礎資訊
             const grid = document.getElementById('detail-info-grid'); grid.innerHTML = '';
             // 修正點：如果是從 GAS 抓的，確保 infoSections 存在或自動生成
-            const sections = poi?.infoSections;
+            const sections = poi.infoSections;
             sections.forEach(s => { grid.innerHTML += `<div class="info-box"><span class="info-label">${s.label}</span><span class="info-value font-bold">${s.content}</span></div>`; });
             
             const tipBox = document.getElementById('detail-parent-tips');
@@ -481,6 +483,7 @@
     </script>
 </body>
 </html>
+
 
 
 
