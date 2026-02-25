@@ -256,7 +256,7 @@
                 const btn = document.createElement('button');
                 btn.id = `btn-${dayObj.day}`;
                 btn.onclick = () => showDay(dayObj.day);
-                btn.className = `day-btn flex-shrink-0 px-6 py-2 rounded-xl text-center transition ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-100'}`;
+                btn.className = `day-btn flex-shrink-0 px-5 py-2 rounded-xl text-center transition ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-100'}`;
                 btn.innerHTML = `<div class="font-bold">Day ${dayObj.day}</div><div class="text-[9px] opacity-80">${dayObj.date}</div>`;
                 daySelector.appendChild(btn);
 
@@ -448,6 +448,7 @@
     </script>
 </body>
 </html>
+
 
 
 
