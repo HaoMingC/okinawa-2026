@@ -76,7 +76,7 @@
     <main class="max-w-md mx-auto p-4">
         <div id="content-itinerary" class="tab-content active">
             <div id="logistics-container" class="bg-white rounded-xl p-3 shadow-sm mb-4 border border-blue-100 text-[10px]"></div>
-            <div id="day-selector" class="flex space-x-2 mb-6 overflow-x-auto pb-2 no-scrollbar text-xs"></div>
+            <div id="day-selector" class="flex mb-6 text-xs"></div>
             <div id="days-container"></div>
         </div>
         <div id="content-preparation" class="tab-content">
@@ -251,17 +251,24 @@
             daysContainer.innerHTML = ''; daySelector.innerHTML = '';
             
             const days = data.itinerary || [];
+            const useScrollLayout = days.length > 5;
+            daySelector.className = useScrollLayout
+                ? "flex overflow-x-auto no-scrollbar mb-6 text-xs"
+                : "flex mb-6 text-xs";
             days.forEach((dayObj, index) => {
                 const isActive = index === 0;
                 const btn = document.createElement('button');
                 btn.id = `btn-${dayObj.day}`;
                 btn.onclick = () => showDay(dayObj.day);
-                btn.className = `day-btn flex-1 py-2 rounded-xl text-center transition ${
+                btn.className = `day-btn ${
+                  useScrollLayout ? "flex-shrink-0 w-1/5" : "flex-1"
+                } py-2 rounded-xl text-center transition ${
                   isActive 
-                  ? 'bg-blue-600 text-white shadow-md' 
-                  : 'bg-white text-gray-600 border border-gray-100'
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'bg-white text-gray-600 border border-gray-100'
                 }`;
                 btn.innerHTML = `<div class="font-bold">Day ${dayObj.day}</div><div class="text-[9px] opacity-80">${dayObj.date}</div>`;
+
                 daySelector.appendChild(btn);
 
                 const card = document.createElement('div');
@@ -452,6 +459,7 @@
     </script>
 </body>
 </html>
+
 
 
 
