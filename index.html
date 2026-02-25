@@ -282,20 +282,43 @@
                     const title = item.activity || item.title;
                     const poi = data.pois?.[item.poiId];
                     const dotColor = item.isMeal ? '#f59e0b' : '#3b82f6';
+
+                    // 生成導航按鈕
+                    const navBtn = `<a href="${getNavUrl(poi?.navName || title)}" target="_blank" class="action-btn nav-btn">
+                                        <i class="fas fa-directions mr-1"></i>導航
+                                    </a>`;
+                        // 生成詳情按鈕（只有有 poi 才顯示）
+                    const detailBtn = poi
+                        ? `<button data-poi-id="${item.poiId}" class="action-btn detail-btn">
+                                <i class="fas fa-info-circle mr-1"></i>詳情
+                           </button>`
+                        : '';
                     itemsHtml += `
                         <div class="timeline-item">
                             <div class="timeline-dot" style="background: ${dotColor};"></div>
                             <span class="timeline-time">${item.time}</span>
                             <h3 class="timeline-title">
                                 ${title}
-                                <a href="${getNavUrl(poi?.navName || title)}" target="_blank" class="action-btn nav-btn"><i class="fas fa-directions mr-1"></i>導航</a>
-                                <button onclick='openDetail(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="action-btn detail-btn"><i class="fas fa-info-circle mr-1"></i>詳情</button>
+                                ${navBtn}
+                                ${detailBtn}
                             </h3>
                             <p class="timeline-desc">${item.desc || poi?.desc || ""}</p>
                         </div>`;
                 });
                 card.innerHTML = `<div class="mb-4 text-center"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-100">${dayObj.fullDate || dayObj.date}</span></div><div class="day-card-enhanced"><div class="timeline-container">${itemsHtml}</div></div>`;
                 daysContainer.appendChild(card);
+
+                // 事件代理處理詳情按鈕
+                document.addEventListener("click", function(e) {
+                    const btn = e.target.closest(".detail-btn");
+                    if (!btn) return;
+                
+                    const poiId = btn.dataset.poiId;
+                    const poi = data.pois?.[poiId];
+                    if (!poi) return;
+                
+                    openDetail(poi);
+                });
             });
             renderPreparation(data);
             renderNotes(data);
@@ -458,6 +481,7 @@
     </script>
 </body>
 </html>
+
 
 
 
