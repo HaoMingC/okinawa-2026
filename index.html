@@ -330,8 +330,9 @@
 
         function openDetail(item) {
             const data = getTripData();
-            const poi = data.pois?.[item.poiId];
-            const title = item.activity || item.title;
+            // 如果 item 有 poiId，就從 data.pois 拿，否則直接把 item 當作 poi
+            const poi = item.poiId ? data.pois?.[item.poiId] : item;
+            const title = item.activity || item.title || poi.name;
             
             document.getElementById('detail-title').innerText = title;
             document.getElementById('detail-category').innerText = poi?.category || "";
@@ -339,22 +340,38 @@
             
             const img = document.getElementById('detail-img');
             const placeholder = document.getElementById('detail-img-placeholder');
-            if (poi?.img) { img.src = poi.img; img.classList.remove('hidden'); placeholder.classList.add('hidden'); }
-            else { img.classList.add('hidden'); placeholder.classList.remove('hidden'); }
+            if (poi?.img) {
+                img.src = poi.img;
+                img.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                img.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
             
             // 基礎資訊
-            const grid = document.getElementById('detail-info-grid'); grid.innerHTML = '';
-            // 修正點：如果是從 GAS 抓的，確保 infoSections 存在或自動生成
-            const sections = poi?.infoSections;
-            sections.forEach(s => { grid.innerHTML += `<div class="info-box"><span class="info-label">${s.label}</span><span class="info-value font-bold">${s.content}</span></div>`; });
+            const grid = document.getElementById('detail-info-grid');
+            grid.innerHTML = '';
+            const sections = poi?.infoSections || [];
+            sections.forEach(s => {
+                grid.innerHTML += `<div class="info-box"><span class="info-label">${s.label}</span><span class="info-value font-bold">${s.content}</span></div>`;
+            });
             
             const tipBox = document.getElementById('detail-parent-tips');
-            if (poi?.parentTips) { document.getElementById('detail-parent-content').innerText = poi.parentTips; tipBox.classList.remove('hidden'); } 
-            else { tipBox.classList.add('hidden'); }
-
+            if (poi?.parentTips) {
+                document.getElementById('detail-parent-content').innerText = poi.parentTips;
+                tipBox.classList.remove('hidden');
+            } else {
+                tipBox.classList.add('hidden');
+            }
+        
             const backupBox = document.getElementById('detail-backup-plan');
-            if (poi?.backupPlan) { document.getElementById('detail-backup-content').innerText = poi.backupPlan; backupBox.classList.remove('hidden'); } 
-            else { backupBox.classList.add('hidden'); }
+            if (poi?.backupPlan) {
+                document.getElementById('detail-backup-content').innerText = poi.backupPlan;
+                backupBox.classList.remove('hidden');
+            } else {
+                backupBox.classList.add('hidden');
+            }
             
             const navContainer = document.getElementById('detail-modal-nav-container');
             navContainer.innerHTML = '';
@@ -362,7 +379,7 @@
             navContainer.innerHTML += `<a href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm"><i class="fas fa-map-marked-alt mr-2 text-[10px]"></i>地圖</a>`;
             if (poi?.website) navContainer.innerHTML += `<a href="${poi.website}" target="_blank" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm"><i class="fas fa-globe mr-2 text-[10px]"></i>網頁</a>`;
             navContainer.innerHTML += `<a href="${getNavUrl(poi?.navName || title)}" target="_blank" class="ml-auto bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center shadow-sm"><i class="fas fa-location-arrow mr-2"></i>導航</a>`;            
-
+        
             document.getElementById('detail-modal').classList.remove('hidden');
         }
 
@@ -481,5 +498,6 @@
     </script>
 </body>
 </html>
+
 
 
