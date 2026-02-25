@@ -280,7 +280,7 @@
                 let itemsHtml = '';
                 (dayObj.events || []).forEach(item => {
                     const title = item.activity || item.title;
-                    const poi = data.pois?.[item.poiId];
+                    const poi = data.pois?.[item.poiId] || item;
                     const dotColor = item.isMeal ? '#f59e0b' : '#3b82f6';
                     // 生成導航按鈕
                     const navBtn = `<a href="${getNavUrl(poi?.navName || title)}" target="_blank" class="action-btn nav-btn">
@@ -316,6 +316,17 @@
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
         }
+        // 事件代理處理詳情按鈕
+        document.addEventListener("click", function(e) {
+            const btn = e.target.closest(".detail-btn");
+            if (!btn) return;
+        
+            const poiId = btn.dataset.poiId;
+            const poi = data.pois?.[poiId];
+            if (!poi) return;
+        
+            openDetail(poi);
+        });        
 
         function openDetail(item) {
             const data = getTripData();
@@ -470,4 +481,5 @@
     </script>
 </body>
 </html>
+
 
