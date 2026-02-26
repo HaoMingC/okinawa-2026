@@ -87,6 +87,22 @@
         </div>
     </main>
 
+    <!-- [Modal] 交通與住宿資訊彈窗 (新增自 logistics-container 調整而來) -->
+    <div id="logistics-modal" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="p-5 border-b bg-blue-600 text-white flex justify-between items-center">
+                <h3 class="font-bold flex items-center"><i class="fas fa-hotel mr-2"></i>交通與住宿資訊</h3>
+                <button onclick="closeLogistics()" class="w-8 h-8 rounded-full flex items-center justify-center bg-white/20"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="logistics-modal-content" class="p-6 space-y-4 text-sm text-gray-700">
+                <!-- 由 JavaScript 動態填入 -->
+            </div>
+            <div class="p-4 border-t bg-slate-50 flex justify-end">
+                <button onclick="closeLogistics()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-xs">關閉</button>
+            </div>
+        </div>
+    </div>
+
     <!-- [Modal] 景點詳細資訊彈窗 -->
     <div id="detail-modal" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -153,7 +169,7 @@
     </div>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 flex justify-around items-center max-w-md mx-auto shadow-2xl z-40">
-        <button onclick="switchMainTab('itinerary')" class="text-center text-blue-600"><i class="fas fa-route block text-lg"></i><span class="text-[10px] font-bold">行程</span></button>
+        <button onclick="openLogistics()" class="text-center text-blue-600"><i class="fas fa-hotel block text-lg"></i><span class="text-[10px] font-bold">交通&住宿</span></button>
         <button onclick="toggleAIChat()" class="text-center text-purple-600"><i class="fas fa-comments block text-lg"></i><span class="text-[10px] font-bold">問助手</span></button>
     </nav>
 
@@ -242,9 +258,10 @@
             const data = getTripData();
             if (data.metadata?.title) document.getElementById('header-main-title').innerText = data.metadata.title;
             
-            const logBox = document.getElementById('logistics-container');
+            // 修改處：將 logistics 資料渲染到彈窗內容而非行程頁面頂部
+            const logContent = document.getElementById('logistics-modal-content');
             const logistics = data.logistics || [];
-            logBox.innerHTML = `<div class="grid grid-cols-2 gap-2">${logistics.map(l => `<span><i class="fas ${l.icon} mr-1 text-blue-500"></i> ${l.text}</span>`).join('')}</div>`;
+            logContent.innerHTML = logistics.map(l => `<div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-xl border border-blue-100"><i class="fas ${l.icon} text-blue-600 w-5"></i><span class="font-medium">${l.text}</span></div>`).join('');
             
             const daysContainer = document.getElementById('days-container');
             const daySelector = document.getElementById('day-selector');
@@ -382,6 +399,10 @@
             document.getElementById('detail-modal').classList.remove('hidden');
         }
 
+        // 修改處：新增開啟物流彈窗函式
+        function openLogistics() { document.getElementById('logistics-modal').classList.remove('hidden'); }
+        function closeLogistics() { document.getElementById('logistics-modal').classList.add('hidden'); }
+
         function renderPreparation(data) {
             const container = document.getElementById('preparation-list');
             if (!container || !data.preparation) return;
@@ -497,6 +518,7 @@
     </script>
 </body>
 </html>
+
 
 
 
