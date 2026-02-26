@@ -174,16 +174,16 @@
 
     <script>
         // *** 重要 放入 Google Apps Script 部署網址 ***
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzw5FzJ0Tf7ftM0102usJfI1A5yHs5kZczatZ-Gi4Lq7hcU8hu2EpiIz80oG-A03NIR/exec"; 
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw8osPNKHxserbcB6o54wI_uP0GrBqCrZDJxSG6vaOZZKxu54I2rdAG3ovAnbtyfEgS/exec"; 
         
         let currentTravelData = null;
         
         // 取得當前日期 (YYYY/M/D) 作為比對基準
         function getCurrentFormattedDate() {
             const now = new Date();
-            // 轉換為台北/東京時區
+            // 轉換格式
            const formatter = new Intl.DateTimeFormat('en-CA', {
-                timeZone: 'UTC',
+                timeZone: 'Asia/Taipei',
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit'
@@ -550,6 +550,7 @@
     </script>
 </body>
 </html>
+
 
 
 
