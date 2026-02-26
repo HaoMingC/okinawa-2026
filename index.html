@@ -182,14 +182,14 @@
         function getCurrentFormattedDate() {
             const now = new Date();
             // 轉換為台北/東京時區
-           const compareFormatter = new Intl.DateTimeFormat('en-CA', {
+           const formatter = new Intl.DateTimeFormat('en-CA', {
                 timeZone: 'Asia/Taipei',
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit'
             });
             return formatter.format(now);
-        }
+        };
 
                 
         const okinawa_fallback_data = {
@@ -550,6 +550,7 @@
     </script>
 </body>
 </html>
+
 
 
 
