@@ -61,7 +61,9 @@
             <div class="flex justify-between items-center mb-4">
                 <h1 id="header-main-title" class="text-xl font-bold">🌸 沖繩初航 🌸</h1>
                 <div class="flex space-x-2">
+                    <!-- 取消按鍵
                     <button onclick="setupApiKey()" class="bg-white/20 p-2 rounded-full"><i class="fas fa-key text-sm"></i></button>
+                     -->
                     <button onclick="toggleAIChat()" class="bg-white/20 p-2 rounded-full"><i class="fas fa-robot text-sm"></i></button>
                 </div>
             </div>
@@ -479,6 +481,7 @@
         }
 
         function toggleAIChat() { document.getElementById('ai-modal').classList.toggle('hidden'); }
+
         
         function setupApiKey() {
             const key = prompt("請輸入您的 Gemini API Key:", localStorage.getItem('GEMINI_API_KEY') || "");
