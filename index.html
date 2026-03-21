@@ -485,7 +485,7 @@
 
             try {
                 // 讀取當前完整行程資料做為 Context
-                const currentDataStr = JSON.stringify(getTripData());
+                const currentDataStr = JSON.stringify(currentTravelData);
                 
                 // 呼叫 prompts.js 中的 buildFullPrompt 建立豐富的提示詞
                 const fullPrompt = await AIPrompts.buildFullPrompt(userText, currentDataStr);
