@@ -475,13 +475,45 @@
             const input = document.getElementById('ai-input');
             const userText = input.value.trim();
             if (!userText) return;
+
+            //const apiKey = localStorage.getItem('GEMINI_API_KEY');
+            //if (!apiKey) { alert("請先設定 API Key"); return; }
+
             appendMsg(userText, 'user');
             input.value = '';
             document.getElementById('ai-loading').classList.remove('hidden');
-            setTimeout(() => {
-                appendMsg("正在為您規劃中最棒的行程建議...", 'ai');
+
+            try {
+                // 讀取當前完整行程資料做為 Context
+                const currentDataStr = JSON.stringify(getTripData());
+                
+                // 呼叫 prompts.js 中的 buildFullPrompt 建立豐富的提示詞
+                const fullPrompt = await AIPrompts.buildFullPrompt(userText, currentDataStr);
+
+                // ✅ 修改為呼叫 Vercel 的後端 API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullPrompt: fullPrompt,
+                        systemInstruction: AIPrompts.systemInstruction // 將系統指令也傳給後端
+                    })
+                });
+        
+                const result = await response.json();
+                
+                // Vercel 或 Google 回傳錯誤的處理
+                if (!response.ok || result.error) {
+                    throw new Error(result.error?.message || result.error || "連線異常");
+                }
+        
+                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，我暫時無法回答。";
+                appendMsg(aiText, 'ai');
+            } catch (err) {
+                appendMsg(`連線失敗: ${err.message}`, 'ai');
+            } finally {
                 document.getElementById('ai-loading').classList.add('hidden');
-            }, 1000);
+            }
         }
 
         function appendMsg(text, role) {
