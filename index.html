@@ -228,18 +228,50 @@
     </div>
 
     <script>
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7DQ8aHMoZnU8znCePeKjjr02d2INfhrkGajzmRa-7N4HYnAkdoRyvxCXc1zsiAUs/exec"; 
+        const CACHE_KEY = "trip-data";
+        const VERSION_KEY = "trip-version";
+        
+
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwZ9lvQOsMkuz1Zox4G9I39WC_s7sgQU_93U3ShYFekf4E657uBlnQF0E5btPv0AdEL/exec"; 
         let currentTravelData = null;
         let currentDayIdx = 1;
         let currentPoiId = null;
         
         async function fetchTripData() {
+            
+            const cached = localStorage.getItem(CACHE_KEY);
+            const cachedVersion = localStorage.getItem(VERSION_KEY);
+            // 1️⃣ 先回傳快取（秒開）
+            if (cached) {
+                refreshInBackground(cachedVersion);
+                return JSON.parse(cached);
+            }
+            // 沒快取才真正 fetch
+            const response = await fetch(GAS_API_URL);
+            const data = response.ok ? await response.json() : (typeof travelData !== 'undefined' ? travelData : okinawa_fallback_data);
+
+            localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+            localStorage.setItem(VERSION_KEY, data.version);
+
+            return data;
+        }
+
+        async function refreshInBackground(oldVersion) {
             try {
-                const response = await fetch(GAS_API_URL);
-                const data = response.ok ? await response.json() : (typeof travelData !== 'undefined' ? travelData : okinawa_fallback_data);
-                return data;
+                const res = await fetch(GAS_API_URL);
+                const newData = await res.json();
+
+                if (newData.version !== oldVersion) {
+                    console.log("資料更新，重新載入");
+
+                    localStorage.setItem("trip-data", JSON.stringify(newData));
+                    localStorage.setItem("trip-version", newData.version);
+
+                    // 可選：自動刷新 UI
+                    location.reload();
+                }
             } catch (e) {
-                return typeof travelData !== 'undefined' ? travelData : okinawa_fallback_data;
+                console.warn("背景更新失敗");
             }
         }
 
