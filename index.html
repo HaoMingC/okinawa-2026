@@ -6,12 +6,11 @@
     <title>沖繩 5 天 4 夜親子遊</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- 預留您的外部邏輯連結 -->
-    <script src="data.js?v=20260208v4"></script>
+    
     <script src="prompts.js?v=20260208v4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; color: #1e293b; overflow-x: hidden; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; color: #1e293b; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .tab-content { display: none; }
@@ -27,18 +26,20 @@
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
             transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             z-index: 100;
             max-height: 85vh;
             display: flex;
             flex-direction: column;
             box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
+            touch-action: pan-y; /* 允許垂直手勢 */
         }
         .bottom-sheet.active { transform: translateY(0); }
         .sheet-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(2px);
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s;
@@ -46,73 +47,106 @@
         }
         .sheet-overlay.active { opacity: 1; visibility: visible; }
         .sheet-handle {
-            width: 40px; height: 4px; background: #e2e8f0;
-            border-radius: 2px; margin: 12px auto;
+            width: 40px; height: 5px; background: #cbd5e1;
+            border-radius: 10px; margin: 12px auto;
         }
 
-        /* 行程卡片 */
+        /* 行程卡片優化 */
         .poi-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 16px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             border: 1px solid #f1f5f9;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
         }
-        .poi-card:active { transform: scale(0.98); }
+
+        /* 修改段落 1: Day Selector 狀態修復 */
+        .day-btn {
+            outline: none !important;
+            -webkit-appearance: none;
+        }
+        /* 強制選中狀態，避免手機 focus 灰色背景問題 */
+        .day-btn.active-state {
+            background-color: #2563eb !important;
+            color: white !important;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3) !important;
+            transform: scale(1.05);
+        }
 
         .time-badge {
             background: #eff6ff;
             color: #2563eb;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
             padding: 2px 8px;
             border-radius: 6px;
         }
 
-        /* 底部導覽 */
-        .nav-active { color: #2563eb; }
-        .nav-active i { transform: translateY(-2px); transition: transform 0.2s; }
+        /* 修改段落 4: 懸浮 AI 按鈕 */
+        .floating-ai-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.4);
+            z-index: 80;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .floating-ai-btn:active { transform: scale(0.9); }
     </style>
 </head>
-<body class="pb-24">
+<body class="bg-[#f8fafc]">
 
     <!-- Loading 遮罩 -->
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-gray-500 text-sm font-medium">載入沖繩藍...</p>
+        <p class="text-gray-500 text-sm font-medium">載入行程中...</p>
     </div>
 
-    <!-- 頂部 Header 與 頁籤 -->
+    <!-- 頂部 Header 與 頁籤 (整合交通住宿) -->
     <header class="bg-white sticky top-0 z-50 border-b border-slate-100">
-        <div class="max-w-md mx-auto px-4 py-4">
-            <div class="flex justify-between items-center mb-4">
+        <div class="max-w-md mx-auto px-4 pt-4 pb-2">
+            <div class="flex justify-between items-center mb-3">
                 <div>
                     <h1 id="header-main-title" class="text-xl font-bold tracking-tight text-slate-800">沖繩親子遊</h1>
-                    <p class="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Okinawa Family Trip 2026</p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Family Trip 2026</p>
                 </div>
-                <div class="flex space-x-2">
-                    <button onclick="location.reload()" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-500"><i class="fas fa-sync-alt text-xs"></i></button>
-                </div>
+                <button onclick="location.reload()" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400"><i class="fas fa-sync-alt text-xs"></i></button>
             </div>
             
-            <!-- 導覽頁籤 -->
-            <div class="flex bg-slate-100 rounded-2xl p-1">
-                <button onclick="switchMainTab('itinerary')" id="main-tab-itinerary" class="flex-1 py-2 text-sm font-bold rounded-xl transition-all bg-white text-blue-600 shadow-sm">行程規劃</button>
-                <button onclick="switchMainTab('preparation')" id="main-tab-preparation" class="flex-1 py-2 text-sm font-bold rounded-xl text-slate-500 transition-all">行前準備</button>
-                <button onclick="switchMainTab('notes')" id="main-tab-notes" class="flex-1 py-2 text-sm font-bold rounded-xl text-slate-500 transition-all">注意事項</button>
+            <!-- 修改段落 3: 頂部導覽列整合交通住宿 -->
+            <div class="flex bg-slate-100 rounded-2xl p-1 mb-2">
+                <button onclick="switchMainTab('itinerary')" id="main-tab-itinerary" class="flex-1 py-2 text-m font-bold rounded-xl transition-all bg-white text-blue-600 shadow-sm">行程</button>
+                <button onclick="switchMainTab('logistics')" id="main-tab-logistics" class="flex-1 py-2 text-m font-bold rounded-xl text-slate-500 transition-all">交通住宿</button>
+                <button onclick="switchMainTab('preparation')" id="main-tab-preparation" class="flex-1 py-2 text-m font-bold rounded-xl text-slate-500 transition-all">行李準備</button>
+                <button onclick="switchMainTab('notes')" id="main-tab-notes" class="flex-1 py-2 text-m font-bold rounded-xl text-slate-500 transition-all">須知事項</button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-md mx-auto p-4">
+    <main class="max-w-md mx-auto p-4 pb-24">
         <!-- 行程規劃內容 -->
         <div id="content-itinerary" class="tab-content active">
             <!-- 日期選擇器 -->
             <div id="day-selector" class="flex space-x-2 overflow-x-auto no-scrollbar mb-6 pb-2"></div>
             <!-- 行程清單容器 -->
             <div id="days-container" class="space-y-4"></div>
+        </div>
+
+        <!-- 修改段落 3: 交通住宿頁面切換 -->
+        <div id="content-logistics" class="tab-content">
+            <div id="logistics-page-content" class="space-y-3"></div>
         </div>
 
         <!-- 行前準備內容 -->
@@ -126,22 +160,18 @@
         </div>
     </main>
 
-    <!-- [底部抽屜] 詳情資訊 / 交通住宿 / AI 助手 -->
-    <div id="sheet-overlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
-
-    <!-- 1. 物流與住宿抽屜 -->
-    <div id="logistics-sheet" class="bottom-sheet">
-        <div class="sheet-handle"></div>
-        <div class="px-6 pb-4 flex justify-between items-center">
-            <h3 class="font-bold text-lg"><i class="fas fa-hotel mr-2 text-blue-600"></i>交通與住宿</h3>
-            <button onclick="closeAllSheets()" class="text-slate-400"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="logistics-content" class="px-6 pb-10 overflow-y-auto space-y-3"></div>
+    <!-- 修改段落 4: 懸浮 AI 助手按鈕 -->
+    <div id="ai-floating-trigger" class="floating-ai-btn" onclick="openSheet('ai-sheet')">
+        <i class="fas fa-comment-dots text-xl"></i>
     </div>
 
-    <!-- 2. 景點詳情抽屜 -->
+    <!-- 遮罩層 -->
+    <div id="sheet-overlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
+
+    <!-- 景點詳情抽屜 -->
     <div id="detail-sheet" class="bottom-sheet">
-        <div class="sheet-handle"></div>
+        <!-- 修改段落 5: Handle 用於提示下滑關閉 -->
+        <div class="sheet-handle" id="handle-detail"></div>
         <div class="overflow-y-auto">
             <div class="relative h-48 bg-slate-100">
                 <img id="detail-img" class="w-full h-full object-cover hidden" src="" alt="">
@@ -157,23 +187,25 @@
                 <div id="detail-info-grid" class="grid grid-cols-2 gap-3"></div>
 
                 <div id="detail-parent-tips" class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-xl hidden">
-                    <p class="text-[10px] font-bold text-orange-600 mb-1 uppercase tracking-wider"><i class="fas fa-baby mr-1"></i> 親子友善提醒</p>
+                    <p class="text-[11px] font-bold text-orange-600 mb-1 uppercase tracking-wider"><i class="fas fa-baby mr-1"></i> 親子友善提醒</p>
                     <p id="detail-parent-content" class="text-sm text-orange-800 leading-relaxed"></p>
                 </div>
 
                 <div>
-                    <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">景點簡介</p>
+                    <p class="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-widest">景點簡介</p>
                     <p id="detail-content" class="text-sm text-slate-600 leading-relaxed"></p>
                 </div>
 
                 <div id="detail-nav-footer" class="flex gap-2 pt-4"></div>
+                
+
             </div>
         </div>
     </div>
 
-    <!-- 3. AI 助手抽屜 -->
+    <!-- AI 助手抽屜 -->
     <div id="ai-sheet" class="bottom-sheet h-[80vh]">
-        <div class="sheet-handle"></div>
+        <div class="sheet-handle" id="handle-ai"></div>
         <div class="px-6 pb-4 flex justify-between items-center border-b">
             <h3 class="font-bold text-lg text-purple-600"><i class="fas fa-robot mr-2"></i>沖繩旅遊助手</h3>
             <button onclick="closeAllSheets()" class="text-slate-400"><i class="fas fa-times"></i></button>
@@ -188,30 +220,13 @@
         </form>
     </div>
 
-    <!-- 底部導覽列 -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-slate-100 px-8 py-3 flex justify-around items-center max-w-md mx-auto z-[80]">
-        
-        <button onclick="openSheet('logistics-sheet')" class="flex flex-col items-center text-slate-400">
-            <i class="fas fa-hotel text-xl mb-1"></i>
-            <span class="text-[10px] font-bold">交通住宿</span>
-        </button>
-        <button onclick="openSheet('ai-sheet')" class="flex flex-col items-center text-slate-400">
-            <div class="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center -mt-8 shadow-lg shadow-purple-200 border-4 border-white">
-                <i class="fas fa-comment-dots text-lg"></i>
-            </div>
-            <span class="text-[10px] font-bold mt-1">問助手</span>
-        </button>
-    </nav>
-
     <script>
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7DQ8aHMoZnU8znCePeKjjr02d2INfhrkGajzmRa-7N4HYnAkdoRyvxCXc1zsiAUs/exec"; 
         let currentTravelData = null;
         
-        // 取得當前日期 (YYYY/M/D) 作為比對基準
         function getCurrentFormattedDate() {
             const now = new Date();
-            // 轉換格式
-           const formatter = new Intl.DateTimeFormat('en-CA', {
+            const formatter = new Intl.DateTimeFormat('en-CA', {
                 timeZone: 'Asia/Taipei',
                 year: 'numeric',
                 month: '2-digit',
@@ -220,32 +235,7 @@
             return formatter.format(now);
         };
 
-        // 預設 Fallback 資料
-        const okinawa_fallback_data = {
-            metadata: { title: "沖繩親子 5 日遊 (Preview)" },
-            logistics: [
-                { icon: 'fa-plane', text: 'JAL 811 12:15 抵達' },
-                { icon: 'fa-car', text: 'SKY 租車 - 豐田 Sienta' },
-                { icon: 'fa-bed', text: '那霸休假酒店 (3 晚)' }
-            ],
-            itinerary: [
-                { day: 1, date: "3/28", fullDate: "2026年3月28日 (六)", events: [
-                    { time: "12:15", activity: "抵達那霸機場", poiId: "NAHA_AIR", desc: "領取行李與入關" },
-                    { time: "15:00", activity: "波上宮", poiId: "NAMINOUYE", desc: "懸崖上的神社" }
-                ]},
-                { day: 2, date: "3/29", fullDate: "2026年3月29日 (日)", events: [
-                    { time: "10:00", activity: "美麗海水族館", poiId: "CHURAUMI", desc: "看黑潮之海大水槽" }
-                ]}
-            ],
-            pois: {
-                "NAHA_AIR": { name: "那霸機場", category: "交通中心", detailedStory: "沖繩的門戶，二樓有豐富的伴手禮店。", infoSections: [{label: "提醒", content: "租車接駁在外面"}], parentTips: "出關後右側有哺乳室。" },
-                "CHURAUMI": { name: "美麗海水族館", category: "人氣景點", img: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?auto=format&fit=crop&q=80&w=400", detailedStory: "世界第三大的水族館。", infoSections: [{label: "門票", content: "2180 JPY"}], parentTips: "海豚秀可以免費看。" }
-            },
-            preparation: [{ category: "🪪 必要證件", items: ["護照", "日文譯本", "台灣駕照"] }],
-            notes: [{ title: "備註", icon: "fa-info-circle", content: ["注意防曬"] }]
-        };
-
-        async function fetchTripData() {
+                async function fetchTripData() {
             try {
                 const response = await fetch(GAS_API_URL);
                 if (!response.ok) throw new Error();
@@ -255,38 +245,30 @@
             }
         }
 
-        // 核心渲染邏輯
         function renderApp() {
             const data = currentTravelData || okinawa_fallback_data;
             if (data.metadata?.title) document.getElementById('header-main-title').innerText = data.metadata.title;
             
-            // 1. 取得當前日期
             const todayStr = getCurrentFormattedDate();
 
-            // 2. 將 logistics 資料渲染到彈窗內容
-            const logBox = document.getElementById('logistics-content');
+            // 渲染交通住宿頁面
+            const logBox = document.getElementById('logistics-page-content');
             logBox.innerHTML = (data.logistics || []).map(l => `
-                <div class="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-blue-600 shadow-sm mr-4">
+                <div class="flex items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 mr-4 text-xl">
                         <i class="fas ${l.icon}"></i>
                     </div>
-                    <span class="text-sm font-bold text-slate-700">${l.text}</span>
+                    <span class="font-bold text-slate-700">${l.text}</span>
                 </div>
             `).join('');
 
-            // 3. 處理行程與自動選擇日期
             const daysContainer = document.getElementById('days-container');
             const daySelector = document.getElementById('day-selector');
             daysContainer.innerHTML = ''; 
             
-            // 根據天數決定日期選擇器的排版模式
             const days = data.itinerary || [];
-
-            // 找出哪一天是今天。如果沒對應到，則預設為第一天
             let activeDayNum = days[0]?.day;
             days.forEach(d => {
-                // 比對資料中的 fullDate (例如 2026年3月28日) 是否包含今天日期
-                // 或者比對 date 欄位
                 if (d.rawDate?.includes(todayStr) || d.date?.includes(todayStr)) {
                     activeDayNum = d.day;
                 }
@@ -298,61 +280,52 @@
                 : "flex mb-6 py-2 gap-3";
 
             days.forEach((day, idx) => {
-                const isActive = idx === 0;
                 const btn = document.createElement('button');
                 btn.id = `day-btn-${day.day}`;
                 btn.onclick = () => showDay(day.day);
                 
-                // 採用要求的設計樣式：底層圓角、字級、縮放與陰影特效
-                btn.className = `day-btn shrink-0 ${
-                    useScrollLayout 
-                        ? "px-6 w-[28%]" 
-                        : "flex-1"
-                } py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 ${
-                    isActive 
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-105' 
-                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                }`;
+                // 修改段落 1: 修改按鈕預設樣式
+                btn.className = `day-btn shrink-0 ${useScrollLayout ? "px-6 w-[28%]" : "flex-1"} py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 bg-slate-100 text-slate-500`;
                 
-                // 格式化日期副標題
-                const displayDate = day.date.includes('/') ? day.date : day.date; 
+                const displayDate = day.date; 
                 btn.innerHTML = `
                     Day ${day.day}
-                    <span class="block text-[10px] font-medium opacity-60">
-                        ${displayDate}
-                    </span>
+                    <span class="block text-[10px] font-medium opacity-60">${displayDate}</span>
                 `;
                 daySelector.appendChild(btn);
 
                 const dayDiv = document.createElement('div');
                 dayDiv.id = `day-content-${day.day}`;
-                dayDiv.className = `space-y-3 hidden ${idx === 0 ? 'block' : ''}`;
+                dayDiv.className = `space-y-4 hidden`;
                 
                 day.events.forEach(ev => {
                     const poi = data.pois?.[ev.poiId];
+                    // 修改段落 2: 移除詳情按鈕，強化導航按鈕設計
                     dayDiv.innerHTML += `
                         <div class="poi-card" onclick="openPoiDetail('${ev.poiId}')">
                             <div class="flex justify-between items-start mb-2">
-                                <span class="time-badge">${ev.time}</span>
+                                <span class="time-badge"> <i class="fas fa-clock mr-2"></i> ${ev.time}</span>
                                 ${ev.isMeal ? '<i class="fas fa-utensils text-orange-400"></i>' : ''}
                             </div>
-                            <h4 class="font-bold text-slate-800 text-lg mb-1">${ev.activity || ev.title}</h4>
-                            <p class="text-xs text-slate-400 line-clamp-1">${ev.desc || poi?.desc || '點擊查看詳情'}</p>
-                            <div class="flex mt-3 pt-3 border-t border-slate-50 gap-2">
-                                <button onclick="event.stopPropagation(); window.open('${getNavUrl(poi?.navName || ev.activity)}')" class="flex-1 py-2 rounded-xl bg-slate-50 text-slate-600 text-[10px] font-bold flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                                    <i class="fas fa-location-arrow mr-1"></i> 導航
-                                </button>
-                                ${poi ? `<button class="flex-1 py-2 rounded-xl bg-blue-50 text-blue-600 text-[10px] font-bold">詳情資訊</button>` : ''}
-                            </div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-lg leading-tight mb-2 pr-4">${ev.activity || ev.title}</h4>
+                                    <p class="text-xs text-slate-400 line-clamp-2 pr-4 leading-relaxed">${ev.desc || poi?.desc || '點擊查看詳細行程資訊'}</p>
+                                </div>
+                                <span class="flex items-center justify-end">
+                                    <button onclick="event.stopPropagation(); window.open('${getNavUrl(poi?.navName || ev.activity)}')" 
+                                        class="bg-blue-600 text-white px-3 py-3 rounded-3xl text-xl font-bold flex items-center shadow-md shadow-blue-100 active:scale-95 transition-all">
+                                        <i class="fas fa-location-arrow"></i> 
+                                    </button>
+                                </span>
+                            </div>                           
                         </div>
                     `;
                 });
                 daysContainer.appendChild(dayDiv);
             });
 
-            // 初始執行一次切換，確保 UI 狀態一致（特別是捲動與按鈕顏色）
             showDay(activeDayNum);
-
             renderPrepAndNotes(data);
             
             setTimeout(() => {
@@ -366,7 +339,7 @@
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center"><i class="fas fa-check-circle mr-2 text-blue-500"></i>${group.category}</h3>
                     <div class="space-y-3">
-                        ${group.items.map(item => `<label class="flex items-center text-sm text-slate-600"><input type="checkbox" class="w-4 h-4 rounded-full mr-3 border-slate-200"> ${item}</label>`).join('')}
+                        ${group.items.map(item => `<label class="flex items-center text-sm text-slate-600"><input type="checkbox" class="w-5 h-5 rounded-lg mr-3 border-slate-200 text-blue-600"> ${item}</label>`).join('')}
                     </div>
                 </div>
             `).join('');
@@ -381,33 +354,28 @@
             `).join('');
         }
 
-        // UI 切換邏輯
+        // 修改段落 1: 修正 Day 切換邏輯
         function showDay(d) {
-            // 切換內容容器
             document.querySelectorAll('[id^="day-content-"]').forEach(el => el.classList.add('hidden'));
             const targetContent = document.getElementById(`day-content-${d}`);
             if (targetContent) targetContent.classList.remove('hidden');
             
-            // 切換按鈕狀態（對應參考程式碼的切換效果）
-            document.querySelectorAll('[id^="day-btn-"]').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg', 'shadow-blue-200', 'scale-105');
-                btn.classList.add('bg-slate-100', 'text-slate-500');
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                btn.classList.remove('active-state');
             });
             const activeBtn = document.getElementById(`day-btn-${d}`);
             if (activeBtn) {
-                activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-lg', 'shadow-blue-200', 'scale-105');
-                activeBtn.classList.remove('bg-slate-100', 'text-slate-500');
-                
-                // 自動將選中的按鈕捲動到可視區域 (僅在 Scroll Layout 模式下有明顯作用)
+                activeBtn.classList.add('active-state');
                 activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
         }
 
+        // 修改段落 3: 導覽切換
         function switchMainTab(tab) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('content-' + tab).classList.add('active');
             
-            const btns = ['itinerary', 'preparation', 'notes'];
+            const btns = ['itinerary', 'logistics', 'preparation', 'notes'];
             btns.forEach(b => {
                 const el = document.getElementById('main-tab-' + b);
                 if (b === tab) {
@@ -420,18 +388,75 @@
             });
         }
 
-        // 抽屜與詳情邏輯保持不變...
+        // 修改段落 5: 下滑關閉邏輯
+        function initSwipeToClose(sheetId) {
+            const sheet = document.getElementById(sheetId);
+
+            let startY = 0;
+            let currentY = 0;
+            let startTime = 0;
+            let isDragging = false;
+
+            sheet.addEventListener('touchstart', (e) => {
+                const scrollTop = sheet.scrollTop;
+
+                // ✅ 只有在最頂部才允許關閉手勢
+                if (scrollTop > 0) return;
+
+                startY = e.touches[0].clientY;
+                startTime = Date.now();
+                isDragging = true;
+            }, { passive: true });
+
+            sheet.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+
+                currentY = e.touches[0].clientY;
+                let deltaY = currentY - startY;
+
+                if (deltaY <= 0) return;
+
+                // ✅ 阻尼效果（越拉越重）
+                const resistance = Math.pow(deltaY, 0.85);
+
+                sheet.style.transform = `translateY(${resistance}px)`;
+            }, { passive: true });
+
+            sheet.addEventListener('touchend', () => {
+                if (!isDragging) return;
+
+                const deltaY = currentY - startY;
+                const duration = Date.now() - startTime;
+                const velocity = deltaY / duration;
+
+                sheet.style.transform = '';
+
+                // ✅ 判斷條件（距離 or 速度）
+                if (deltaY > 100 || velocity > 0.5) {
+                    closeAllSheets();
+                }
+
+                isDragging = false;
+            });
+        }
+
         function openSheet(id) {
             closeAllSheets();
             document.getElementById(id).classList.add('active');
             document.getElementById('sheet-overlay').classList.add('active');
             document.body.style.overflow = 'hidden';
+            // 隱藏懸浮按鈕避免遮擋
+            document.getElementById('ai-floating-trigger').style.opacity = '0';
         }
 
         function closeAllSheets() {
-            document.querySelectorAll('.bottom-sheet').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.bottom-sheet').forEach(s => {
+                s.classList.remove('active');
+                s.style.transform = '';
+            });
             document.getElementById('sheet-overlay').classList.remove('active');
             document.body.style.overflow = '';
+            document.getElementById('ai-floating-trigger').style.opacity = '1';
         }
 
         function openPoiDetail(poiId) {
@@ -450,7 +475,7 @@
             const grid = document.getElementById('detail-info-grid');
             grid.innerHTML = (poi.infoSections || []).map(s => `
                 <div class="bg-slate-50 p-3 rounded-xl">
-                    <p class="text-[9px] font-bold text-slate-400 uppercase">${s.label}</p>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase">${s.label}</p>
                     <p class="text-xs font-bold text-slate-700">${s.content}</p>
                 </div>
             `).join('');
@@ -463,7 +488,7 @@
             }
             const footer = document.getElementById('detail-nav-footer');
             footer.innerHTML = `
-                <a href="${getNavUrl(poi.navName || poi.name)}" target="_blank" class="flex-1 bg-blue-600 text-white py-3 rounded-2xl font-bold text-sm text-center shadow-lg active:scale-95 transition-transform"><i class="fas fa-location-arrow mr-2"></i>開始導航</a>
+                <a href="${getNavUrl(poi.navName || poi.name)}" target="_blank" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold text-sm text-center shadow-lg active:scale-95 transition-transform"><i class="fas fa-location-arrow mr-2"></i> 開始導航</a>
             `;
             openSheet('detail-sheet');
         }
@@ -476,41 +501,26 @@
             const userText = input.value.trim();
             if (!userText) return;
 
-            //const apiKey = localStorage.getItem('GEMINI_API_KEY');
-            //if (!apiKey) { alert("請先設定 API Key"); return; }
-
             appendMsg(userText, 'user');
             input.value = '';
             document.getElementById('ai-loading').classList.remove('hidden');
 
             try {
-                // 讀取當前完整行程資料做為 Context
                 const currentDataStr = JSON.stringify(currentTravelData);
-                
-                // 呼叫 prompts.js 中的 buildFullPrompt 建立豐富的提示詞
                 const fullPrompt = await AIPrompts.buildFullPrompt(userText, currentDataStr);
-
-                // ✅ 修改為呼叫 Vercel 的後端 API
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         fullPrompt: fullPrompt,
-                        systemInstruction: AIPrompts.systemInstruction // 將系統指令也傳給後端
+                        systemInstruction: AIPrompts.systemInstruction 
                     })
                 });
-        
                 const result = await response.json();
-                
-                // Vercel 或 Google 回傳錯誤的處理
-                if (!response.ok || result.error) {
-                    throw new Error(result.error?.message || result.error || "連線異常");
-                }
-        
-                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，我暫時無法回答。";
+                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，導遊休息中，請稍後再問我。";
                 appendMsg(aiText, 'ai');
             } catch (err) {
-                appendMsg(`連線失敗: ${err.message}`, 'ai');
+                appendMsg(`連線失敗: 可能是環境不支援 API 呼叫，請檢查設定。`, 'ai');
             } finally {
                 document.getElementById('ai-loading').classList.add('hidden');
             }
@@ -530,6 +540,9 @@
         window.onload = async () => {
             currentTravelData = await fetchTripData();
             renderApp();
+            // 初始化下滑關閉
+            initSwipeToClose('detail-sheet');
+            initSwipeToClose('ai-sheet');
         };
     </script>
 </body>
