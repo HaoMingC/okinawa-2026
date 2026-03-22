@@ -18,10 +18,9 @@
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- MODIFIED: 行程切換動畫 --- */
+        /* 行程切換動畫 */
         .day-fade { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
-        /* --------------------------- */
 
         .full-page-detail {
             position: fixed;
@@ -231,25 +230,21 @@
         const CACHE_KEY = "trip-data";
         const VERSION_KEY = "trip-version";
         
-
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwZ9lvQOsMkuz1Zox4G9I39WC_s7sgQU_93U3ShYFekf4E657uBlnQF0E5btPv0AdEL/exec"; 
         let currentTravelData = null;
         let currentDayIdx = 1;
         let currentPoiId = null;
+        let isGesturesInitialized = false; // 用來防止重複初始化手勢
         
-        /* --- MODIFIED: 優化載入流程，避免重複重新整理 --- */
         async function fetchTripData() {
             const cached = localStorage.getItem(CACHE_KEY);
             const cachedVersion = localStorage.getItem(VERSION_KEY);
             
-            // 如果有快取，立刻回傳並在背景執行更新
             if (cached) {
-                // 在小延遲後執行背景檢查，確保 UI 已經渲染完畢
                 setTimeout(() => refreshInBackground(cachedVersion), 1000);
                 return JSON.parse(cached);
             }
             
-            // 完全沒快取時才執行 Fetch
             return await fetchFromNetwork();
         }
 
@@ -273,24 +268,18 @@
                 if (!res.ok) return;
                 const newData = await res.json();
 
-                // 只有當版本真的不同時才更新快取並重新渲染 UI
                 if (newData.version !== oldVersion) {
-                    console.log("偵測到新版本:", newData.version);
                     localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
                     localStorage.setItem(VERSION_KEY, newData.version);
-                    
-                    // 為了不打斷用戶操作，不強制重新整理頁面，而是直接更新全域變數並重新渲染組件
                     currentTravelData = newData;
-                    renderApp(true); // 傳入 true 表示是靜態更新，不顯示 Loading
-                    console.log("UI 已在背景靜態更新完畢");
+                    renderApp(true); 
                 }
             } catch (e) {
                 console.warn("背景更新失敗:", e);
             }
         }
-        /* ------------------------------------------- */
 
-        function renderApp() {
+        function renderApp(isUpdate = false) {
             const data = currentTravelData || okinawa_fallback_data;
             if (data.metadata?.title) document.getElementById('header-main-title').innerText = data.metadata.title;
             
@@ -336,15 +325,21 @@
             });
 
             renderStaticPages(data);
+            showDay(currentDayIdx);
+            
+            // 只有在還沒初始化過手勢的情況下才執行
+            if (!isGesturesInitialized) {
+                initGestures();
+                isGesturesInitialized = true;
+            }
 
-            showDay(1);
-            initGestures();
-
-            setTimeout(() => {
-                const loader = document.getElementById('loading-overlay');
-                loader.style.opacity = '0';
-                setTimeout(() => loader.classList.add('hidden'), 500);
-            }, 600);
+            if (!isUpdate) {
+                setTimeout(() => {
+                    const loader = document.getElementById('loading-overlay');
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.classList.add('hidden'), 500);
+                }, 600);
+            }
         }
 
         function renderStaticPages(data) {
@@ -451,7 +446,6 @@
             document.getElementById('next-poi-btn').style.opacity = idx === events.length - 1 ? '0.2' : '1';
         }
 
-        /* --- MODIFIED: 更新後的手勢邏輯 --- */
         function initGestures() {
             const fullPage = document.getElementById('full-page-detail');
             const mainContainer = document.getElementById('days-container');
@@ -489,7 +483,6 @@
                 const currentY = e.touches[0].clientY;
                 const deltaY = currentY - startY;
                 
-                // 只有當 scrollTop 為 0 且向下滑動時才準備關閉
                 if (content.scrollTop <= 0 && deltaY > 10) {
                     isDraggingDown = true;
                 } else {
@@ -501,13 +494,11 @@
                 const deltaX = e.changedTouches[0].clientX - startX;
                 const deltaY = e.changedTouches[0].clientY - startY;
 
-                // 1. 側邊返回功能 (螢幕左側開始向右滑)
                 if (startX < 60 && deltaX > 80) {
                     closeAllSheets();
                     return;
                 }
 
-                // 2. 下滑關閉功能 (在頂部下滑超過閾值)
                 if (isDraggingDown && deltaY > 100) {
                     closeAllSheets();
                 }
@@ -517,14 +508,12 @@
             content.addEventListener('touchstart', (e) => startX = e.touches[0].clientX, { passive: true });
             content.addEventListener('touchend', (e) => {
                 const deltaX = e.changedTouches[0].clientX - startX;
-                // 避免與側滑返回衝突，中心區域才觸發景點切換
                 if (startX > 60 && Math.abs(deltaX) > 100) {
                     if (deltaX > 100) document.getElementById('prev-poi-btn').click();
                     else if (deltaX < -100) document.getElementById('next-poi-btn').click();
                 }
             }, { passive: true });
         }
-        /* --------------------------- */
 
         function showDay(d) {
             document.querySelectorAll('[id^="day-content-"]').forEach(c => c.classList.add('hidden'));
@@ -536,7 +525,6 @@
             if (targetBtn) targetBtn.classList.add('active-state');
             currentDayIdx = d;
             
-            /* --- MODIFIED: 自動捲動標題列 --- */
             if (targetBtn) {
                 targetBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
