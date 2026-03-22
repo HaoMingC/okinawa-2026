@@ -18,56 +18,47 @@
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 抽屜特效優化與性能提升 */
-        .bottom-sheet {
+        .full-page-detail {
             position: fixed;
             left: 0; right: 0; bottom: 0;
+            top: 40px; 
             background: white;
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
+            border-top-left-radius: 28px;
+            border-top-right-radius: 28px;
+            z-index: 110;
             transform: translateY(100%);
-            transition: transform 0.25s ease-out; 
-            will-change: transform;
-            z-index: 100;
-            max-height: 85vh;
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -15px 35px -10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            will-change: transform;
         }
-        .bottom-sheet.active { transform: translateY(0); }
+        .full-page-detail.active { transform: translateY(0); }
+
         .sheet-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s;
-            z-index: 90;
+            z-index: 100;
         }
         .sheet-overlay.active { opacity: 1; visibility: visible; }
         
-        .drag-handle-container {
-            width: 100%;
-            padding: 12px 0;
-            cursor: grab;
-            touch-action: none; 
+        .detail-transition {
+            transition: opacity 0.25s ease, transform 0.25s ease;
         }
-        .sheet-handle {
-            width: 40px; height: 5px; background: #cbd5e1;
-            border-radius: 10px; margin: 0 auto;
-        }
+        .detail-enter-next { transform: translateX(20px); opacity: 0; }
+        .detail-enter-prev { transform: translateX(-20px); opacity: 0; }
 
-        /* 修改段落 1: 行程容器左右滑動切換特效 */
         #days-container {
             position: relative;
             width: 100%;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-            will-change: transform, opacity;
-            touch-action: pan-y; 
+            transition: transform 0.3s ease;
         }
-        .day-slide-enter { transform: translateX(30px); opacity: 0; }
-        .day-slide-exit { transform: translateX(-30px); opacity: 0; }
 
         .poi-card {
             background: white;
@@ -77,27 +68,22 @@
             border: 1px solid #f1f5f9;
             box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04);
             position: relative;
-            overflow: hidden;
+            cursor: pointer;
         }
 
-        .day-btn {
-            outline: none !important;
-            -webkit-appearance: none;
-        }
         .day-btn.active-state {
             background-color: #2563eb !important;
             color: white !important;
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3) !important;
-            transform: scale(1.05);
+            box-shadow: 0 8px 15px -3px rgba(37, 99, 235, 0.3) !important;
         }
 
         .time-badge {
             background: #eff6ff;
             color: #2563eb;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 6px;
+            padding: 4px 10px;
+            border-radius: 8px;
         }
 
         .floating-ai-btn {
@@ -114,21 +100,21 @@
             justify-content: center;
             box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.4);
             z-index: 80;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .floating-ai-btn:active { transform: scale(0.9); }
+
+        .header-drag-indicator {
+            width: 36px; height: 4px; background: #e2e8f0;
+            border-radius: 2px; margin: 8px auto 0;
+        }
     </style>
 </head>
 <body class="bg-[#f8fafc]">
 
-    <!-- Loading 遮罩 -->
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
         <p class="text-gray-500 text-sm font-medium">載入行程中...</p>
     </div>
 
-    <!-- 頂部 Header 與 頁籤 -->
     <header class="bg-white sticky top-0 z-50 border-b border-slate-100">
         <div class="max-w-md mx-auto px-4 pt-4 pb-2">
             <div class="flex justify-between items-center mb-3">
@@ -140,10 +126,10 @@
             </div>
             
             <div class="flex bg-slate-100 rounded-2xl p-1 mb-2">
-                <button onclick="switchMainTab('itinerary')" id="main-tab-itinerary" class="flex-1 py-2 text-m font-bold rounded-xl transition-all bg-white text-blue-600 shadow-sm">行程</button>
-                <button onclick="switchMainTab('logistics')" id="main-tab-logistics" class="flex-1 py-2 text-m font-bold rounded-xl text-slate-500 transition-all">交通住宿</button>
-                <button onclick="switchMainTab('preparation')" id="main-tab-preparation" class="flex-1 py-2 text-m font-bold rounded-xl text-slate-500 transition-all">行李準備</button>
-                <button onclick="switchMainTab('notes')" id="main-tab-notes" class="flex-1 py-2 text-m font-bold rounded-xl text-slate-500 transition-all">須知事項</button>
+                <button onclick="switchMainTab('itinerary')" id="main-tab-itinerary" class="flex-1 py-2 text-sm font-bold rounded-xl transition-all bg-white text-blue-600 shadow-sm">行程</button>
+                <button onclick="switchMainTab('logistics')" id="main-tab-logistics" class="flex-1 py-2 text-sm font-bold rounded-xl text-slate-500 transition-all">交通住宿</button>
+                <button onclick="switchMainTab('preparation')" id="main-tab-preparation" class="flex-1 py-2 text-sm font-bold rounded-xl text-slate-500 transition-all">行李準備</button>
+                <button onclick="switchMainTab('notes')" id="main-tab-notes" class="flex-1 py-2 text-sm font-bold rounded-xl text-slate-500 transition-all">須知事項</button>
             </div>
         </div>
     </header>
@@ -155,15 +141,12 @@
                 <div id="days-container"></div>
             </div>
         </div>
-
         <div id="content-logistics" class="tab-content">
-            <div id="logistics-page-content" class="space-y-3"></div>
+            <div id="logistics-page-content" class="space-y-4"></div>
         </div>
-
         <div id="content-preparation" class="tab-content">
             <div id="preparation-list" class="space-y-4"></div>
         </div>
-
         <div id="content-notes" class="tab-content">
             <div id="notes-list" class="space-y-4"></div>
         </div>
@@ -175,33 +158,47 @@
 
     <div id="sheet-overlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
 
-    <div id="detail-sheet" class="bottom-sheet">
-        <div class="drag-handle-container" id="handle-detail">
-            <div class="sheet-handle"></div>
-        </div>
-        <!-- 修改段落 2: 詳情內容容器增加動畫過渡樣式 -->
-        <div id="detail-content-wrapper" class="overflow-y-auto transition-all duration-300 ease-out">
-            <div class="relative h-48 bg-slate-100">
-                <img id="detail-img" class="w-full h-full object-cover hidden" src="" alt="">
-                <div id="detail-img-placeholder" class="w-full h-full flex items-center justify-center text-slate-300"><i class="fas fa-image text-4xl"></i></div>
-                <button onclick="closeAllSheets()" class="absolute top-4 right-4 bg-black/20 backdrop-blur-md text-white w-8 h-8 rounded-full"><i class="fas fa-times"></i></button>
+    <div id="full-page-detail" class="full-page-detail">
+        <div class="header-drag-indicator"></div>
+        <header class="bg-white flex items-center justify-between px-4 h-14 shrink-0 mt-1">
+            <div class="flex items-center gap-2">
+                <button onclick="closeAllSheets()" class="w-10 h-10 flex items-center justify-center text-slate-800 text-lg bg-slate-50 rounded-full"><i class="fas fa-times"></i></button>
+                <div class="ml-2">
+                    <span id="detail-pagination" class="text-[10px] font-bold text-slate-400 tracking-widest uppercase">3 / 8</span>
+                </div>
             </div>
-            <div class="p-6 space-y-6 pb-12">
+            <div class="flex items-center gap-2">
+                <button id="prev-poi-btn" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 active:text-blue-600 active:bg-blue-50 transition-colors"><i class="fas fa-chevron-left"></i></button>
+                <button id="next-poi-btn" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 active:text-blue-600 active:bg-blue-50 transition-colors"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </header>
+
+        <div id="full-detail-content" class="flex-1 overflow-y-auto detail-transition">
+            <div class="relative h-60 bg-slate-100">
+                <img id="detail-img" class="w-full h-full object-cover hidden" src="" alt="">
+                <div id="detail-img-placeholder" class="w-full h-full flex items-center justify-center text-slate-300"><i class="fas fa-image text-5xl"></i></div>
+            </div>
+            <div class="p-6 space-y-6 pb-24">
                 <div>
-                    <span id="detail-category" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded mb-2 inline-block uppercase">CATEGORY</span>
-                    <h2 id="detail-title" class="text-2xl font-bold text-slate-800">景點名稱</h2>
+                    <span id="detail-category" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded mb-2 inline-block uppercase tracking-wider">CATEGORY</span>
+                    <h2 id="detail-title" class="text-2xl font-bold text-slate-800 leading-tight">景點名稱</h2>
                 </div>
                 
                 <div id="detail-info-grid" class="grid grid-cols-2 gap-3"></div>
-
+                
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-widest">詳細資訊</p>
+                    <p id="detail-content" class="text-sm text-slate-600 leading-relaxed"></p>
+                </div>
+                
                 <div id="detail-parent-tips" class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-xl hidden">
                     <p class="text-[11px] font-bold text-orange-600 mb-1 uppercase tracking-wider"><i class="fas fa-baby mr-1"></i> 親子友善提醒</p>
                     <p id="detail-parent-content" class="text-sm text-orange-800 leading-relaxed"></p>
                 </div>
 
-                <div>
-                    <p class="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-widest">景點簡介</p>
-                    <p id="detail-content" class="text-sm text-slate-600 leading-relaxed"></p>
+                <div id="detail-backup-plan" class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-xl hidden">
+                    <p class="text-[11px] font-bold text-blue-600 mb-1 uppercase tracking-wider"><i class="fas fa-right-left mr-1"></i> 備案行程</p>
+                    <p id="detail-backup-content" class="text-sm text-blue-800 leading-relaxed"></p>
                 </div>
 
                 <div id="detail-nav-footer" class="flex items-center gap-3 pt-4"></div>
@@ -209,11 +206,9 @@
         </div>
     </div>
 
-    <div id="ai-sheet" class="bottom-sheet h-[80vh]">
-        <div class="drag-handle-container" id="handle-ai">
-            <div class="sheet-handle"></div>
-        </div>
-        <div class="px-6 pb-4 flex justify-between items-center border-b">
+    <div id="ai-sheet" class="bottom-sheet fixed bottom-0 left-0 right-0 bg-white rounded-t-[28px] h-[80vh] z-[120] transform translate-y-full transition-transform duration-300 shadow-2xl overflow-hidden flex flex-col">
+        <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto my-3"></div>
+        <div class="px-6 pb-4 flex justify-between items-center border-b shrink-0">
             <h3 class="font-bold text-lg text-purple-600"><i class="fas fa-robot mr-2"></i>沖繩旅遊助手</h3>
             <button onclick="closeAllSheets()" class="text-slate-400"><i class="fas fa-times"></i></button>
         </div>
@@ -221,7 +216,7 @@
             <div class="bg-purple-50 p-4 rounded-2xl text-sm text-purple-800 border border-purple-100">你好！我是你的沖繩旅遊顧問。你可以問我關於行程、天氣或任何交通問題！</div>
         </div>
         <div id="ai-loading" class="hidden px-6 py-2 text-xs text-purple-500 italic animate-pulse">導遊思考中...</div>
-        <form onsubmit="handleAIQuery(event)" class="p-4 bg-slate-50 border-t flex space-x-2">
+        <form onsubmit="handleAIQuery(event)" class="p-4 bg-slate-50 border-t flex space-x-2 shrink-0">
             <input id="ai-input" type="text" placeholder="輸入問題..." class="flex-1 border-0 bg-white rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500 shadow-sm">
             <button type="submit" class="bg-purple-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-transform"><i class="fas fa-paper-plane"></i></button>
         </form>
@@ -233,22 +228,11 @@
         let currentDayIdx = 1;
         let currentPoiId = null;
         
-        function getCurrentFormattedDate() {
-            const now = new Date();
-            const formatter = new Intl.DateTimeFormat('en-CA', {
-                timeZone: 'Asia/Taipei',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-            return formatter.format(now);
-        };
-
         async function fetchTripData() {
             try {
                 const response = await fetch(GAS_API_URL);
-                if (!response.ok) throw new Error();
-                return await response.json();
+                const data = response.ok ? await response.json() : (typeof travelData !== 'undefined' ? travelData : okinawa_fallback_data);
+                return data;
             } catch (e) {
                 return typeof travelData !== 'undefined' ? travelData : okinawa_fallback_data;
             }
@@ -258,9 +242,62 @@
             const data = currentTravelData || okinawa_fallback_data;
             if (data.metadata?.title) document.getElementById('header-main-title').innerText = data.metadata.title;
             
-            const todayStr = getCurrentFormattedDate();
+            const daysContainer = document.getElementById('days-container');
+            const daySelector = document.getElementById('day-selector');
+            daysContainer.innerHTML = ''; 
+            daySelector.innerHTML = '';
+            
+            const days = data.itinerary || [];
+            days.forEach((day) => {
+                const btn = document.createElement('button');
+                btn.id = `day-btn-${day.day}`;
+                btn.onclick = () => showDay(day.day);
+                btn.className = `day-btn shrink-0 flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 bg-slate-100 text-slate-500`;
+                btn.innerHTML = `Day ${day.day}<span class="block text-[10px] font-medium opacity-60">${day.date}</span>`;
+                daySelector.appendChild(btn);
 
-            const logBox = document.getElementById('logistics-page-content');
+                const dayDiv = document.createElement('div');
+                dayDiv.id = `day-content-${day.day}`;
+                dayDiv.className = `space-y-4 hidden pb-10`;
+                
+                day.events.forEach(ev => {
+                    const poi = data.pois?.[ev.poiId];
+                    dayDiv.innerHTML += `
+                        <div class="poi-card" onclick="openPoiDetail('${ev.poiId}', ${day.day})">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="time-badge"> <i class="fas fa-clock mr-2"></i> ${ev.time}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-slate-800 text-lg leading-tight mb-1 pr-4">${ev.activity || ev.title}</h4>
+                                    <p class="text-xs text-slate-400 line-clamp-1 pr-4">${ev.desc || poi?.desc || '點擊查看詳情'}</p>
+                                </div>
+                                <button onclick="event.stopPropagation(); window.open('${getNavUrl(poi?.navName || ev.activity)}')" 
+                                    class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center active:bg-blue-600 active:text-white transition-colors">
+                                    <i class="fas fa-location-arrow text-sm"></i>
+                                </button>
+                            </div>                           
+                        </div>
+                    `;
+                });
+                daysContainer.appendChild(dayDiv);
+            });
+
+            renderStaticPages(data);
+
+            showDay(1);
+            initGestures();
+
+            setTimeout(() => {
+                const loader = document.getElementById('loading-overlay');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.classList.add('hidden'), 500);
+            }, 600);
+        }
+
+        function renderStaticPages(data) {
+            // 交通住宿
+             const logBox = document.getElementById('logistics-page-content');
             logBox.innerHTML = (data.logistics || []).map(l => `
                 <div class="flex items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm">
                     <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 mr-4 text-xl">
@@ -270,88 +307,23 @@
                 </div>
             `).join('');
 
-            const daysContainer = document.getElementById('days-container');
-            const daySelector = document.getElementById('day-selector');
-            daysContainer.innerHTML = ''; 
-            daySelector.innerHTML = '';
-            
-            const days = data.itinerary || [];
-            let activeDayNum = days[0]?.day;
-            days.forEach(d => {
-                if (d.rawDate?.includes(todayStr) || d.date?.includes(todayStr)) {
-                    activeDayNum = d.day;
-                }
-            });  
-
-            const useScrollLayout = days.length > 5;
-            daySelector.className = useScrollLayout 
-                ? "flex overflow-x-auto no-scrollbar mb-6 py-2 gap-3" 
-                : "flex mb-6 py-2 gap-3";
-
-            days.forEach((day, idx) => {
-                const btn = document.createElement('button');
-                btn.id = `day-btn-${day.day}`;
-                btn.onclick = () => showDay(day.day);
-                btn.className = `day-btn shrink-0 ${useScrollLayout ? "px-6 w-[28%]" : "flex-1"} py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 bg-slate-100 text-slate-500`;
-                
-                btn.innerHTML = `
-                    Day ${day.day}
-                    <span class="block text-[10px] font-medium opacity-60">${day.date}</span>
+            // 行李準備
+            const prepList = document.getElementById('preparation-list');
+            prepList.innerHTML = '';
+            (data.preparation || []).forEach(cat => {
+                prepList.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <h4 class="font-bold text-slate-800 mb-3 text-sm border-b pb-2 uppercase tracking-wider">${cat.category}</h4>
+                        <ul class="space-y-2">
+                            ${cat.items.map(i => `<li class="flex items-center text-sm text-slate-600"><i class="far fa-square mr-2 text-slate-300"></i>${i}</li>`).join('')}
+                        </ul>
+                    </div>
                 `;
-                daySelector.appendChild(btn);
-
-                const dayDiv = document.createElement('div');
-                dayDiv.id = `day-content-${day.day}`;
-                dayDiv.className = `space-y-4 hidden pb-10`;
-                
-                day.events.forEach(ev => {
-                    const poi = data.pois?.[ev.poiId];
-                    // 修改段落 3: 導覽按鈕改為圓形
-                    dayDiv.innerHTML += `
-                        <div class="poi-card" onclick="openPoiDetail('${ev.poiId}', ${day.day})">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="time-badge"> <i class="fas fa-clock mr-2"></i> ${ev.time}</span>
-                                ${ev.isMeal ? '<i class="fas fa-utensils text-orange-400"></i>' : ''}
-                            </div>
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-slate-800 text-lg leading-tight mb-2 pr-4">${ev.activity || ev.title}</h4>
-                                    <p class="text-xs text-slate-400 line-clamp-2 pr-4 leading-relaxed">${ev.desc || poi?.desc || '點擊查看詳細行程資訊'}</p>
-                                </div>
-                                <span class="flex items-center justify-end">
-                                    <button onclick="event.stopPropagation(); window.open('${getNavUrl(poi?.navName || ev.activity)}')" 
-                                        class="bg-blue-600 text-white w-12 h-12 rounded-full text-xl font-bold flex items-center justify-center shadow-md shadow-blue-100 active:scale-95 transition-all">
-                                        <i class="fas fa-location-arrow"></i> 
-                                    </button>
-                                </span>
-                            </div>                           
-                        </div>
-                    `;
-                });
-                daysContainer.appendChild(dayDiv);
             });
 
-            showDay(activeDayNum);
-            renderPrepAndNotes(data);
-            initMainSwipeGesture(); 
-
-            setTimeout(() => {
-                document.getElementById('loading-overlay').style.opacity = '0';
-                setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
-            }, 800);
-        }
-
-        function renderPrepAndNotes(data) {
-            document.getElementById('preparation-list').innerHTML = (data.preparation || []).map(group => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-slate-800 mb-4 flex items-center"><i class="fas fa-check-circle mr-2 text-blue-500"></i>${group.category}</h3>
-                    <div class="space-y-3">
-                        ${group.items.map(item => `<label class="flex items-center text-sm text-slate-600"><input type="checkbox" class="w-5 h-5 rounded-lg mr-3 border-slate-200 text-blue-600"> ${item}</label>`).join('')}
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('notes-list').innerHTML = (data.notes || []).map(note => `
+            // 須知事項
+            const notesList = document.getElementById('notes-list');
+            notesList.innerHTML = (data.notes || []).map(note => `
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                     <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fas ${note.icon} mr-2 text-blue-500"></i>${note.title}</h3>
                     <ul class="text-sm text-slate-500 space-y-2 leading-relaxed">
@@ -361,245 +333,31 @@
             `).join('');
         }
 
-        // 修改段落 1: 行程切換增加滑動特效
-        function showDay(d, direction = 0) {
-            const container = document.getElementById('days-container');
-            const targetDay = document.getElementById(`day-content-${d}`);
-            const currentDay = document.getElementById(`day-content-${currentDayIdx}`);
-
-            if (d === currentDayIdx) {
-                if (targetDay) targetDay.classList.remove('hidden');
-            } else {
-                // 套用進場與出場特效
-                const enterClass = direction > 0 ? 'day-slide-enter' : (direction < 0 ? 'day-slide-exit' : '');
-                const exitClass = direction > 0 ? 'day-slide-exit' : (direction < 0 ? 'day-slide-enter' : '');
-                
-                if (currentDay) {
-                    currentDay.style.transition = 'all 0.3s ease';
-                    currentDay.style.opacity = '0';
-                    currentDay.style.transform = direction > 0 ? 'translateX(-30px)' : 'translateX(30px)';
-                    setTimeout(() => currentDay.classList.add('hidden'), 300);
-                }
-
-                if (targetDay) {
-                    targetDay.classList.remove('hidden');
-                    targetDay.style.opacity = '0';
-                    targetDay.style.transform = direction > 0 ? 'translateX(30px)' : 'translateX(-30px)';
-                    // 強制重繪
-                    targetDay.offsetHeight;
-                    targetDay.style.transition = 'all 0.3s ease';
-                    targetDay.style.opacity = '1';
-                    targetDay.style.transform = 'translateX(0)';
-                }
-            }
-            
-            currentDayIdx = d;
-            document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active-state'));
-            const activeBtn = document.getElementById(`day-btn-${d}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active-state');
-                activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-        }
-
-        function switchMainTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('content-' + tab).classList.add('active');
-            
-            const btns = ['itinerary', 'logistics', 'preparation', 'notes'];
-            btns.forEach(b => {
-                const el = document.getElementById('main-tab-' + b);
-                if (b === tab) {
-                    el.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-                    el.classList.remove('text-slate-500');
-                } else {
-                    el.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-                    el.classList.add('text-slate-500');
-                }
-            });
-        }
-
-        // 修改段落 2: 修正詳情抽屜左右滑動功能
-        function initSheetGestures(sheetId, handleId) {
-            const sheet = document.getElementById(sheetId);
-            const handle = document.getElementById(handleId);
-            
-            let startY = 0, currentY = 0, startX = 0, currentX = 0;
-            let isVerticalDragging = false;
-            let isHorizontalDragging = false;
-
-            handle.addEventListener('touchstart', (e) => {
-                startY = e.touches[0].clientY;
-                startX = e.touches[0].clientX;
-                isVerticalDragging = true;
-                sheet.style.transition = 'none';
-            }, { passive: true });
-
-            if (sheetId === 'detail-sheet') {
-                const contentWrapper = document.getElementById('detail-content-wrapper');
-                
-                handle.addEventListener('touchmove', (e) => {
-                    const moveY = e.touches[0].clientY;
-                    const moveX = e.touches[0].clientX;
-                    const deltaY = moveY - startY;
-                    const deltaX = moveX - startX;
-
-                    if (!isHorizontalDragging && deltaY > 0 && Math.abs(deltaY) > Math.abs(deltaX)) {
-                        sheet.style.transform = `translateY(${deltaY}px)`;
-                    } else if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-                        isHorizontalDragging = true;
-                        isVerticalDragging = false;
-                    }
-
-                    if (isHorizontalDragging) {
-                        const events = currentTravelData.itinerary.find(d => d.day === currentDayIdx).events;
-                        const eventIdx = events.findIndex(ev => ev.poiId === currentPoiId);
-                        let dragX = deltaX;
-                        if ((eventIdx === 0 && deltaX > 0) || (eventIdx === events.length - 1 && deltaX < 0)) {
-                            dragX = deltaX * 0.3; 
-                        }
-                        contentWrapper.style.transform = `translateX(${dragX}px)`;
-                        contentWrapper.style.opacity = (1 - Math.abs(deltaX) / 400);
-                    }
-                }, { passive: true });
-
-                handle.addEventListener('touchend', (e) => {
-                    const finalDeltaY = e.changedTouches[0].clientY - startY;
-                    const finalDeltaX = e.changedTouches[0].clientX - startX;
-                    
-                    sheet.style.transition = 'transform 0.25s ease-out';
-                    contentWrapper.style.transition = 'all 0.3s ease';
-
-                    if (isVerticalDragging && finalDeltaY > 120) {
-                        closeAllSheets();
-                    } else if (isHorizontalDragging) {
-                        const events = currentTravelData.itinerary.find(d => d.day === currentDayIdx).events;
-                        const eventIdx = events.findIndex(ev => ev.poiId === currentPoiId);
-                        
-                        if (finalDeltaX > 80 && eventIdx > 0) {
-                            // 前一個行程特效
-                            contentWrapper.style.transform = 'translateX(50px)';
-                            contentWrapper.style.opacity = '0';
-                            setTimeout(() => {
-                                openPoiDetail(events[eventIdx - 1].poiId, currentDayIdx);
-                                contentWrapper.style.transform = 'translateX(-50px)';
-                                setTimeout(() => {
-                                    contentWrapper.style.transform = 'translateX(0)';
-                                    contentWrapper.style.opacity = '1';
-                                }, 50);
-                            }, 150);
-                        } else if (finalDeltaX < -80 && eventIdx < events.length - 1) {
-                            // 下一個行程特效
-                            contentWrapper.style.transform = 'translateX(-50px)';
-                            contentWrapper.style.opacity = '0';
-                            setTimeout(() => {
-                                openPoiDetail(events[eventIdx + 1].poiId, currentDayIdx);
-                                contentWrapper.style.transform = 'translateX(50px)';
-                                setTimeout(() => {
-                                    contentWrapper.style.transform = 'translateX(0)';
-                                    contentWrapper.style.opacity = '1';
-                                }, 50);
-                            }, 150);
-                        } else {
-                            contentWrapper.style.transform = 'translateX(0)';
-                            contentWrapper.style.opacity = '1';
-                        }
-                    }
-
-                    sheet.style.transform = '';
-                    isVerticalDragging = false;
-                    isHorizontalDragging = false;
-                });
-            } else {
-                handle.addEventListener('touchmove', (e) => {
-                    const deltaY = e.touches[0].clientY - startY;
-                    if (deltaY > 0) sheet.style.transform = `translateY(${deltaY}px)`;
-                }, { passive: true });
-                
-                handle.addEventListener('touchend', (e) => {
-                    const deltaY = e.changedTouches[0].clientY - startY;
-                    sheet.style.transition = 'transform 0.25s ease-out';
-                    if (deltaY > 120) closeAllSheets();
-                    else sheet.style.transform = '';
-                    isVerticalDragging = false;
-                });
-            }
-        }
-
-        function initMainSwipeGesture() {
-            const container = document.getElementById('days-container');
-            let startX = 0, currentX = 0, startY = 0;
-            let isDragging = false;
-
-            container.parentElement.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-                isDragging = true;
-            }, { passive: true });
-
-            container.parentElement.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                currentX = e.touches[0].clientX;
-                const moveY = e.touches[0].clientY;
-                const deltaX = currentX - startX;
-                const deltaY = moveY - startY;
-
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    const totalDays = currentTravelData.itinerary.length;
-                    let dragX = deltaX;
-                    if ((currentDayIdx === 1 && deltaX > 0) || (currentDayIdx === totalDays && deltaX < 0)) {
-                        dragX = deltaX * 0.3; 
-                    }
-                    container.style.transform = `translateX(${dragX}px)`;
-                    container.style.opacity = (1 - Math.abs(deltaX) / 800);
-                }
-            }, { passive: true });
-
-            container.parentElement.addEventListener('touchend', (e) => {
-                if (!isDragging) return;
-                const finalDeltaX = e.changedTouches[0].clientX - startX;
-                const totalDays = currentTravelData.itinerary.length;
-                
-                container.style.transition = 'all 0.3s ease';
-                container.style.transform = 'translateX(0)';
-                container.style.opacity = '1';
-
-                if (finalDeltaX > 80 && currentDayIdx > 1) {
-                    showDay(currentDayIdx - 1, -1);
-                } else if (finalDeltaX < -80 && currentDayIdx < totalDays) {
-                    showDay(currentDayIdx + 1, 1);
-                }
-                isDragging = false;
-            });
-        }
-
-        function openSheet(id) {
-            closeAllSheets();
-            const sheet = document.getElementById(id);
-            sheet.classList.add('active');
-            document.getElementById('sheet-overlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            document.getElementById('ai-floating-trigger').style.opacity = '0';
-        }
-
-        function closeAllSheets() {
-            document.querySelectorAll('.bottom-sheet').forEach(s => {
-                s.classList.remove('active');
-                s.style.transform = '';
-            });
-            document.getElementById('sheet-overlay').classList.remove('active');
-            document.body.style.overflow = '';
-            document.getElementById('ai-floating-trigger').style.opacity = '1';
-        }
-
-        function openPoiDetail(poiId, dayIdx) {
+        function openPoiDetail(poiId, dayIdx, direction = null) {
             currentPoiId = poiId;
             currentDayIdx = dayIdx;
-            const poi = (currentTravelData || okinawa_fallback_data).pois?.[poiId];
-            if (!poi) return;
+            const poi = currentTravelData.pois[poiId];
+            const dayData = currentTravelData.itinerary.find(d => d.day === dayIdx);
+            const eventIdx = dayData.events.findIndex(ev => ev.poiId === poiId);
             
+            const content = document.getElementById('full-detail-content');
+            
+            if (direction) {
+                content.classList.add(direction === 'next' ? 'detail-enter-next' : 'detail-enter-prev');
+                setTimeout(() => {
+                    updateDetailUI(poi, dayData.events, eventIdx);
+                    content.classList.remove('detail-enter-next', 'detail-enter-prev');
+                }, 150);
+            } else {
+                updateDetailUI(poi, dayData.events, eventIdx);
+                openSheet('full-page-detail');
+            }
+        }
+
+        function updateDetailUI(poi, events, idx) {
+            document.getElementById('detail-pagination').innerText = `${idx + 1} / ${events.length}`;
             document.getElementById('detail-title').innerText = poi.name;
-            document.getElementById('detail-category').innerText = poi.category || "景點";
+            document.getElementById('detail-category').innerText = poi.category || "景點行程";
             document.getElementById('detail-content').innerText = poi.detailedStory || poi.desc || "暫無詳細資料。";
             
             const img = document.getElementById('detail-img');
@@ -609,15 +367,22 @@
             } else {
                 img.classList.add('hidden'); placeholder.classList.remove('hidden');
             }
-            
-            const grid = document.getElementById('detail-info-grid');
-            grid.innerHTML = (poi.infoSections || []).map(s => `
+
+            document.getElementById('detail-info-grid').innerHTML = (poi.infoSections || []).map(s => `
                 <div class="bg-slate-50 p-3 rounded-xl">
-                    <p class="text-[11px] font-bold text-slate-400 uppercase">${s.label}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">${s.label}</p>
                     <p class="text-xs font-bold text-slate-700">${s.content}</p>
                 </div>
             `).join('');
-            
+
+            const backupBox = document.getElementById('detail-backup-plan');
+            if (poi.backupPlan) {
+                document.getElementById('detail-backup-content').innerText = poi.backupPlan;
+                backupBox.classList.remove('hidden');
+            } else {
+                backupBox.classList.add('hidden');
+            }
+
             const tipBox = document.getElementById('detail-parent-tips');
             if (poi.parentTips) {
                 document.getElementById('detail-parent-content').innerText = poi.parentTips;
@@ -625,20 +390,86 @@
             } else {
                 tipBox.classList.add('hidden');
             }
-            
-            const footer = document.getElementById('detail-nav-footer');
-            footer.innerHTML = `
-                <a href="${getNavUrl(poi.navName || poi.name)}" target="_blank" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold text-sm text-center shadow-lg active:scale-95 transition-transform"><i class="fas fa-location-arrow mr-2"></i> 開始導航</a>
-                ${poi.website ? `
-                    <a href="${poi.website}" target="_blank" class="w-14 h-14 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition-transform" title="官方網站">
-                        <i class="fas fa-globe text-xl"></i>
-                    </a>
-                ` : ''}
+
+            document.getElementById('detail-nav-footer').innerHTML = `
+                <button onclick="window.open('${getNavUrl(poi.navName || poi.name)}')" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-transform"><i class="fas fa-location-arrow mr-2"></i> 開始導航</button>
+                ${poi.website ? `<button onclick="window.open('${poi.website}')" class="w-14 h-14 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center active:scale-95 transition-transform"><i class="fas fa-globe text-xl"></i></button>` : ''}
             `;
+
+            document.getElementById('prev-poi-btn').onclick = () => idx > 0 && openPoiDetail(events[idx - 1].poiId, currentDayIdx, 'prev');
+            document.getElementById('next-poi-btn').onclick = () => idx < events.length - 1 && openPoiDetail(events[idx + 1].poiId, currentDayIdx, 'next');
+            document.getElementById('prev-poi-btn').style.opacity = idx === 0 ? '0.2' : '1';
+            document.getElementById('next-poi-btn').style.opacity = idx === events.length - 1 ? '0.2' : '1';
+        }
+
+        function initGestures() {
+            const fullPage = document.getElementById('full-page-detail');
+            let startX = 0, startY = 0;
             
-            if (!document.getElementById('detail-sheet').classList.contains('active')) {
-                openSheet('detail-sheet');
+            fullPage.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+
+            fullPage.addEventListener('touchend', (e) => {
+                const deltaX = e.changedTouches[0].clientX - startX;
+                const deltaY = e.changedTouches[0].clientY - startY;
+                if (startX < 50 && deltaX > 80 && Math.abs(deltaY) < 50) {
+                    closeAllSheets();
+                }
+            }, { passive: true });
+
+            const content = document.getElementById('full-detail-content');
+            content.addEventListener('touchstart', (e) => startX = e.touches[0].clientX, { passive: true });
+            content.addEventListener('touchend', (e) => {
+                const deltaX = e.changedTouches[0].clientX - startX;
+                if (deltaX > 100) document.getElementById('prev-poi-btn').click();
+                else if (deltaX < -100) document.getElementById('next-poi-btn').click();
+            }, { passive: true });
+        }
+
+        function showDay(d) {
+            document.querySelectorAll('[id^="day-content-"]').forEach(c => c.classList.add('hidden'));
+            const targetDay = document.getElementById(`day-content-${d}`);
+            if (targetDay) targetDay.classList.remove('hidden');
+            
+            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active-state'));
+            const targetBtn = document.getElementById(`day-btn-${d}`);
+            if (targetBtn) targetBtn.classList.add('active-state');
+            currentDayIdx = d;
+        }
+
+        function switchMainTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const targetContent = document.getElementById('content-' + tab);
+            if (targetContent) targetContent.classList.add('active');
+            
+            document.querySelectorAll('[id^="main-tab-"]').forEach(el => {
+                el.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+                el.classList.add('text-slate-500');
+            });
+            const activeTabBtn = document.getElementById('main-tab-' + tab);
+            if (activeTabBtn) {
+                activeTabBtn.classList.remove('text-slate-500');
+                activeTabBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
             }
+        }
+
+        function openSheet(id) {
+            const sheet = document.getElementById(id);
+            if (!sheet) return;
+            sheet.classList.add('active');
+            document.getElementById('sheet-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (id === 'ai-sheet') sheet.style.transform = 'translateY(0)';
+        }
+
+        function closeAllSheets() {
+            document.getElementById('full-page-detail').classList.remove('active');
+            const aiSheet = document.getElementById('ai-sheet');
+            if (aiSheet) aiSheet.style.transform = 'translateY(100%)';
+            document.getElementById('sheet-overlay').classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
@@ -648,27 +479,22 @@
             const input = document.getElementById('ai-input');
             const userText = input.value.trim();
             if (!userText) return;
-
             appendMsg(userText, 'user');
             input.value = '';
             document.getElementById('ai-loading').classList.remove('hidden');
-
             try {
-                const currentDataStr = JSON.stringify(currentTravelData);
-                const fullPrompt = await AIPrompts.buildFullPrompt(userText, currentDataStr);
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        fullPrompt: fullPrompt,
+                        fullPrompt: await AIPrompts.buildFullPrompt(userText, JSON.stringify(currentTravelData)),
                         systemInstruction: AIPrompts.systemInstruction 
                     })
                 });
                 const result = await response.json();
-                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，導遊休息中，請稍後再問我。";
-                appendMsg(aiText, 'ai');
+                appendMsg(result.candidates?.[0]?.content?.parts?.[0]?.text || "導遊休息中。", 'ai');
             } catch (err) {
-                appendMsg(`連線失敗: 可能是環境不支援 API 呼叫，請檢查設定。`, 'ai');
+                appendMsg(`連線失敗。`, 'ai');
             } finally {
                 document.getElementById('ai-loading').classList.add('hidden');
             }
@@ -676,10 +502,9 @@
 
         function appendMsg(text, role) {
             const container = document.getElementById('ai-response-container');
+            if (!container) return;
             const div = document.createElement('div');
-            div.className = role === 'user' 
-                ? "bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none ml-10 text-sm shadow-sm" 
-                : "bg-purple-50 p-4 rounded-2xl rounded-tl-none mr-10 text-sm border border-purple-100 shadow-sm";
+            div.className = role === 'user' ? "bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none ml-10 text-sm" : "bg-purple-50 p-4 rounded-2xl rounded-tl-none mr-10 text-sm border border-purple-100";
             div.innerHTML = text.replace(/\n/g, '<br>');
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
@@ -688,9 +513,6 @@
         window.onload = async () => {
             currentTravelData = await fetchTripData();
             renderApp();
-            
-            initSheetGestures('detail-sheet', 'handle-detail');
-            initSheetGestures('ai-sheet', 'handle-ai');
         };
     </script>
 </body>
