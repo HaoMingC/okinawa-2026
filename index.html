@@ -18,7 +18,7 @@
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 底部抽屜樣式 */
+        /* 修改段落 1: 抽屜特效優化與性能提升 */
         .bottom-sheet {
             position: fixed;
             left: 0; right: 0; bottom: 0;
@@ -26,13 +26,13 @@
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
             transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            transition: transform 0.25s ease-out; /* 優化過的過渡時間 */
+            will-change: transform;
             z-index: 100;
             max-height: 85vh;
             display: flex;
             flex-direction: column;
             box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
-            touch-action: pan-y; /* 允許垂直手勢 */
         }
         .bottom-sheet.active { transform: translateY(0); }
         .sheet-overlay {
@@ -46,12 +46,28 @@
             z-index: 90;
         }
         .sheet-overlay.active { opacity: 1; visibility: visible; }
+        
+        /* 修改段落 1: Drag Handle 樣式 */
+        .drag-handle-container {
+            width: 100%;
+            padding: 12px 0;
+            cursor: grab;
+            touch-action: none; /* 禁用預設觸控行為以利手勢監聽 */
+        }
         .sheet-handle {
             width: 40px; height: 5px; background: #cbd5e1;
-            border-radius: 10px; margin: 12px auto;
+            border-radius: 10px; margin: 0 auto;
         }
 
-        /* 行程卡片優化 */
+        /* 修改段落 2: 行程容器與手勢優化 */
+        #days-container {
+            position: relative;
+            width: 100%;
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: transform;
+            touch-action: pan-y; /* 鎖定垂直捲動，水平由 JS 控制 */
+        }
+
         .poi-card {
             background: white;
             border-radius: 20px;
@@ -63,12 +79,10 @@
             overflow: hidden;
         }
 
-        /* 修改段落 1: Day Selector 狀態修復 */
         .day-btn {
             outline: none !important;
             -webkit-appearance: none;
         }
-        /* 強制選中狀態，避免手機 focus 灰色背景問題 */
         .day-btn.active-state {
             background-color: #2563eb !important;
             color: white !important;
@@ -85,7 +99,6 @@
             border-radius: 6px;
         }
 
-        /* 修改段落 4: 懸浮 AI 按鈕 */
         .floating-ai-btn {
             position: fixed;
             right: 20px;
@@ -114,7 +127,7 @@
         <p class="text-gray-500 text-sm font-medium">載入行程中...</p>
     </div>
 
-    <!-- 頂部 Header 與 頁籤 (整合交通住宿) -->
+    <!-- 頂部 Header 與 頁籤 -->
     <header class="bg-white sticky top-0 z-50 border-b border-slate-100">
         <div class="max-w-md mx-auto px-4 pt-4 pb-2">
             <div class="flex justify-between items-center mb-3">
@@ -125,7 +138,6 @@
                 <button onclick="location.reload()" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400"><i class="fas fa-sync-alt text-xs"></i></button>
             </div>
             
-            <!-- 修改段落 3: 頂部導覽列整合交通住宿 -->
             <div class="flex bg-slate-100 rounded-2xl p-1 mb-2">
                 <button onclick="switchMainTab('itinerary')" id="main-tab-itinerary" class="flex-1 py-2 text-m font-bold rounded-xl transition-all bg-white text-blue-600 shadow-sm">行程</button>
                 <button onclick="switchMainTab('logistics')" id="main-tab-logistics" class="flex-1 py-2 text-m font-bold rounded-xl text-slate-500 transition-all">交通住宿</button>
@@ -135,32 +147,31 @@
         </div>
     </header>
 
-    <main class="max-w-md mx-auto p-4 pb-24">
+    <main class="max-w-md mx-auto p-4 pb-24 overflow-x-hidden">
         <!-- 行程規劃內容 -->
         <div id="content-itinerary" class="tab-content active">
             <!-- 日期選擇器 -->
             <div id="day-selector" class="flex space-x-2 overflow-x-auto no-scrollbar mb-6 pb-2"></div>
-            <!-- 行程清單容器 -->
-            <div id="days-container" class="space-y-4"></div>
+            <!-- 修改段落 2: 左右滑動行程區域 -->
+            <div id="days-wrapper" class="overflow-visible">
+                <div id="days-container"></div>
+            </div>
         </div>
 
-        <!-- 修改段落 3: 交通住宿頁面切換 -->
         <div id="content-logistics" class="tab-content">
             <div id="logistics-page-content" class="space-y-3"></div>
         </div>
 
-        <!-- 行前準備內容 -->
         <div id="content-preparation" class="tab-content">
             <div id="preparation-list" class="space-y-4"></div>
         </div>
 
-        <!-- 注意事項內容 -->
         <div id="content-notes" class="tab-content">
             <div id="notes-list" class="space-y-4"></div>
         </div>
     </main>
 
-    <!-- 修改段落 4: 懸浮 AI 助手按鈕 -->
+    <!-- 懸浮 AI 助手 -->
     <div id="ai-floating-trigger" class="floating-ai-btn" onclick="openSheet('ai-sheet')">
         <i class="fas fa-comment-dots text-xl"></i>
     </div>
@@ -170,9 +181,12 @@
 
     <!-- 景點詳情抽屜 -->
     <div id="detail-sheet" class="bottom-sheet">
-        <!-- 修改段落 5: Handle 用於提示下滑關閉 -->
-        <div class="sheet-handle" id="handle-detail"></div>
-        <div class="overflow-y-auto">
+        <!-- 修改段落 1 & 3: Drag Handle 啟動關閉手勢，區域內也監控左右滑動 -->
+        <div class="drag-handle-container" id="handle-detail">
+            <div class="sheet-handle"></div>
+        </div>
+        <!-- 修改段落 3: 詳情內容容器 -->
+        <div id="detail-content-wrapper" class="overflow-y-auto transition-transform duration-200">
             <div class="relative h-48 bg-slate-100">
                 <img id="detail-img" class="w-full h-full object-cover hidden" src="" alt="">
                 <div id="detail-img-placeholder" class="w-full h-full flex items-center justify-center text-slate-300"><i class="fas fa-image text-4xl"></i></div>
@@ -196,16 +210,17 @@
                     <p id="detail-content" class="text-sm text-slate-600 leading-relaxed"></p>
                 </div>
 
-                <div id="detail-nav-footer" class="flex gap-2 pt-4"></div>
-                
-
+                <!-- 修改段落 4: 底部按鈕區增加官方網站 -->
+                <div id="detail-nav-footer" class="flex items-center gap-3 pt-4"></div>
             </div>
         </div>
     </div>
 
     <!-- AI 助手抽屜 -->
     <div id="ai-sheet" class="bottom-sheet h-[80vh]">
-        <div class="sheet-handle" id="handle-ai"></div>
+        <div class="drag-handle-container" id="handle-ai">
+            <div class="sheet-handle"></div>
+        </div>
         <div class="px-6 pb-4 flex justify-between items-center border-b">
             <h3 class="font-bold text-lg text-purple-600"><i class="fas fa-robot mr-2"></i>沖繩旅遊助手</h3>
             <button onclick="closeAllSheets()" class="text-slate-400"><i class="fas fa-times"></i></button>
@@ -223,6 +238,8 @@
     <script>
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7DQ8aHMoZnU8znCePeKjjr02d2INfhrkGajzmRa-7N4HYnAkdoRyvxCXc1zsiAUs/exec"; 
         let currentTravelData = null;
+        let currentDayIdx = 1;
+        let currentPoiId = null;
         
         function getCurrentFormattedDate() {
             const now = new Date();
@@ -235,7 +252,7 @@
             return formatter.format(now);
         };
 
-                async function fetchTripData() {
+        async function fetchTripData() {
             try {
                 const response = await fetch(GAS_API_URL);
                 if (!response.ok) throw new Error();
@@ -251,7 +268,6 @@
             
             const todayStr = getCurrentFormattedDate();
 
-            // 渲染交通住宿頁面
             const logBox = document.getElementById('logistics-page-content');
             logBox.innerHTML = (data.logistics || []).map(l => `
                 <div class="flex items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm">
@@ -265,6 +281,7 @@
             const daysContainer = document.getElementById('days-container');
             const daySelector = document.getElementById('day-selector');
             daysContainer.innerHTML = ''; 
+            daySelector.innerHTML = '';
             
             const days = data.itinerary || [];
             let activeDayNum = days[0]?.day;
@@ -283,32 +300,28 @@
                 const btn = document.createElement('button');
                 btn.id = `day-btn-${day.day}`;
                 btn.onclick = () => showDay(day.day);
-                
-                // 修改段落 1: 修改按鈕預設樣式
                 btn.className = `day-btn shrink-0 ${useScrollLayout ? "px-6 w-[28%]" : "flex-1"} py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 bg-slate-100 text-slate-500`;
                 
-                const displayDate = day.date; 
                 btn.innerHTML = `
                     Day ${day.day}
-                    <span class="block text-[10px] font-medium opacity-60">${displayDate}</span>
+                    <span class="block text-[10px] font-medium opacity-60">${day.date}</span>
                 `;
                 daySelector.appendChild(btn);
 
                 const dayDiv = document.createElement('div');
                 dayDiv.id = `day-content-${day.day}`;
-                dayDiv.className = `space-y-4 hidden`;
+                dayDiv.className = `space-y-4 hidden pb-10`;
                 
                 day.events.forEach(ev => {
                     const poi = data.pois?.[ev.poiId];
-                    // 修改段落 2: 移除詳情按鈕，強化導航按鈕設計
                     dayDiv.innerHTML += `
-                        <div class="poi-card" onclick="openPoiDetail('${ev.poiId}')">
+                        <div class="poi-card" onclick="openPoiDetail('${ev.poiId}', ${day.day})">
                             <div class="flex justify-between items-start mb-2">
                                 <span class="time-badge"> <i class="fas fa-clock mr-2"></i> ${ev.time}</span>
                                 ${ev.isMeal ? '<i class="fas fa-utensils text-orange-400"></i>' : ''}
                             </div>
                             <div class="flex justify-between items-start mb-2">
-                                <div>
+                                <div class="flex-1">
                                     <h4 class="font-bold text-slate-800 text-lg leading-tight mb-2 pr-4">${ev.activity || ev.title}</h4>
                                     <p class="text-xs text-slate-400 line-clamp-2 pr-4 leading-relaxed">${ev.desc || poi?.desc || '點擊查看詳細行程資訊'}</p>
                                 </div>
@@ -327,7 +340,8 @@
 
             showDay(activeDayNum);
             renderPrepAndNotes(data);
-            
+            initMainSwipeGesture(); // 修改段落 2: 初始化行程頁左右滑動
+
             setTimeout(() => {
                 document.getElementById('loading-overlay').style.opacity = '0';
                 setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
@@ -354,15 +368,13 @@
             `).join('');
         }
 
-        // 修改段落 1: 修正 Day 切換邏輯
         function showDay(d) {
+            currentDayIdx = d;
             document.querySelectorAll('[id^="day-content-"]').forEach(el => el.classList.add('hidden'));
             const targetContent = document.getElementById(`day-content-${d}`);
             if (targetContent) targetContent.classList.remove('hidden');
             
-            document.querySelectorAll('.day-btn').forEach(btn => {
-                btn.classList.remove('active-state');
-            });
+            document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active-state'));
             const activeBtn = document.getElementById(`day-btn-${d}`);
             if (activeBtn) {
                 activeBtn.classList.add('active-state');
@@ -370,7 +382,6 @@
             }
         }
 
-        // 修改段落 3: 導覽切換
         function switchMainTab(tab) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('content-' + tab).classList.add('active');
@@ -388,64 +399,155 @@
             });
         }
 
-        // 修改段落 5: 下滑關閉邏輯
-        function initSwipeToClose(sheetId) {
+        // 修改段落 1: 修改為限制區域觸發關閉手勢
+        function initSheetGestures(sheetId, handleId) {
             const sheet = document.getElementById(sheetId);
+            const handle = document.getElementById(handleId);
+            
+            let startY = 0, currentY = 0, startX = 0, currentX = 0;
+            let isVerticalDragging = false;
+            let isHorizontalDragging = false;
 
-            let startY = 0;
-            let currentY = 0;
-            let startTime = 0;
+            // 垂直下拉關閉手勢（僅限 handle 區域）
+            handle.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+                startX = e.touches[0].clientX;
+                isVerticalDragging = true;
+                sheet.style.transition = 'none';
+            }, { passive: true });
+
+            // 修改段落 3: 詳情頁左右滑動
+            if (sheetId === 'detail-sheet') {
+                const contentWrapper = document.getElementById('detail-content-wrapper');
+                
+                handle.addEventListener('touchmove', (e) => {
+                    const moveY = e.touches[0].clientY;
+                    const moveX = e.touches[0].clientX;
+                    const deltaY = moveY - startY;
+                    const deltaX = moveX - startX;
+
+                    // 判斷方向
+                    if (!isHorizontalDragging && deltaY > 0 && Math.abs(deltaY) > Math.abs(deltaX)) {
+                        sheet.style.transform = `translateY(${deltaY}px)`;
+                    } else if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+                        isHorizontalDragging = true;
+                        isVerticalDragging = false;
+                    }
+
+                    if (isHorizontalDragging) {
+                        // 橡皮筋阻尼回彈特效 (如果是詳情頁首尾行程)
+                        const events = currentTravelData.itinerary.find(d => d.day === currentDayIdx).events;
+                        const eventIdx = events.findIndex(ev => ev.poiId === currentPoiId);
+                        let dragX = deltaX;
+                        if ((eventIdx === 0 && deltaX > 0) || (eventIdx === events.length - 1 && deltaX < 0)) {
+                            dragX = deltaX * 0.3; // 阻尼
+                        }
+                        contentWrapper.style.transform = `translateX(${dragX}px)`;
+                    }
+                }, { passive: true });
+
+                handle.addEventListener('touchend', (e) => {
+                    const deltaY = currentY - startY; // 註: touchmove 時已更新 delta
+                    const finalDeltaY = e.changedTouches[0].clientY - startY;
+                    const finalDeltaX = e.changedTouches[0].clientX - startX;
+                    
+                    sheet.style.transition = 'transform 0.25s ease-out';
+                    contentWrapper.style.transition = 'transform 0.25s ease-out';
+
+                    if (isVerticalDragging && finalDeltaY > 120) {
+                        closeAllSheets();
+                    } else if (isHorizontalDragging) {
+                        const events = currentTravelData.itinerary.find(d => d.day === currentDayIdx).events;
+                        const eventIdx = events.findIndex(ev => ev.poiId === currentPoiId);
+                        
+                        if (finalDeltaX > 80 && eventIdx > 0) {
+                            // 前一個行程
+                            openPoiDetail(events[eventIdx - 1].poiId, currentDayIdx);
+                        } else if (finalDeltaX < -80 && eventIdx < events.length - 1) {
+                            // 下一個行程
+                            openPoiDetail(events[eventIdx + 1].poiId, currentDayIdx);
+                        }
+                    }
+
+                    sheet.style.transform = '';
+                    contentWrapper.style.transform = '';
+                    isVerticalDragging = false;
+                    isHorizontalDragging = false;
+                    setTimeout(() => contentWrapper.style.transition = '', 250);
+                });
+            } else {
+                // 一般抽屜 (如 AI 助手) 的簡單下拉
+                handle.addEventListener('touchmove', (e) => {
+                    const deltaY = e.touches[0].clientY - startY;
+                    if (deltaY > 0) sheet.style.transform = `translateY(${deltaY}px)`;
+                }, { passive: true });
+                
+                handle.addEventListener('touchend', (e) => {
+                    const deltaY = e.changedTouches[0].clientY - startY;
+                    sheet.style.transition = 'transform 0.25s ease-out';
+                    if (deltaY > 120) closeAllSheets();
+                    else sheet.style.transform = '';
+                    isVerticalDragging = false;
+                });
+            }
+        }
+
+        // 修改段落 2: 初始化行程頁左右滑切換天數
+        function initMainSwipeGesture() {
+            const container = document.getElementById('days-container');
+            let startX = 0, currentX = 0, startY = 0;
             let isDragging = false;
 
-            sheet.addEventListener('touchstart', (e) => {
-                const scrollTop = sheet.scrollTop;
-
-                // ✅ 只有在最頂部才允許關閉手勢
-                if (scrollTop > 0) return;
-
+            container.parentElement.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
                 startY = e.touches[0].clientY;
-                startTime = Date.now();
                 isDragging = true;
+                container.style.transition = 'none';
             }, { passive: true });
 
-            sheet.addEventListener('touchmove', (e) => {
+            container.parentElement.addEventListener('touchmove', (e) => {
                 if (!isDragging) return;
+                currentX = e.touches[0].clientX;
+                const moveY = e.touches[0].clientY;
+                const deltaX = currentX - startX;
+                const deltaY = moveY - startY;
 
-                currentY = e.touches[0].clientY;
-                let deltaY = currentY - startY;
-
-                if (deltaY <= 0) return;
-
-                // ✅ 阻尼效果（越拉越重）
-                const resistance = Math.pow(deltaY, 0.85);
-
-                sheet.style.transform = `translateY(${resistance}px)`;
-            }, { passive: true });
-
-            sheet.addEventListener('touchend', () => {
-                if (!isDragging) return;
-
-                const deltaY = currentY - startY;
-                const duration = Date.now() - startTime;
-                const velocity = deltaY / duration;
-
-                sheet.style.transform = '';
-
-                // ✅ 判斷條件（距離 or 速度）
-                if (deltaY > 100 || velocity > 0.5) {
-                    closeAllSheets();
+                // 判斷是否為水平滑動
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    const totalDays = currentTravelData.itinerary.length;
+                    let dragX = deltaX;
+                    
+                    // 橡皮筋回彈特效 (第一天或最後一天)
+                    if ((currentDayIdx === 1 && deltaX > 0) || (currentDayIdx === totalDays && deltaX < 0)) {
+                        dragX = deltaX * 0.3; // 阻尼係數
+                    }
+                    container.style.transform = `translateX(${dragX}px)`;
                 }
+            }, { passive: true });
 
+            container.parentElement.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                const finalDeltaX = e.changedTouches[0].clientX - startX;
+                const totalDays = currentTravelData.itinerary.length;
+                
+                container.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+                container.style.transform = '';
+
+                if (finalDeltaX > 80 && currentDayIdx > 1) {
+                    showDay(currentDayIdx - 1);
+                } else if (finalDeltaX < -80 && currentDayIdx < totalDays) {
+                    showDay(currentDayIdx + 1);
+                }
                 isDragging = false;
             });
         }
 
         function openSheet(id) {
             closeAllSheets();
-            document.getElementById(id).classList.add('active');
+            const sheet = document.getElementById(id);
+            sheet.classList.add('active');
             document.getElementById('sheet-overlay').classList.add('active');
             document.body.style.overflow = 'hidden';
-            // 隱藏懸浮按鈕避免遮擋
             document.getElementById('ai-floating-trigger').style.opacity = '0';
         }
 
@@ -459,12 +561,16 @@
             document.getElementById('ai-floating-trigger').style.opacity = '1';
         }
 
-        function openPoiDetail(poiId) {
+        function openPoiDetail(poiId, dayIdx) {
+            currentPoiId = poiId;
+            currentDayIdx = dayIdx;
             const poi = (currentTravelData || okinawa_fallback_data).pois?.[poiId];
             if (!poi) return;
+            
             document.getElementById('detail-title').innerText = poi.name;
             document.getElementById('detail-category').innerText = poi.category || "景點";
             document.getElementById('detail-content').innerText = poi.detailedStory || poi.desc || "暫無詳細資料。";
+            
             const img = document.getElementById('detail-img');
             const placeholder = document.getElementById('detail-img-placeholder');
             if (poi.img) {
@@ -472,6 +578,7 @@
             } else {
                 img.classList.add('hidden'); placeholder.classList.remove('hidden');
             }
+            
             const grid = document.getElementById('detail-info-grid');
             grid.innerHTML = (poi.infoSections || []).map(s => `
                 <div class="bg-slate-50 p-3 rounded-xl">
@@ -479,6 +586,7 @@
                     <p class="text-xs font-bold text-slate-700">${s.content}</p>
                 </div>
             `).join('');
+            
             const tipBox = document.getElementById('detail-parent-tips');
             if (poi.parentTips) {
                 document.getElementById('detail-parent-content').innerText = poi.parentTips;
@@ -486,11 +594,21 @@
             } else {
                 tipBox.classList.add('hidden');
             }
+            
+            // 修改段落 4: 更新導航與官網按鈕
             const footer = document.getElementById('detail-nav-footer');
             footer.innerHTML = `
                 <a href="${getNavUrl(poi.navName || poi.name)}" target="_blank" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold text-sm text-center shadow-lg active:scale-95 transition-transform"><i class="fas fa-location-arrow mr-2"></i> 開始導航</a>
+                ${poi.website ? `
+                    <a href="${poi.website}" target="_blank" class="w-14 h-14 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition-transform" title="官方網站">
+                        <i class="fas fa-globe text-xl"></i>
+                    </a>
+                ` : ''}
             `;
-            openSheet('detail-sheet');
+            
+            if (!document.getElementById('detail-sheet').classList.contains('active')) {
+                openSheet('detail-sheet');
+            }
         }
 
         function getNavUrl(dest) { return `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${encodeURIComponent(dest)}&travelmode=driving`; }
@@ -540,9 +658,10 @@
         window.onload = async () => {
             currentTravelData = await fetchTripData();
             renderApp();
-            // 初始化下滑關閉
-            initSwipeToClose('detail-sheet');
-            initSwipeToClose('ai-sheet');
+            
+            // 初始化抽屜手勢
+            initSheetGestures('detail-sheet', 'handle-detail');
+            initSheetGestures('ai-sheet', 'handle-ai');
         };
     </script>
 </body>
