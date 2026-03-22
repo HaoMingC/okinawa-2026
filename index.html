@@ -237,43 +237,58 @@
         let currentDayIdx = 1;
         let currentPoiId = null;
         
+        /* --- MODIFIED: 優化載入流程，避免重複重新整理 --- */
         async function fetchTripData() {
-            
             const cached = localStorage.getItem(CACHE_KEY);
             const cachedVersion = localStorage.getItem(VERSION_KEY);
-            // 1️⃣ 先回傳快取（秒開）
+            
+            // 如果有快取，立刻回傳並在背景執行更新
             if (cached) {
-                refreshInBackground(cachedVersion);
+                // 在小延遲後執行背景檢查，確保 UI 已經渲染完畢
+                setTimeout(() => refreshInBackground(cachedVersion), 1000);
                 return JSON.parse(cached);
             }
-            // 沒快取才真正 fetch
-            const response = await fetch(GAS_API_URL);
-            const data = response.ok ? await response.json() : (typeof travelData !== 'undefined' ? travelData : okinawa_fallback_data);
+            
+            // 完全沒快取時才執行 Fetch
+            return await fetchFromNetwork();
+        }
 
-            localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-            localStorage.setItem(VERSION_KEY, data.version);
-
-            return data;
+        async function fetchFromNetwork() {
+            try {
+                const response = await fetch(GAS_API_URL);
+                if (!response.ok) throw new Error("Network error");
+                const data = await response.json();
+                
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(VERSION_KEY, data.version || "1.0");
+                return data;
+            } catch (e) {
+                return typeof travelData !== 'undefined' ? travelData : okinawa_fallback_data;
+            }
         }
 
         async function refreshInBackground(oldVersion) {
             try {
                 const res = await fetch(GAS_API_URL);
+                if (!res.ok) return;
                 const newData = await res.json();
 
+                // 只有當版本真的不同時才更新快取並重新渲染 UI
                 if (newData.version !== oldVersion) {
-                    console.log("資料更新，重新載入");
-
-                    localStorage.setItem("trip-data", JSON.stringify(newData));
-                    localStorage.setItem("trip-version", newData.version);
-
-                    // 可選：自動刷新 UI
-                    location.reload();
+                    console.log("偵測到新版本:", newData.version);
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+                    localStorage.setItem(VERSION_KEY, newData.version);
+                    
+                    // 為了不打斷用戶操作，不強制重新整理頁面，而是直接更新全域變數並重新渲染組件
+                    currentTravelData = newData;
+                    renderApp(true); // 傳入 true 表示是靜態更新，不顯示 Loading
+                    console.log("UI 已在背景靜態更新完畢");
                 }
             } catch (e) {
-                console.warn("背景更新失敗");
+                console.warn("背景更新失敗:", e);
             }
         }
+        /* ------------------------------------------- */
 
         function renderApp() {
             const data = currentTravelData || okinawa_fallback_data;
