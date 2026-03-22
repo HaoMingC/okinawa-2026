@@ -18,6 +18,11 @@
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- MODIFIED: 行程切換動畫 --- */
+        .day-fade { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        /* --------------------------- */
+
         .full-page-detail {
             position: fixed;
             left: 0; right: 0; bottom: 0;
@@ -258,7 +263,7 @@
 
                 const dayDiv = document.createElement('div');
                 dayDiv.id = `day-content-${day.day}`;
-                dayDiv.className = `space-y-4 hidden pb-10`;
+                dayDiv.className = `space-y-4 hidden pb-10 day-fade`;
                 
                 day.events.forEach(ev => {
                     const poi = data.pois?.[ev.poiId];
@@ -296,7 +301,6 @@
         }
 
         function renderStaticPages(data) {
-            // 交通住宿
              const logBox = document.getElementById('logistics-page-content');
             logBox.innerHTML = (data.logistics || []).map(l => `
                 <div class="flex items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm">
@@ -307,7 +311,6 @@
                 </div>
             `).join('');
 
-            // 行李準備
             const prepList = document.getElementById('preparation-list');
             prepList.innerHTML = '';
             (data.preparation || []).forEach(cat => {
@@ -321,7 +324,6 @@
                 `;
             });
 
-            // 須知事項
             const notesList = document.getElementById('notes-list');
             notesList.innerHTML = (data.notes || []).map(note => `
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
@@ -402,31 +404,80 @@
             document.getElementById('next-poi-btn').style.opacity = idx === events.length - 1 ? '0.2' : '1';
         }
 
+        /* --- MODIFIED: 更新後的手勢邏輯 --- */
         function initGestures() {
             const fullPage = document.getElementById('full-page-detail');
-            let startX = 0, startY = 0;
+            const mainContainer = document.getElementById('days-container');
+            const content = document.getElementById('full-detail-content');
             
+            let startX = 0, startY = 0;
+            let isDraggingDown = false;
+
+            // 行程頁面左右切換
+            mainContainer.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+            }, { passive: true });
+
+            mainContainer.addEventListener('touchend', (e) => {
+                const deltaX = e.changedTouches[0].clientX - startX;
+                const totalDays = currentTravelData?.itinerary?.length || 0;
+                
+                if (Math.abs(deltaX) > 80) {
+                    if (deltaX > 0 && currentDayIdx > 1) {
+                        showDay(currentDayIdx - 1);
+                    } else if (deltaX < 0 && currentDayIdx < totalDays) {
+                        showDay(currentDayIdx + 1);
+                    }
+                }
+            }, { passive: true });
+            
+            // 詳情頁面手勢 (側邊返回、下滑關閉)
             fullPage.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
                 startY = e.touches[0].clientY;
+                isDraggingDown = false;
+            }, { passive: true });
+
+            fullPage.addEventListener('touchmove', (e) => {
+                const currentY = e.touches[0].clientY;
+                const deltaY = currentY - startY;
+                
+                // 只有當 scrollTop 為 0 且向下滑動時才準備關閉
+                if (content.scrollTop <= 0 && deltaY > 10) {
+                    isDraggingDown = true;
+                } else {
+                    isDraggingDown = false;
+                }
             }, { passive: true });
 
             fullPage.addEventListener('touchend', (e) => {
                 const deltaX = e.changedTouches[0].clientX - startX;
                 const deltaY = e.changedTouches[0].clientY - startY;
-                if (startX < 50 && deltaX > 80 && Math.abs(deltaY) < 50) {
+
+                // 1. 側邊返回功能 (螢幕左側開始向右滑)
+                if (startX < 60 && deltaX > 80) {
+                    closeAllSheets();
+                    return;
+                }
+
+                // 2. 下滑關閉功能 (在頂部下滑超過閾值)
+                if (isDraggingDown && deltaY > 100) {
                     closeAllSheets();
                 }
             }, { passive: true });
 
-            const content = document.getElementById('full-detail-content');
+            // 詳情內容左右切換景點
             content.addEventListener('touchstart', (e) => startX = e.touches[0].clientX, { passive: true });
             content.addEventListener('touchend', (e) => {
                 const deltaX = e.changedTouches[0].clientX - startX;
-                if (deltaX > 100) document.getElementById('prev-poi-btn').click();
-                else if (deltaX < -100) document.getElementById('next-poi-btn').click();
+                // 避免與側滑返回衝突，中心區域才觸發景點切換
+                if (startX > 60 && Math.abs(deltaX) > 100) {
+                    if (deltaX > 100) document.getElementById('prev-poi-btn').click();
+                    else if (deltaX < -100) document.getElementById('next-poi-btn').click();
+                }
             }, { passive: true });
         }
+        /* --------------------------- */
 
         function showDay(d) {
             document.querySelectorAll('[id^="day-content-"]').forEach(c => c.classList.add('hidden'));
@@ -437,6 +488,11 @@
             const targetBtn = document.getElementById(`day-btn-${d}`);
             if (targetBtn) targetBtn.classList.add('active-state');
             currentDayIdx = d;
+            
+            /* --- MODIFIED: 自動捲動標題列 --- */
+            if (targetBtn) {
+                targetBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
         }
 
         function switchMainTab(tab) {
