@@ -90,6 +90,7 @@
             border-radius: 8px;
         }
 
+
         .floating-ai-btn {
             position: fixed;
             right: 20px;
@@ -230,7 +231,7 @@
         const CACHE_KEY = "trip-data";
         const VERSION_KEY = "trip-version";
         
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwZ9lvQOsMkuz1Zox4G9I39WC_s7sgQU_93U3ShYFekf4E657uBlnQF0E5btPv0AdEL/exec"; 
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxGpT7B9u3qUYql0WhXjjJfBlSbPgzALvkxHa9ueeFHlIPQbVZXCVrj65VAQRPzqgLe/exec"; 
         let currentTravelData = null;
         let currentDayIdx = 1;
         let currentPoiId = null;
@@ -307,6 +308,10 @@
                         <div class="poi-card" onclick="openPoiDetail('${ev.poiId}', ${day.day})">
                             <div class="flex justify-between items-start mb-2">
                                 <span class="time-badge"> <i class="fas fa-clock mr-2"></i> ${ev.time}</span>
+                                <span>
+                                    ${ev.isMeal ? '<i class="fas fa-cutlery mr-2 text-orange-400"></i>' : ''}
+                                    ${ev.diaperChange ? '<i class="fas fa-baby mr-2 text-pink-300"></i>' :''}
+                                </span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <div class="flex-1">
